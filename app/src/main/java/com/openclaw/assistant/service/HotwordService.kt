@@ -21,10 +21,12 @@ import com.openclaw.assistant.speech.TTSManager
 import ai.picovoice.porcupine.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest
+import java.io.File
+import java.io.FileOutputStream
 
 /**
  * ホットワード検知サービス
- * バックグラウンドで常時聴取し、ウェイクワードを検知したら音声認識開始
+ * バックグラウンドで常時聴取し、ウェイクワード「OpenClaw」を検知したら音声認識開始
  */
 class HotwordService : Service() {
 
@@ -32,6 +34,9 @@ class HotwordService : Service() {
         private const val TAG = "HotwordService"
         private const val NOTIFICATION_ID = 1001
         private const val CHANNEL_ID = "hotword_channel"
+        
+        // カスタムウェイクワードファイル名（assetsに配置）
+        private const val WAKE_WORD_FILE = "openclaw_android.ppn"
 
         fun start(context: Context) {
             val intent = Intent(context, HotwordService::class.java)
@@ -114,12 +119,39 @@ class HotwordService : Service() {
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.notification_title))
-            .setContentText(getString(R.string.notification_text))
+            .setContentText("「OpenClaw」と呼んでください")
             .setSmallIcon(R.drawable.ic_mic)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
+    }
+
+    /**
+     * カスタムキーワードファイルをassetsから内部ストレージにコピー
+     */
+    private fun copyKeywordFile(): String? {
+        return try {
+            val outputFile = File(filesDir, WAKE_WORD_FILE)
+            
+            // 既にコピー済みならスキップ
+            if (outputFile.exists()) {
+                return outputFile.absolutePath
+            }
+            
+            // assetsからコピー
+            assets.open(WAKE_WORD_FILE).use { input ->
+                FileOutputStream(outputFile).use { output ->
+                    input.copyTo(output)
+                }
+            }
+            
+            Log.d(TAG, "Keyword file copied to: ${outputFile.absolutePath}")
+            outputFile.absolutePath
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to copy keyword file", e)
+            null
+        }
     }
 
     private fun startHotwordDetection() {
@@ -131,23 +163,54 @@ class HotwordService : Service() {
         }
 
         try {
-            // Porcupine（ホットワード検知エンジン）を初期化
-            // 組み込みキーワード "Hey Google" の代わりに "Porcupine" を使用
-            // カスタムキーワードを使う場合は .ppn ファイルをassetsに配置
-            porcupineManager = PorcupineManager.Builder()
+            // カスタムキーワードファイルをコピー
+            val keywordPath = copyKeywordFile()
+            
+            val builder = PorcupineManager.Builder()
                 .setAccessKey(accessKey)
-                .setKeyword(Porcupine.BuiltInKeyword.PORCUPINE) // "Porcupine" がウェイクワード
                 .setSensitivity(0.7f)
-                .build(this) { keywordIndex ->
-                    Log.d(TAG, "Hotword detected! Index: $keywordIndex")
-                    onHotwordDetected()
-                }
+            
+            if (keywordPath != null) {
+                // カスタムキーワード「OpenClaw」を使用
+                Log.d(TAG, "Using custom keyword: OpenClaw")
+                builder.setKeywordPath(keywordPath)
+            } else {
+                // フォールバック: ビルトインキーワード「Porcupine」を使用
+                Log.w(TAG, "Custom keyword not found, falling back to 'Porcupine'")
+                builder.setKeyword(Porcupine.BuiltInKeyword.PORCUPINE)
+            }
+
+            porcupineManager = builder.build(this) { keywordIndex ->
+                Log.d(TAG, "Hotword 'OpenClaw' detected!")
+                onHotwordDetected()
+            }
 
             porcupineManager?.start()
             Log.d(TAG, "Hotword detection started")
 
         } catch (e: PorcupineException) {
             Log.e(TAG, "Failed to start Porcupine", e)
+            // カスタムキーワードで失敗した場合、ビルトインで再試行
+            tryFallbackKeyword(accessKey)
+        }
+    }
+
+    private fun tryFallbackKeyword(accessKey: String) {
+        try {
+            Log.d(TAG, "Trying fallback keyword 'Porcupine'")
+            porcupineManager = PorcupineManager.Builder()
+                .setAccessKey(accessKey)
+                .setKeyword(Porcupine.BuiltInKeyword.PORCUPINE)
+                .setSensitivity(0.7f)
+                .build(this) { keywordIndex ->
+                    Log.d(TAG, "Hotword detected (fallback)!")
+                    onHotwordDetected()
+                }
+
+            porcupineManager?.start()
+            Log.d(TAG, "Fallback hotword detection started")
+        } catch (e: PorcupineException) {
+            Log.e(TAG, "Fallback also failed", e)
             stopSelf()
         }
     }
@@ -169,11 +232,19 @@ class HotwordService : Service() {
         // ホットワード検知を一時停止
         porcupineManager?.stop()
 
-        // 確認音（オプション）
-        // playConfirmationSound()
+        // 確認音を鳴らす（オプション）
+        playConfirmationBeep()
 
         // 音声認識開始
         startCommandListening()
+    }
+
+    private fun playConfirmationBeep() {
+        // 短いビープ音で応答（TTSで代用）
+        scope.launch {
+            // 「はい」と短く応答
+            ttsManager.speak("はい")
+        }
     }
 
     private fun startCommandListening() {
@@ -206,8 +277,10 @@ class HotwordService : Service() {
     private fun sendToOpenClaw(message: String) {
         if (!settings.isConfigured()) {
             Log.e(TAG, "Webhook not configured")
-            ttsManager.speakQueued("設定が必要です")
-            resumeHotwordDetection()
+            scope.launch {
+                ttsManager.speak("設定が必要です")
+                resumeHotwordDetection()
+            }
             return
         }
 
@@ -230,7 +303,7 @@ class HotwordService : Service() {
                 },
                 onFailure = { error ->
                     Log.e(TAG, "API error", error)
-                    ttsManager.speakQueued("エラーが発生しました")
+                    ttsManager.speak("エラーが発生しました")
                     resumeHotwordDetection()
                 }
             )

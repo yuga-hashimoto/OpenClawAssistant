@@ -179,8 +179,8 @@ fun MainScreen(
             // ホットワード
             ActionCard(
                 icon = Icons.Default.Mic,
-                title = "ウェイクワード「Porcupine」",
-                description = if (hotwordEnabled) "常時聴取中" else "タップで有効化",
+                title = "ウェイクワード「OpenClaw」",
+                description = if (hotwordEnabled) "「OpenClaw」と呼んでください" else "タップで有効化",
                 showSwitch = true,
                 switchValue = hotwordEnabled,
                 onSwitchChange = { enabled ->

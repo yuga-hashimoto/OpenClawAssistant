@@ -3,7 +3,7 @@
     <string name="notification_channel_name">Hotword Detection</string>
     <string name="notification_channel_description">常時音声検知サービス</string>
     <string name="notification_title">OpenClaw Assistant</string>
-    <string name="notification_text">ウェイクワードを待機中…</string>
+    <string name="notification_text">「OpenClaw」と呼んでください</string>
     <string name="settings_title">設定</string>
     <string name="webhook_url_label">Webhook URL</string>
     <string name="webhook_url_hint">https://your-openclaw-endpoint.com/webhook</string>
