@@ -286,7 +286,7 @@ class HotwordService : Service() {
 
         scope.launch {
             val result = apiClient.sendMessage(
-                baseUrl = settings.webhookUrl,
+                webhookUrl = settings.webhookUrl,
                 message = message,
                 sessionId = settings.sessionId,
                 userId = settings.userId.takeIf { it.isNotBlank() },
