@@ -47,6 +47,7 @@ class OpenClawAssistantService : VoiceInteractionService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
         if (intent == null) {
             Log.d(TAG, "onStartCommand received: null (system restart)")
             return START_STICKY

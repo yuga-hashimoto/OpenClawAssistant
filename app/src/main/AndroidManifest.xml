@@ -65,6 +65,7 @@
                 android:resource="@xml/voice_interaction_service" />
             <intent-filter>
                 <action android:name="android.service.voice.VoiceInteractionService" />
+                <action android:name="android.intent.action.ASSIST" />
             </intent-filter>
         </service>
 

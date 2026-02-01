@@ -195,12 +195,16 @@ fun MainScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Max),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Home button long press
                 CompactActionCard(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
                     icon = Icons.Default.Home,
                     title = "Home Button",
                     description = if (isAssistantSet) "Active" else "Not Set",
@@ -212,7 +216,9 @@ fun MainScreen(
 
                 // Hotword
                 CompactActionCard(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
                     icon = Icons.Default.Mic,
                     title = settings.getWakeWordDisplayName(),
                     description = if (hotwordEnabled) "Active" else "Disabled",
@@ -483,52 +489,68 @@ fun CompactActionCard(
     Card(
         modifier = modifier,
         onClick = { onClick?.invoke() },
-        enabled = onClick != null && !showSwitch
+        enabled = onClick != null && !showSwitch,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = if (isActive) MaterialTheme.colorScheme.primary else Color.Gray,
-                    modifier = Modifier.size(28.dp)
-                )
-                if (showInfoIcon) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(32.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.HelpOutline,
-                        contentDescription = "Help",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .size(20.dp)
-                            .clickable { onInfoClick?.invoke() }
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = if (isActive) MaterialTheme.colorScheme.primary else Color.Gray,
+                        modifier = Modifier.size(28.dp)
                     )
+                    if (showInfoIcon) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.HelpOutline,
+                            contentDescription = "Help",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clickable { onInfoClick?.invoke() }
+                        )
+                    }
+                    if (showSwitch) {
+                        Switch(
+                            checked = switchValue,
+                            onCheckedChange = onSwitchChange,
+                            modifier = Modifier
+                                .scale(0.8f)
+                                .offset(y = (-8).dp)
+                        )
+                    }
                 }
-                if (showSwitch) {
-                    Switch(
-                        checked = switchValue,
-                        onCheckedChange = onSwitchChange,
-                        modifier = Modifier.scale(0.8f)
-                    )
-                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Text(
+                    text = title,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
             }
             
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Text(
-                text = title,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-            )
             Text(
                 text = description,
                 fontSize = 12.sp,

@@ -72,17 +72,33 @@ class OpenClawSession(context: Context) : VoiceInteractionSession(context),
     // UI State
     private var currentState = mutableStateOf(AssistantState.IDLE)
     private var displayText = mutableStateOf("")
+    private var userQuery = mutableStateOf("") // User's spoken text
     private var partialText = mutableStateOf("")
     private var errorMessage = mutableStateOf<String?>(null)
+    private var audioLevel = mutableStateOf(0f) // Audio level for visualization
 
     override fun onCreate() {
         Log.e(TAG, "Session onCreate start")
         super.onCreate()
         
         // Initialize lifecycle and saved state here (once per session lifetime)
-        savedStateRegistryController.performAttach()
-        savedStateRegistryController.performRestore(null)
-        lifecycleRegistry.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_CREATE)
+        try {
+            savedStateRegistryController.performAttach()
+        } catch (e: Exception) {
+            Log.w(TAG, "SavedStateRegistry already attached?", e)
+        }
+        
+        try {
+            savedStateRegistryController.performRestore(null)
+        } catch (e: Exception) {
+            Log.w(TAG, "SavedStateRegistry already restored?", e)
+        }
+
+        try {
+            lifecycleRegistry.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_CREATE)
+        } catch (e: Exception) {
+             Log.w(TAG, "Lifecycle ON_CREATE failed", e)
+        }
 
         speechManager = SpeechRecognizerManager(context)
         ttsManager = TTSManager(context)
@@ -109,16 +125,22 @@ class OpenClawSession(context: Context) : VoiceInteractionSession(context),
         val composeView = ComposeView(context).apply {
             Log.e(TAG, "Initializing ComposeView with owners")
             // Set ViewTree owners using extensions
-            setViewTreeLifecycleOwner(this@OpenClawSession)
-            setViewTreeViewModelStoreOwner(this@OpenClawSession)
-            setViewTreeSavedStateRegistryOwner(this@OpenClawSession)
+            try {
+                setViewTreeLifecycleOwner(this@OpenClawSession)
+                setViewTreeViewModelStoreOwner(this@OpenClawSession)
+                setViewTreeSavedStateRegistryOwner(this@OpenClawSession)
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to set ViewTree owners", e)
+            }
             
             setContent {
                 AssistantUI(
                     state = currentState.value,
                     displayText = displayText.value,
+                    userQuery = userQuery.value,
                     partialText = partialText.value,
                     errorMessage = errorMessage.value,
+                    audioLevel = audioLevel.value,
                     onClose = { finish() },
                     onRetry = { startListening() }
                 )
@@ -196,9 +218,12 @@ class OpenClawSession(context: Context) : VoiceInteractionSession(context),
         listeningJob?.cancel()
         
         currentState.value = AssistantState.PROCESSING
+        // displayText.value = "" // Don't clear immediately to keep context if needed, or clear? Let's clear for fresh start.
         displayText.value = ""
+        userQuery.value = "" // Clear previous user query on new listening start
         partialText.value = ""
         errorMessage.value = null
+        audioLevel.value = 0f
 
         listeningJob = scope.launch {
             val startTime = System.currentTimeMillis()
@@ -226,18 +251,27 @@ class OpenClawSession(context: Context) : VoiceInteractionSession(context),
                     when (result) {
                         is SpeechResult.Ready -> {
                             currentState.value = AssistantState.LISTENING
-                            displayText.value = "Listening..."
                             toneGenerator.startTone(android.media.ToneGenerator.TONE_PROP_BEEP)
                         }
                         is SpeechResult.Listening -> {
                             if (currentState.value != AssistantState.LISTENING) {
                                 currentState.value = AssistantState.LISTENING
-                                displayText.value = "Listening..."
+                            }
+                        }
+                        is SpeechResult.RmsChanged -> {
+                            audioLevel.value = result.rmsdB
+                        }
+                        is SpeechResult.PartialResult -> {
+                            partialText.value = result.text
+                            // Ensure state is listening if we get partial results
+                            if (currentState.value != AssistantState.LISTENING) {
+                                currentState.value = AssistantState.LISTENING
                             }
                         }
                         is SpeechResult.Result -> {
                             hasActuallySpoken = true
-                            displayText.value = result.text
+                            // displayText.value = result.text // Don't set displayText here, set userQuery
+                            userQuery.value = result.text
                             sendToOpenClaw(result.text)
                         }
                         is SpeechResult.Error -> {
@@ -271,7 +305,7 @@ class OpenClawSession(context: Context) : VoiceInteractionSession(context),
 
     private fun sendToOpenClaw(message: String) {
         currentState.value = AssistantState.THINKING
-        displayText.value = "Thinking..."
+        displayText.value = ""
 
         scope.launch {
             val result = apiClient.sendMessage(
@@ -364,8 +398,10 @@ enum class AssistantState {
 fun AssistantUI(
     state: AssistantState,
     displayText: String,
+    userQuery: String,
     partialText: String,
     errorMessage: String?,
+    audioLevel: Float,
     onClose: () -> Unit,
     onRetry: () -> Unit
 ) {
@@ -401,9 +437,45 @@ fun AssistantUI(
             Spacer(modifier = Modifier.height(16.dp))
 
             // マイクアイコン
+            val infiniteTransition = rememberInfiniteTransition(label = "mic_pulse")
+            val baseScale by infiniteTransition.animateFloat(
+                initialValue = 1f,
+                targetValue = if (state == AssistantState.LISTENING) 1.1f else 1f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(1000, easing = LinearEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "base_scale"
+            )
+
+            // Audio level animation
+            // RMS dB usually ranges from roughly -2 (silence) to 10+ (loud speech).
+            // We map this to a scale factor.
+            // Shift -2 to 0: (level + 2)
+            // Divide by expected max roughly 12: ((level + 2) / 12)
+            // Clamp to 0..1 range just in case.
+            val normalizedLevel = ((audioLevel + 2f) / 10f).coerceIn(0f, 1f)
+            
+            // Scale increases up to 1.5x for loud sounds
+            val targetLevelScale = 1f + (normalizedLevel * 0.5f) 
+            
+            val animatedLevelScale by animateFloatAsState(
+                targetValue = if (state == AssistantState.LISTENING) targetLevelScale else 1f,
+                animationSpec = spring(stiffness = Spring.StiffnessMediumLow), // Slightly faster response
+                label = "audio_level_scale"
+            )
+
+            // Combine breathing (baseScale) with voice reaction. 
+            // When speaking loudly, the voice reaction should dominate.
+            val finalScale = if (state == AssistantState.LISTENING) maxOf(baseScale, animatedLevelScale) else 1f
+
             Box(
                 modifier = Modifier
                     .size(80.dp)
+                    .graphicsLayer {
+                        scaleX = finalScale
+                        scaleY = finalScale
+                    }
                     .clip(CircleShape)
                     .background(
                         when (state) {
@@ -449,6 +521,18 @@ fun AssistantUI(
                     fontSize = 16.sp,
                     color = Color.Gray,
                     textAlign = TextAlign.Center
+                )
+            }
+
+            // User Query (Final Result)
+            if (userQuery.isNotBlank()) {
+                Text(
+                    text = "$userQuery",
+                    fontSize = 16.sp,
+                    color = Color.DarkGray, // Slightly different color
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                 )
             }
 
