@@ -3,3 +3,5 @@ local.properties
 build/
 *.iml
 .idea/
+
+*.keystore

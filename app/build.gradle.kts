@@ -3,6 +3,7 @@ import java.util.Properties
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-kapt")
 }
 
 // Load local.properties
@@ -28,12 +29,19 @@ android {
             useSupportLibrary = true
         }
         
-        // Picovoice Access Key from local.properties
-        buildConfigField(
-            "String",
-            "PICOVOICE_ACCESS_KEY",
-            "\"${localProperties.getProperty("PICOVOICE_ACCESS_KEY", "")}\""
-        )
+
+    }
+
+    signingConfigs {
+        create("release") {
+            val keystoreFile = localProperties.getProperty("storeFile")
+            if (keystoreFile != null) {
+                storeFile = rootProject.file(keystoreFile)
+                storePassword = localProperties.getProperty("storePassword")
+                keyAlias = localProperties.getProperty("keyAlias")
+                keyPassword = localProperties.getProperty("keyPassword")
+            }
+        }
     }
 
     buildTypes {
@@ -43,6 +51,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
@@ -109,4 +118,10 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    // Room
+    val roomVersion = "2.6.1"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
 }

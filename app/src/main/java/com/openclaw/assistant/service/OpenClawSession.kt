@@ -67,6 +67,10 @@ class OpenClawSession(context: Context) : VoiceInteractionSession(context),
     private lateinit var speechManager: SpeechRecognizerManager
     private lateinit var ttsManager: TTSManager
     
+    // Repository
+    private val chatRepository = com.openclaw.assistant.data.repository.ChatRepository.getInstance(context)
+    private var currentSessionId: String? = null
+    
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     // UI State
@@ -158,6 +162,18 @@ class OpenClawSession(context: Context) : VoiceInteractionSession(context),
         
         // PAUSE Hotword Service to prevent microphone conflict
         sendPauseBroadcast()
+        
+        // CREATE NEW SESSION
+        scope.launch {
+            try {
+                currentSessionId = chatRepository.createSession(title = "Voice Session " + java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault()).format(java.util.Date()))
+                // Store this ID in settings if we want the ChatActivity to resume it?
+                // For now, standalone usage.
+                settings.sessionId = currentSessionId!! 
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to create DB session", e)
+            }
+        }
         
         // 設定チェック
         if (!settings.isConfigured()) {
@@ -308,10 +324,15 @@ class OpenClawSession(context: Context) : VoiceInteractionSession(context),
         displayText.value = ""
 
         scope.launch {
+            // Save User Message
+            currentSessionId?.let { sessionId ->
+                chatRepository.addMessage(sessionId, message, isUser = true)
+            }
+
             val result = apiClient.sendMessage(
                 webhookUrl = settings.webhookUrl,
                 message = message,
-                sessionId = settings.sessionId,
+                sessionId = settings.sessionId, // This uses the generated ID which we synced
                 authToken = settings.authToken.takeIf { it.isNotBlank() }
             )
 
@@ -320,6 +341,12 @@ class OpenClawSession(context: Context) : VoiceInteractionSession(context),
                     val responseText = response.getResponseText()
                     if (responseText != null) {
                         displayText.value = responseText
+                        
+                        // Save AI Message
+                        currentSessionId?.let { sessionId ->
+                            chatRepository.addMessage(sessionId, responseText, isUser = false)
+                        }
+                        
                         if (settings.ttsEnabled) {
                             speakResponse(responseText)
                         } else if (settings.continuousMode) {

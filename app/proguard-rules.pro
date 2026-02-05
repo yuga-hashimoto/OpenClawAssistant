@@ -12,5 +12,9 @@
 -keep class com.google.gson.** { *; }
 -keep class com.openclaw.assistant.api.** { *; }
 
-# Picovoice
--keep class ai.picovoice.** { *; }
+
+# Google Error Prone Annotations
+-dontwarn com.google.errorprone.annotations.**
+
+# Tink (Security Crypto)
+-dontwarn com.google.crypto.tink.**

@@ -44,9 +44,110 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
 
     private val settings = SettingsRepository.getInstance(application)
+    private val chatRepository = com.openclaw.assistant.data.repository.ChatRepository.getInstance(application)
     private val apiClient = OpenClawClient()
     private val speechManager = SpeechRecognizerManager(application)
     
+    // Session Management
+    val allSessions = chatRepository.allSessions.stateIn(
+        viewModelScope, 
+        SharingStarted.WhileSubscribed(5000), 
+        emptyList()
+    )
+    
+    // Current Session
+    private val _currentSessionId = MutableStateFlow<String?>(null)
+    val currentSessionId: StateFlow<String?> = _currentSessionId.asStateFlow()
+    
+    // Sync current session with Settings if needed, or just let UI drive it?
+    // Let's load the last one if available, or create new.
+    
+    init {
+        // Load messages for current session if set
+        viewModelScope.launch {
+             // If we have a sessionId in settings, try to use it?
+             // Or better, let's start fresh or let user select.
+             // For now, let's observe whatever session we have.
+             
+             // Actually, we want to watch the session ID and update the message flow
+        }
+    }
+
+    // Messages Flow - mapped from current Session ID
+    private val _messagesFlow = _currentSessionId.flatMapLatest { sessionId ->
+         if (sessionId != null) {
+             chatRepository.getMessages(sessionId).map { entities ->
+                 entities.map { entity ->
+                     ChatMessage(
+                         id = entity.id,
+                         text = entity.content,
+                         isUser = entity.isUser,
+                         timestamp = entity.timestamp
+                     )
+                 }
+             }
+         } else {
+             flowOf(emptyList())
+         }
+    }
+    
+    // We combine _messagesFlow into uiState
+    init {
+        viewModelScope.launch {
+            _messagesFlow.collect { messages ->
+                _uiState.update { it.copy(messages = messages) }
+            }
+        }
+        
+        // Initial session setup
+        viewModelScope.launch {
+            // Check if there are sessions. If yes, pick latest.
+            val latest = chatRepository.getLatestSession()
+            if (latest != null) {
+                _currentSessionId.value = latest.id
+                settings.sessionId = latest.id
+            } else {
+                createNewSession()
+            }
+        }
+    }
+
+    fun createNewSession() {
+        viewModelScope.launch {
+            val simpleDateFormat = java.text.SimpleDateFormat("MM/dd HH:mm", Locale.getDefault())
+            val newId = chatRepository.createSession("Chat ${simpleDateFormat.format(java.util.Date())}")
+            _currentSessionId.value = newId
+            settings.sessionId = newId // Sync for API use
+        }
+    }
+
+    fun selectSession(sessionId: String) {
+        _currentSessionId.value = sessionId
+        settings.sessionId = sessionId
+    }
+
+    fun deleteSession(sessionId: String) {
+        // Immediate UI update if deleting current session
+        val isCurrent = _currentSessionId.value == sessionId
+        if (isCurrent) {
+            _currentSessionId.value = null
+        }
+
+        viewModelScope.launch {
+            chatRepository.deleteSession(sessionId)
+            if (isCurrent) {
+                // Determine if we should switch to another or create new
+                val nextSession = chatRepository.getLatestSession()
+                if (nextSession != null) {
+                    _currentSessionId.value = nextSession.id
+                    settings.sessionId = nextSession.id
+                } else {
+                    createNewSession()
+                }
+            }
+        }
+    }
+
     // TTS will be set from Activity
     private var tts: TextToSpeech? = null
     private var isTTSReady = false
@@ -63,23 +164,29 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     fun sendMessage(text: String) {
         if (text.isBlank()) return
 
-        // Add user message
-        addMessage(text, isUser = true)
+        // Ensure we have a session
+        val sessionId = _currentSessionId.value ?: return
+
         _uiState.update { it.copy(isThinking = true) }
 
         viewModelScope.launch {
             try {
+                // Save User Message
+                chatRepository.addMessage(sessionId, text, isUser = true)
+
                 val result = apiClient.sendMessage(
                     webhookUrl = settings.webhookUrl,
                     message = text,
-                    sessionId = settings.sessionId,
+                    sessionId = sessionId,
                     authToken = settings.authToken.takeIf { it.isNotBlank() }
                 )
 
                 result.fold(
                     onSuccess = { response ->
                         val responseText = response.getResponseText() ?: "No response"
-                        addMessage(responseText, isUser = false)
+                        // Save AI Message
+                        chatRepository.addMessage(sessionId, responseText, isUser = false)
+                        
                         _uiState.update { it.copy(isThinking = false) }
                         if (settings.ttsEnabled) {
                             speak(responseText)
@@ -93,7 +200,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     },
                     onFailure = { error ->
                         _uiState.update { it.copy(isThinking = false, error = error.message) }
-                        addMessage("Error: ${error.message}", isUser = false)
+                        // Ideally log error as system message? 
+                        // For now just UI state.
                     }
                 )
             } catch (e: Exception) {
@@ -266,12 +374,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         sendResumeBroadcast()
     }
 
-    private fun addMessage(text: String, isUser: Boolean) {
-        val message = ChatMessage(text = text, isUser = isUser)
-        _uiState.update { state ->
-            state.copy(messages = state.messages + message)
-        }
-    }
+    // REMOVED private fun addMessage because we now flow from DB
 
     override fun onCleared() {
         super.onCleared()

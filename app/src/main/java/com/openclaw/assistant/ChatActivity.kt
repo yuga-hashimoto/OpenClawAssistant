@@ -21,6 +21,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
@@ -45,6 +48,7 @@ import com.openclaw.assistant.ui.chat.ChatUiState
 import com.openclaw.assistant.ui.chat.ChatViewModel
 import com.openclaw.assistant.ui.theme.OpenClawAssistantTheme
 import androidx.compose.material3.TextButton
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 private const val TAG = "ChatActivity"
@@ -75,9 +79,13 @@ class ChatActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         setContent {
             OpenClawAssistantTheme {
                 val uiState by viewModel.uiState.collectAsState()
+                val allSessions by viewModel.allSessions.collectAsState()
+                val currentSessionId by viewModel.currentSessionId.collectAsState()
                 
                 ChatScreen(
                     uiState = uiState,
+                    allSessions = allSessions,
+                    currentSessionId = currentSessionId,
                     onSendMessage = { viewModel.sendMessage(it) },
                     onStartListening = { 
                         Log.e(TAG, "onStartListening called, permission=${checkPermission()}")
@@ -89,7 +97,10 @@ class ChatActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                     },
                     onStopListening = { viewModel.stopListening() },
                     onStopSpeaking = { viewModel.stopSpeaking() },
-                    onBack = { finish() }
+                    onBack = { finish() },
+                    onSelectSession = { viewModel.selectSession(it) },
+                    onCreateSession = { viewModel.createNewSession() },
+                    onDeleteSession = { viewModel.deleteSession(it) }
                 )
             }
         }
@@ -137,101 +148,235 @@ class ChatActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     }
 }
 
+sealed interface ChatListItem {
+    data class DateSeparator(val dateText: String) : ChatListItem
+    data class MessageItem(val message: ChatMessage) : ChatListItem
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
     uiState: ChatUiState,
+    allSessions: List<com.openclaw.assistant.data.local.entity.SessionEntity>,
+    currentSessionId: String?,
     onSendMessage: (String) -> Unit,
     onStartListening: () -> Unit,
     onStopListening: () -> Unit,
     onStopSpeaking: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onSelectSession: (String) -> Unit,
+    onCreateSession: () -> Unit,
+    onDeleteSession: (String) -> Unit
 ) {
     var inputText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val keyboardController = LocalSoftwareKeyboardController.current
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    // Group messages by date
+    val groupedItems = remember(uiState.messages) {
+        val items = mutableListOf<ChatListItem>()
+        val locale = Locale.getDefault()
+        // Use system's best format skeleton for "Month Day DayOfWeek"
+        val skeleton = android.text.format.DateFormat.getBestDateTimePattern(locale, "MMMdEEE")
+        val dateFormat = java.text.SimpleDateFormat(skeleton, locale)
+        
+        var lastDate = ""
+
+        uiState.messages.forEach { message ->
+            val date = dateFormat.format(java.util.Date(message.timestamp))
+            if (date != lastDate) {
+                items.add(ChatListItem.DateSeparator(date))
+                lastDate = date
+            }
+            items.add(ChatListItem.MessageItem(message))
+        }
+        items
+    }
 
     // Scroll to bottom when new messages arrive
-    LaunchedEffect(uiState.messages.size) {
-        if (uiState.messages.isNotEmpty()) {
-            listState.animateScrollToItem(uiState.messages.size - 1)
+    LaunchedEffect(groupedItems.size) { // Monitor grouped items size instead
+        if (groupedItems.isNotEmpty()) {
+            listState.animateScrollToItem(groupedItems.size - 1)
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { 
-                    Text(
-                        stringResource(R.string.app_name), 
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold 
-                    ) 
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back_button))
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.primary
+    ModalNavigationDrawer(
+        drawerState = drawerState, // ... (rest of drawer content remains same, omitted for brevity if no changes needed there but I need to replace the whole function if using replace_file_content)
+        drawerContent = {
+            ModalDrawerSheet {
+                Spacer(Modifier.height(12.dp))
+                // PaddingValues(horizontal = 16.dp) 
+                Text(
+                    text = stringResource(R.string.conversations_title),
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.titleMedium
                 )
-            )
-        },
-        bottomBar = {
-            Column {
-                 if (uiState.partialText.isNotBlank()) {
-                     Text(
-                         text = uiState.partialText,
-                         modifier = Modifier
-                             .fillMaxWidth()
-                             .padding(horizontal = 16.dp, vertical = 8.dp)
-                             .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
-                             .padding(12.dp),
-                         color = MaterialTheme.colorScheme.onSurfaceVariant
-                     )
-                 }
+                HorizontalDivider()
                 
-                ChatInputArea(
-                    value = inputText,
-                    onValueChange = { inputText = it },
-                    onSend = {
-                        onSendMessage(inputText)
-                        inputText = ""
-                        keyboardController?.hide()
+                NavigationDrawerItem(
+                    label = { Text(stringResource(R.string.new_chat)) },
+                    selected = false,
+                    onClick = {
+                        onCreateSession()
+                        scope.launch { drawerState.close() }
                     },
-                    isListening = uiState.isListening,
-                    onMicClick = {
-                        if (uiState.isListening) onStopListening() else onStartListening()
-                    }
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
+                    icon = { Icon(Icons.Default.Add, null) }
                 )
+                
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+                LazyColumn {
+                    items(allSessions) { session ->
+                        val isSelected = session.id == currentSessionId
+                        NavigationDrawerItem(
+                            label = { 
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = session.title,
+                                        maxLines = 1,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    IconButton(
+                                        onClick = { onDeleteSession(session.id) },
+                                        modifier = Modifier.size(24.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = stringResource(R.string.delete),
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                            },
+                            selected = isSelected,
+                            onClick = {
+                                onSelectSession(session.id)
+                                scope.launch { drawerState.close() }
+                            },
+                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                        )
+                    }
+                }
             }
         }
-    ) { paddingValues ->
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(bottom = 16.dp, top = 8.dp)
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { 
+                        Text(
+                            stringResource(R.string.app_name), 
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold 
+                        ) 
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu))
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.primary,
+                        navigationIconContentColor = MaterialTheme.colorScheme.primary,
+                        actionIconContentColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+            },
+            bottomBar = {
+                Column {
+                     if (uiState.partialText.isNotBlank()) {
+                         Text(
+                             text = uiState.partialText,
+                             modifier = Modifier
+                                 .fillMaxWidth()
+                                 .padding(horizontal = 16.dp, vertical = 8.dp)
+                                 .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
+                                 .padding(12.dp),
+                             color = MaterialTheme.colorScheme.onSurfaceVariant
+                         )
+                     }
+                    
+                    ChatInputArea(
+                        value = inputText,
+                        onValueChange = { inputText = it },
+                        onSend = {
+                            onSendMessage(inputText)
+                            inputText = ""
+                            keyboardController?.hide()
+                        },
+                        isListening = uiState.isListening,
+                        onMicClick = {
+                            if (uiState.isListening) onStopListening() else onStartListening()
+                        }
+                    )
+                }
+            }
+        ) { paddingValues ->
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(bottom = 16.dp, top = 8.dp)
+            ) {
+                 items(groupedItems) { item ->
+                    when (item) {
+                        is ChatListItem.DateSeparator -> {
+                            DateHeader(item.dateText)
+                        }
+                        is ChatListItem.MessageItem -> {
+                            MessageBubble(message = item.message)
+                        }
+                    }
+                }
+                
+                if (uiState.isThinking) {
+                    item {
+                        ThinkingIndicator()
+                    }
+                }
+                if (uiState.isSpeaking) {
+                    item {
+                        SpeakingIndicator(onStop = onStopSpeaking)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DateHeader(dateText: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Surface(
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+            shape = RoundedCornerShape(12.dp)
         ) {
-            items(uiState.messages) { message ->
-                MessageBubble(message = message)
-            }
-            
-            if (uiState.isThinking) {
-                item {
-                    ThinkingIndicator()
-                }
-            }
-            if (uiState.isSpeaking) {
-                item {
-                    SpeakingIndicator(onStop = onStopSpeaking)
-                }
-            }
+            Text(
+                text = dateText,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+            )
         }
     }
 }
@@ -250,6 +395,10 @@ fun MessageBubble(message: ChatMessage) {
         RoundedCornerShape(18.dp, 18.dp, 18.dp, 4.dp)
     }
 
+    val timestamp = remember(message.timestamp) {
+        java.text.SimpleDateFormat("HH:mm", Locale.getDefault()).format(java.util.Date(message.timestamp))
+    }
+
     Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = alignment
@@ -260,14 +409,21 @@ fun MessageBubble(message: ChatMessage) {
                 shape = shape,
                 modifier = Modifier.widthIn(max = 300.dp)
             ) {
-                Text(
-                    text = message.text,
-                    color = contentColor,
-                    modifier = Modifier.padding(16.dp),
-                    fontSize = 16.sp,
-                    lineHeight = 24.sp
-                )
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text(
+                        text = message.text,
+                        color = contentColor,
+                        fontSize = 16.sp,
+                        lineHeight = 24.sp
+                    )
+                }
             }
+            Text(
+                text = timestamp,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp, start = 8.dp, end = 8.dp)
+            )
         }
     }
 }
