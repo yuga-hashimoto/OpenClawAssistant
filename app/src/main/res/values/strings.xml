@@ -94,8 +94,8 @@
     <string name="wake_word_custom">Custom…</string>
     <string name="tts_engine_label">TTS Engine</string>
     <string name="tts_engine_system">System Default (Google, etc.)</string>
-    <string name="tts_engine_embedded">OpenClaw Built-in (Rescue mode)</string>
+    <string name="tts_engine_embedded">OpenClaw Built-in</string>
     <string name="model_not_installed">Voice model not installed</string>
     <string name="download_model">Download Model (%s)</string>
-    <string name="embedded_tts_not_available">Built-in TTS only supports English and Chinese. Your language uses System TTS.</string>
+    <string name="embedded_tts_not_available">Built-in TTS only supports Japanese, English, and Chinese.</string>
 </resources>

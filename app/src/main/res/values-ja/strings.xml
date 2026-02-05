@@ -94,8 +94,8 @@
     <string name="wake_word_custom">カスタム…</string>
     <string name="tts_engine_label">音声合成エンジン</string>
     <string name="tts_engine_system">システム標準 (Google等)</string>
-    <string name="tts_engine_embedded">OpenClaw 内蔵 (レスキューモード)</string>
+    <string name="tts_engine_embedded">OpenClaw 内蔵</string>
     <string name="model_not_installed">音声モデルが未インストールです</string>
     <string name="download_model">モデルをダウンロード (%s)</string>
-    <string name="embedded_tts_not_available">内蔵TTSは英語と中国語のみ対応。日本語はシステムTTSを使用します。</string>
+    <string name="embedded_tts_not_available">内蔵TTSは日本語、英語、中国語のみ対応しています。</string>
 </resources>
