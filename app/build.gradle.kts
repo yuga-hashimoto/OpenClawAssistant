@@ -102,7 +102,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
     // Built-in TTS: Sherpa-ONNX
-    implementation("com.k2fsa.sherpa.onnx:sherpa-onnx:1.10.15")
+    implementation("com.k2fsa.sherpa.onnx:sherpa-onnx:1.10.15:arm64-v8aRelease@aar")
     
     // Testing
     testImplementation("junit:junit:4.13.2")
