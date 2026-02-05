@@ -101,8 +101,8 @@ dependencies {
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
-    // Built-in TTS: Sherpa-ONNX (Stable coordinate)
-    implementation("com.k2fsa.sherpa.onnx:sherpa-onnx:1.10.15")
+    // Built-in TTS: Sherpa-ONNX (via JitPack)
+    implementation("com.github.k2-fsa:sherpa-onnx:v1.10.44")
     
     // Testing
     testImplementation("junit:junit:4.13.2")
