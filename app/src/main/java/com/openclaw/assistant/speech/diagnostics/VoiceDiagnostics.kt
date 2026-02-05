@@ -7,7 +7,7 @@ import android.speech.tts.TextToSpeech
 import java.util.Locale
 
 /**
- * 音声診断結果のデータ構造
+ * Data structure for voice diagnostics results
  */
 data class VoiceDiagnostic(
     val sttStatus: DiagnosticStatus,
@@ -19,9 +19,9 @@ data class VoiceDiagnostic(
 )
 
 enum class DiagnosticStatus {
-    READY,      // 準備完了
-    WARNING,    // 注意（設定が必要）
-    ERROR       // エラー（動作不能）
+    READY,      // Ready to use
+    WARNING,    // Action required (settings)
+    ERROR       // Inoperable
 }
 
 data class DiagnosticSuggestion(
@@ -32,7 +32,7 @@ data class DiagnosticSuggestion(
 )
 
 /**
- * 音声機能の診断を行うクラス
+ * Class for performing voice functionality diagnostics
  */
 class VoiceDiagnostics(private val context: Context) {
 

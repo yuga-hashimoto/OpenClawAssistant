@@ -52,7 +52,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     private var isTTSReady = false
 
     /**
-     * ActivityからTTSを設定する
+     * Set TTS from Activity
      */
     fun setTTS(textToSpeech: TextToSpeech) {
         Log.e(TAG, "setTTS called")

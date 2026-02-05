@@ -14,7 +14,7 @@ import java.io.FileOutputStream
 import java.util.Locale
 
 /**
- * アプリ内蔵TTSエンジンの管理クラス (Sherpa-ONNX implementation)
+ * Manager for embedded TTS engine (Sherpa-ONNX implementation)
  */
 class EmbeddedTTSManager(private val context: Context) {
     private const val TAG = "EmbeddedTTSManager"
@@ -23,7 +23,7 @@ class EmbeddedTTSManager(private val context: Context) {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val client = OkHttpClient()
 
-    // モデル保存先ディレクトリ
+    // Directory for storing voice models
     private val modelDir = File(context.filesDir, "tts_models")
 
     init {
@@ -31,7 +31,7 @@ class EmbeddedTTSManager(private val context: Context) {
     }
 
     /**
-     * 特定の言語モデルがインストールされているか
+     * Check if a specific language model is installed
      */
     fun isModelInstalled(locale: Locale): Boolean {
         val name = getModelFolderName(locale)
@@ -40,7 +40,7 @@ class EmbeddedTTSManager(private val context: Context) {
     }
 
     /**
-     * エンジンの初期化
+     * Initialize the TTS engine
      */
     fun initialize(locale: Locale): Boolean {
         if (!isModelInstalled(locale)) return false
@@ -72,7 +72,7 @@ class EmbeddedTTSManager(private val context: Context) {
     }
 
     /**
-     * 音声の生成と再生
+     * Synthesize and play audio
      */
     fun speak(text: String, locale: Locale) {
         if (tts == null && !initialize(locale)) {
@@ -132,7 +132,7 @@ class EmbeddedTTSManager(private val context: Context) {
     }
 
     /**
-     * モデルのダウンロード
+     * Download voice models
      */
     fun downloadModel(locale: Locale, onProgress: (Float) -> Unit, onComplete: (Boolean) -> Unit) {
         val folderName = getModelFolderName(locale)

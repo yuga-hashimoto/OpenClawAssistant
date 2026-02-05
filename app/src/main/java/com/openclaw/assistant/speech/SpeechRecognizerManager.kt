@@ -12,21 +12,21 @@ import kotlinx.coroutines.flow.callbackFlow
 import java.util.Locale
 
 /**
- * 音声認識マネージャー
+ * Speech recognition manager
  */
 class SpeechRecognizerManager(private val context: Context) {
 
     private var recognizer: SpeechRecognizer? = null
 
     /**
-     * 音声認識を利用可能かチェック
+     * Check if speech recognition is available
      */
     fun isAvailable(): Boolean {
         return SpeechRecognizer.isRecognitionAvailable(context)
     }
 
     /**
-     * 音声認識を開始し、結果をFlowで返す
+     * Start listening and return results as Flow
      * language が null の場合はシステムデフォルトを使用する
      */
     fun startListening(language: String? = null): Flow<SpeechResult> = callbackFlow {
