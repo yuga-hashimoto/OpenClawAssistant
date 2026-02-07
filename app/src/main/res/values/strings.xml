@@ -128,4 +128,17 @@
     <string name="delete">Delete</string>
     <string name="menu">Menu</string>
     <string name="back">Back</string>
+
+    <!-- Diagnostics -->
+    <string name="speech_recognition_service_not_found">Speech recognition service not found. Make sure Google app is installed.</string>
+    <string name="open_store">Open Store</string>
+    <string name="google_tts_hidden">Google TTS is installed but HIDDEN by the system. This is a common MIUI issue.</string>
+    <string name="tts_engine_not_initialized">TTS engine could not be initialized. Engine is null.</string>
+    <string name="fix_in_settings">Fix in Settings</string>
+    <string name="voice_data_missing">Voice data for %1$s is missing in %2$s.</string>
+    <string name="manage_data">Manage Data</string>
+    <string name="switch_to_google">Currently using %1$s. Switch to Google for better support.</string>
+    <string name="select_google">Select Google</string>
+    <string name="system_default">System Default</string>
+    <string name="engine_unavailable">Unavailable</string>
 </resources>
