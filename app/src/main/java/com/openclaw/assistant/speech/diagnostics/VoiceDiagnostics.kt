@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
+import com.openclaw.assistant.R
 import java.util.Locale
 
 /**
@@ -68,14 +69,14 @@ class VoiceDiagnostics(private val context: Context) {
                 status = DiagnosticStatus.ERROR,
                 suggestions = listOf(
                     DiagnosticSuggestion(
-                        "Speech recognition service not found. Make sure Google app is installed.",
-                        "Open Store",
+                        context.getString(R.string.speech_recognition_service_not_found),
+                        context.getString(R.string.open_store),
                         null
                     )
                 )
             )
         }
-        return ComponentCheckResult(status = DiagnosticStatus.READY, engine = "System Default")
+        return ComponentCheckResult(status = DiagnosticStatus.READY, engine = context.getString(R.string.system_default))
     }
 
     private fun checkTTS(tts: TextToSpeech?): ComponentCheckResult {
@@ -94,15 +95,15 @@ class VoiceDiagnostics(private val context: Context) {
             }
 
             val msg = if (isGoogleInstalled) {
-                "Google TTS is installed but HIDDEN by the system. This is a common MIUI issue."
+                context.getString(R.string.google_tts_hidden)
             } else {
-                "TTS engine could not be initialized. Engine is null."
+                context.getString(R.string.tts_engine_not_initialized)
             }
 
             suggestions.add(
                 DiagnosticSuggestion(
                     msg,
-                    "Fix in Settings",
+                    context.getString(R.string.fix_in_settings),
                     Intent("com.android.settings.TTS_SETTINGS"),
                     true
                 )
@@ -110,7 +111,7 @@ class VoiceDiagnostics(private val context: Context) {
             
             return ComponentCheckResult(
                 status = DiagnosticStatus.ERROR,
-                engine = "null/hidden",
+                engine = context.getString(R.string.engine_unavailable),
                 suggestions = suggestions
             )
         }
@@ -120,8 +121,8 @@ class VoiceDiagnostics(private val context: Context) {
             status = DiagnosticStatus.WARNING
             suggestions.add(
                 DiagnosticSuggestion(
-                    "Voice data for ${currentLocale.displayName} is missing in $engine.",
-                    "Manage Data",
+                    context.getString(R.string.voice_data_missing, currentLocale.displayName, engine),
+                    context.getString(R.string.manage_data),
                     Intent("com.android.settings.TTS_SETTINGS")
                 )
             )
@@ -130,8 +131,8 @@ class VoiceDiagnostics(private val context: Context) {
         if (engine != "com.google.android.tts") {
             suggestions.add(
                 DiagnosticSuggestion(
-                    "Currently using $engine. Switch to Google for better support.",
-                    "Select Google",
+                    context.getString(R.string.switch_to_google, engine),
+                    context.getString(R.string.select_google),
                     Intent("com.android.settings.TTS_SETTINGS")
                 )
             )
