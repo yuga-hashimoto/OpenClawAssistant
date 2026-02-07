@@ -31,9 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import android.os.Build
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.Image
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.openclaw.assistant.R
 import com.openclaw.assistant.data.SettingsRepository
