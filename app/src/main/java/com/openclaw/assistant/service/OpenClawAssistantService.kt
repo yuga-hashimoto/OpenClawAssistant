@@ -11,6 +11,7 @@ import android.service.voice.VoiceInteractionService
 import android.service.voice.VoiceInteractionSession
 import android.service.voice.VoiceInteractionSessionService
 import android.util.Log
+import androidx.core.content.ContextCompat
 
 /**
  * Voice Interaction Service
@@ -39,11 +40,8 @@ class OpenClawAssistantService : VoiceInteractionService() {
         super.onCreate()
         Log.e(TAG, "VoiceInteractionService onCreate")
         val filter = IntentFilter(ACTION_SHOW_ASSISTANT)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(debugReceiver, filter, Context.RECEIVER_EXPORTED)
-        } else {
-            registerReceiver(debugReceiver, filter)
-        }
+        // Internal broadcast receiver: Do not export to other apps
+        ContextCompat.registerReceiver(this, debugReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

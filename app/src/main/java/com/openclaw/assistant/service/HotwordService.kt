@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.openclaw.assistant.MainActivity
 import com.openclaw.assistant.R
 import com.openclaw.assistant.data.SettingsRepository
@@ -103,11 +104,8 @@ class HotwordService : Service(), VoskRecognitionListener {
             addAction(ACTION_RESUME_HOTWORD)
             addAction(ACTION_PAUSE_HOTWORD)
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(controlReceiver, filter, Context.RECEIVER_EXPORTED)
-        } else {
-            registerReceiver(controlReceiver, filter)
-        }
+        // Internal broadcast receiver: Do not export to other apps
+        ContextCompat.registerReceiver(this, controlReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

@@ -1,0 +1,4 @@
+## 2024-05-23 - Internal Broadcast Receiver Export
+**Vulnerability:** `Context.RECEIVER_EXPORTED` was used for broadcast receivers (`controlReceiver` in `HotwordService` and `debugReceiver` in `OpenClawAssistantService`) that are only intended for internal application communication.
+**Learning:** Android 13+ (Tiramisu) requires specifying `RECEIVER_EXPORTED` or `RECEIVER_NOT_EXPORTED`. Developers might default to `EXPORTED` to "make it work" or copy-paste, inadvertently exposing internal logic to other applications. This allows malicious apps to trigger actions (like pausing hotword detection or showing the assistant UI) without permission.
+**Prevention:** Always use `Context.RECEIVER_NOT_EXPORTED` (or `ContextCompat.RECEIVER_NOT_EXPORTED`) for broadcast receivers that do not need to receive events from other applications. If inter-app communication is required, secure it with permissions.
