@@ -61,7 +61,6 @@ fun SettingsScreen(
     var webhookUrl by remember { mutableStateOf(settings.webhookUrl) }
     var authToken by remember { mutableStateOf(settings.authToken) }
     var ttsEnabled by remember { mutableStateOf(settings.ttsEnabled) }
-    var ttsSpeed by remember { mutableStateOf(settings.ttsSpeed) }
     var continuousMode by remember { mutableStateOf(settings.continuousMode) }
     var wakeWordPreset by remember { mutableStateOf(settings.wakeWordPreset) }
     var customWakeWord by remember { mutableStateOf(settings.customWakeWord) }
@@ -75,16 +74,6 @@ fun SettingsScreen(
     
     var isTesting by remember { mutableStateOf(false) }
     var testResult by remember { mutableStateOf<TestResult?>(null) }
-
-    // TTS Engines
-    var ttsEngine by remember { mutableStateOf(settings.ttsEngine) }
-    var availableEngines by remember { mutableStateOf<List<com.openclaw.assistant.speech.TTSEngineUtils.EngineInfo>>(emptyList()) }
-    var showEngineMenu by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        // Load engines off-main thread ideally, but for now simple
-        availableEngines = com.openclaw.assistant.speech.TTSEngineUtils.getAvailableEngines(context)
-    }
 
     // Wake word options
     val wakeWordOptions = listOf(
@@ -110,8 +99,6 @@ fun SettingsScreen(
                             settings.webhookUrl = webhookUrl
                             settings.authToken = authToken
                             settings.ttsEnabled = ttsEnabled
-                            settings.ttsSpeed = ttsSpeed
-                            settings.ttsEngine = ttsEngine
                             settings.continuousMode = continuousMode
                             settings.wakeWordPreset = wakeWordPreset
                             settings.customWakeWord = customWakeWord
@@ -277,103 +264,6 @@ fun SettingsScreen(
                             Text(stringResource(R.string.read_ai_responses), style = MaterialTheme.typography.bodySmall, color = Color.Gray)
                         }
                         Switch(checked = ttsEnabled, onCheckedChange = { ttsEnabled = it })
-                    }
-
-                    if (ttsEnabled) {
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp)
-
-                        Column(modifier = Modifier.fillMaxWidth()) {
-                            // TTS Engine Selection
-                            ExposedDropdownMenuBox(
-                                expanded = showEngineMenu,
-                                onExpandedChange = { showEngineMenu = it }
-                            ) {
-                                val currentLabel = if (ttsEngine.isEmpty()) {
-                                    stringResource(R.string.tts_engine_auto)
-                                } else {
-                                    availableEngines.find { it.name == ttsEngine }?.label ?: ttsEngine
-                                }
-                                
-                                OutlinedTextField(
-                                    value = currentLabel,
-                                    onValueChange = {},
-                                    readOnly = true,
-                                    label = { Text(stringResource(R.string.tts_engine_label)) },
-                                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showEngineMenu) },
-                                    modifier = Modifier.fillMaxWidth().menuAnchor()
-                                )
-                                
-                                ExposedDropdownMenu(
-                                    expanded = showEngineMenu,
-                                    onDismissRequest = { showEngineMenu = false }
-                                ) {
-                                    // Auto option
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.tts_engine_auto)) },
-                                        onClick = {
-                                            ttsEngine = ""
-                                            showEngineMenu = false
-                                        },
-                                        leadingIcon = {
-                                            if (ttsEngine.isEmpty()) {
-                                                Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                                            }
-                                        }
-                                    )
-                                    
-                                    availableEngines.forEach { engine ->
-                                        DropdownMenuItem(
-                                            text = { Text(engine.label) },
-                                            onClick = {
-                                                ttsEngine = engine.name
-                                                showEngineMenu = false
-                                            },
-                                            leadingIcon = {
-                                                if (ttsEngine == engine.name) {
-                                                    Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                                                }
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-
-
-
-                            // Show Speed setting ONLY if Google TTS is selected (or Auto resolving to Google)
-                            val effectiveEngine = if (ttsEngine.isEmpty()) {
-                                com.openclaw.assistant.speech.TTSEngineUtils.getDefaultEngine(context)
-                            } else {
-                                ttsEngine
-                            }
-                            
-                            val isGoogleTTS = effectiveEngine == SettingsRepository.GOOGLE_TTS_PACKAGE
-
-                            if (isGoogleTTS) {
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(stringResource(R.string.voice_speed), style = MaterialTheme.typography.bodyMedium)
-                                    Text(
-                                        text = "%.1fx".format(ttsSpeed),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                                
-                                Slider(
-                                    value = ttsSpeed,
-                                    onValueChange = { ttsSpeed = it },
-                                    valueRange = 0.5f..3.0f,
-                                    steps = 24, // Steps of 0.1
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                        }
                     }
                     
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp)

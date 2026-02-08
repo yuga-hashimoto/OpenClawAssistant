@@ -46,8 +46,6 @@ class SettingsRepository(context: Context) {
         }
         set(value) = prefs.edit().putString(KEY_SESSION_ID, value).apply()
 
-
-
     // Hotword enabled
     var hotwordEnabled: Boolean
         get() = prefs.getBoolean(KEY_HOTWORD_ENABLED, false)
@@ -92,23 +90,13 @@ class SettingsRepository(context: Context) {
 
     // TTS enabled
     var ttsEnabled: Boolean
-        get() = prefs.getBoolean(KEY_TTS_ENABLED, true) // Default true as per user request
+        get() = prefs.getBoolean(KEY_TTS_ENABLED, true)
         set(value) = prefs.edit().putBoolean(KEY_TTS_ENABLED, value).apply()
 
     // Continuous mode
     var continuousMode: Boolean
         get() = prefs.getBoolean(KEY_CONTINUOUS_MODE, false)
         set(value) = prefs.edit().putBoolean(KEY_CONTINUOUS_MODE, value).apply()
-
-    // TTS Speed
-    var ttsSpeed: Float
-        get() = prefs.getFloat(KEY_TTS_SPEED, 1.2f)
-        set(value) = prefs.edit().putFloat(KEY_TTS_SPEED, value).apply()
-
-    // TTS Engine
-    var ttsEngine: String
-        get() = prefs.getString(KEY_TTS_ENGINE, "") ?: ""
-        set(value) = prefs.edit().putString(KEY_TTS_ENGINE, value).apply()
 
     // Connection Verified
     var isVerified: Boolean
@@ -141,8 +129,6 @@ class SettingsRepository(context: Context) {
         private const val KEY_IS_VERIFIED = "is_verified"
         private const val KEY_TTS_ENABLED = "tts_enabled"
         private const val KEY_CONTINUOUS_MODE = "continuous_mode"
-        private const val KEY_TTS_SPEED = "tts_speed"
-        private const val KEY_TTS_ENGINE = "tts_engine"
 
         // Wake word presets
         const val WAKE_WORD_OPEN_CLAW = "open_claw"
@@ -152,8 +138,6 @@ class SettingsRepository(context: Context) {
         const val WAKE_WORD_CUSTOM = "custom"
         
         const val GOOGLE_TTS_PACKAGE = "com.google.android.tts"
-
-
 
         @Volatile
         private var instance: SettingsRepository? = null
