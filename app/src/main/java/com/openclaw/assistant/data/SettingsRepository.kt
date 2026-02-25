@@ -141,6 +141,11 @@ class SettingsRepository(context: Context) {
         get() = prefs.getBoolean(KEY_IS_VERIFIED, false)
         set(value) = prefs.edit().putBoolean(KEY_IS_VERIFIED, value).apply()
 
+    // Has completed initial setup guide
+    var hasCompletedSetup: Boolean
+        get() = prefs.getBoolean(KEY_HAS_COMPLETED_SETUP, false)
+        set(value) = prefs.edit().putBoolean(KEY_HAS_COMPLETED_SETUP, value).apply()
+
     // Default Agent ID
     var defaultAgentId: String
         get() = prefs.getString(KEY_DEFAULT_AGENT_ID, "main") ?: "main"
@@ -213,6 +218,7 @@ class SettingsRepository(context: Context) {
         private const val KEY_SPEECH_SILENCE_TIMEOUT = "speech_silence_timeout"
         private const val KEY_THINKING_SOUND_ENABLED = "thinking_sound_enabled"
         private const val KEY_SPEECH_LANGUAGE = "speech_language"
+        private const val KEY_HAS_COMPLETED_SETUP = "has_completed_setup"
 
         // Wake word presets
         const val WAKE_WORD_OPEN_CLAW = "open_claw"

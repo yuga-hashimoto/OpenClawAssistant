@@ -375,4 +375,58 @@
     <string name="update_available">新しいバージョン (%s) が利用可能です</string>
     <string name="up_to_date">最新バージョンです</string>
     <string name="update_action">更新</string>
+
+    <!-- セットアップガイド -->
+    <string name="setup_guide_first_run">初回起動</string>
+    <string name="setup_guide_title">OpenClaw Assistant\nセットアップガイド</string>
+    <string name="setup_guide_step_format">ステップ %1$d / %2$d</string>
+    <string name="setup_guide_welcome_title">できること</string>
+    <string name="setup_guide_welcome_bullet_1">モバイルからGatewayの操作やAIとのチャットが可能です。</string>
+    <string name="setup_guide_welcome_bullet_2">セットアップコードで簡単に接続でき、CLIコマンドでペアリングも可能です。</string>
+    <string name="setup_guide_welcome_bullet_3">必要な権限や機能だけを自由に有効化できます。</string>
+    <string name="setup_guide_welcome_bullet_4">アプリを使い始める前に、実際の接続テストを行えます。</string>
+    <string name="setup_guide_connection_title">Gateway接続設定</string>
+    <string name="setup_guide_connection_guide_title">セットアップコードとURLの取得</string>
+    <string name="setup_guide_connection_guide_cmd_1">Gatewayホストで以下のコマンドを実行してください：</string>
+    <string name="setup_guide_connection_guide_json_desc">`--json` を指定すると `setupCode` と `gatewayUrl` が表示されます。</string>
+    <string name="setup_guide_connection_discovery_desc">自動URL検出は未実装です。エミュレータは `10.0.2.2` を、実機はLAN内またはTailscaleのホスト名を使用してください。</string>
+    <string name="setup_guide_mode_setup_code">セットアップコード</string>
+    <string name="setup_guide_mode_manual">手動入力</string>
+    <string name="setup_guide_setup_code_label">セットアップコード</string>
+    <string name="setup_guide_setup_code_hint">`openclaw qr --setup-code-only` で取得したコードを貼り付けてください</string>
+    <string name="setup_guide_manual_host">ホスト</string>
+    <string name="setup_guide_manual_port">ポート</string>
+    <string name="setup_guide_manual_tls">TLSを使用</string>
+    <string name="setup_guide_manual_tls_desc">セキュアなWebSocket (`wss`) に切り替えます。</string>
+    <string name="setup_guide_manual_token">トークン (任意)</string>
+    <string name="setup_guide_manual_password">パスワード (任意)</string>
+    <string name="setup_guide_permissions_title">権限の設定</string>
+    <string name="setup_guide_permissions_desc">OpenClawの機能を利用するために必要な権限を許可します。</string>
+    <string name="setup_guide_final_check_title">最終確認</string>
+    <string name="setup_guide_final_check_desc">接続と設定内容を確認します。</string>
+    <string name="setup_guide_finish">完了</string>
+    <string name="setup_guide_next">次へ</string>
+    <string name="setup_guide_invalid_code">セットアップコードが無効です。</string>
+    <string name="setup_guide_invalid_url">GatewayのURLが無効です。</string>
+
+    <!-- Setup Code Apply & HTTP Sync -->
+    <string name="http_use_gateway_url">GatewayのURLを使用</string>
+    <string name="setup_code_applied">設定を適用しました！</string>
+    <string name="setup_code_invalid_code">セットアップコードが無効または不完全です。</string>
+
+    <!-- Additional Setup Guide Strings (JA) -->
+    <string name="permission_camera_desc">AIがカメラ映像を確認するために必要です</string>
+    <string name="permission_location_desc">AIがあなたの現在地を把握するために必要です</string>
+    <string name="setup_guide_auth_token_password">トークン + パスワード</string>
+    <string name="setup_guide_auth_token">トークン</string>
+    <string name="setup_guide_auth_password">パスワード</string>
+    <string name="setup_guide_auth_none">なし</string>
+    <string name="setup_guide_gateway_label">Gateway</string>
+    <string name="setup_guide_auth_label">認証</string>
+    <string name="setup_guide_test_connection_desc">接続テストを押して、Gatewayへの到達性を確認してください。</string>
+    <string name="setup_guide_connected_to">%s に接続しました</string>
+    <string name="setup_guide_pairing_required">ペアリングが必要です</string>
+    <string name="setup_guide_pairing_run_on_host">Gatewayホストで以下を実行してください：</string>
+    <string name="setup_guide_pairing_retest_desc">完了後、再度接続テストをタップしてください。</string>
+    <string name="setup_guide_copied">コピーしました</string>
 </resources>

@@ -372,4 +372,58 @@
     <string name="update_available">New version (%s) available</string>
     <string name="up_to_date">App is up to date</string>
     <string name="update_action">Update</string>
+
+    <!-- Setup Guide -->
+    <string name="setup_guide_first_run">FIRST RUN</string>
+    <string name="setup_guide_title">OpenClaw Assistant\nMobile Setup</string>
+    <string name="setup_guide_step_format">Step %1$d of %2$d</string>
+    <string name="setup_guide_welcome_title">What You Get</string>
+    <string name="setup_guide_welcome_bullet_1">Control the gateway and operator chat from one mobile surface.</string>
+    <string name="setup_guide_welcome_bullet_2">Connect with setup code and recover pairing with CLI commands.</string>
+    <string name="setup_guide_welcome_bullet_3">Enable only the permissions and capabilities you want.</string>
+    <string name="setup_guide_welcome_bullet_4">Finish with a real connection check before entering the app.</string>
+    <string name="setup_guide_connection_title">Gateway Connection</string>
+    <string name="setup_guide_connection_guide_title">Get setup code + gateway URL</string>
+    <string name="setup_guide_connection_guide_cmd_1">Run these on the gateway host:</string>
+    <string name="setup_guide_connection_guide_json_desc">`--json` prints `setupCode` and `gatewayUrl`.</string>
+    <string name="setup_guide_connection_discovery_desc">Auto URL discovery is not wired yet. Android emulator uses `10.0.2.2`; real devices need LAN/Tailscale host.</string>
+    <string name="setup_guide_mode_setup_code">Setup Code</string>
+    <string name="setup_guide_mode_manual">Manual</string>
+    <string name="setup_guide_setup_code_label">SETUP CODE</string>
+    <string name="setup_guide_setup_code_hint">Paste code from `openclaw qr --setup-code-only`</string>
+    <string name="setup_guide_manual_host">HOST</string>
+    <string name="setup_guide_manual_port">PORT</string>
+    <string name="setup_guide_manual_tls">Use TLS</string>
+    <string name="setup_guide_manual_tls_desc">Switch to secure websocket (`wss`).</string>
+    <string name="setup_guide_manual_token">TOKEN (OPTIONAL)</string>
+    <string name="setup_guide_manual_password">PASSWORD (OPTIONAL)</string>
+    <string name="setup_guide_permissions_title">Permissions</string>
+    <string name="setup_guide_permissions_desc">Grant permissions to enable OpenClaw features.</string>
+    <string name="setup_guide_final_check_title">Final Check</string>
+    <string name="setup_guide_final_check_desc">Verify connection and settings.</string>
+    <string name="setup_guide_finish">Finish</string>
+    <string name="setup_guide_next">Next</string>
+    <string name="setup_guide_invalid_code">Invalid setup code.</string>
+    <string name="setup_guide_invalid_url">Invalid gateway URL.</string>
+
+    <!-- Setup Code Apply & HTTP Sync -->
+    <string name="http_use_gateway_url">Use Gateway URL</string>
+    <string name="setup_code_applied">Settings applied!</string>
+    <string name="setup_code_invalid_code">Invalid or incomplete setup code.</string>
+
+    <!-- Additional Setup Guide Strings -->
+    <string name="permission_camera_desc">Required for the AI to see your camera stream</string>
+    <string name="permission_location_desc">Required for the AI to know your location</string>
+    <string name="setup_guide_auth_token_password">Token + Password</string>
+    <string name="setup_guide_auth_token">Token</string>
+    <string name="setup_guide_auth_password">Password</string>
+    <string name="setup_guide_auth_none">None</string>
+    <string name="setup_guide_gateway_label">Gateway</string>
+    <string name="setup_guide_auth_label">Auth</string>
+    <string name="setup_guide_test_connection_desc">Press Test Connection to verify gateway reachability.</string>
+    <string name="setup_guide_connected_to">Connected to %s</string>
+    <string name="setup_guide_pairing_required">Pairing Required</string>
+    <string name="setup_guide_pairing_run_on_host">Run these on the gateway host:</string>
+    <string name="setup_guide_pairing_retest_desc">Then tap Test Connection again.</string>
+    <string name="setup_guide_copied">Copied</string>
 </resources>

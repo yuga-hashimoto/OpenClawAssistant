@@ -108,17 +108,36 @@ suspend fun probeGatewayTlsFingerprint(
     val context = SSLContext.getInstance("TLS")
     context.init(null, arrayOf(trustAll), SecureRandom())
 
-    // Use createSocket(host, port) to ensure SNI is set automatically by the OS.
+    // Use createSocket() and connect() with timeout to ensure we don't hang on TCP connect.
     var socket: SSLSocket? = null
     try {
-      socket = context.socketFactory.createSocket(trimmedHost, port) as SSLSocket
-      socket.soTimeout = timeoutMs
+      val rawSocket = context.socketFactory.createSocket() as SSLSocket
+      rawSocket.soTimeout = timeoutMs
+      rawSocket.connect(InetSocketAddress(trimmedHost, port), timeoutMs)
+      socket = rawSocket
+
+      // Best-effort SNI for hostnames (avoid crashing on IP literals).
+      try {
+        if (trimmedHost.any { it.isLetter() }) {
+          val params = SSLParameters()
+          params.serverNames = listOf(SNIHostName(trimmedHost))
+          socket.sslParameters = params
+        }
+      } catch (_: Throwable) {
+        // ignore
+      }
       
       socket.startHandshake()
-      val cert = socket.session.peerCertificates.firstOrNull() as? X509Certificate ?: return@withContext null
+      val cert = socket.session.peerCertificates.firstOrNull() as? X509Certificate ?: run {
+          android.util.Log.e("GatewayTls", "Probe failed: Peer certificates empty for $trimmedHost:$port")
+          return@withContext null
+      }
       sha256Hex(cert.encoded)
+    } catch (e: java.net.SocketTimeoutException) {
+      android.util.Log.e("GatewayTls", "Probe timeout ($timeoutMs ms) for $trimmedHost:$port", e)
+      null
     } catch (e: Throwable) {
-      android.util.Log.e("GatewayTls", "Probe failed for $trimmedHost:$port", e)
+      android.util.Log.e("GatewayTls", "Probe failed with exception for $trimmedHost:$port", e)
       null
     } finally {
       try {
