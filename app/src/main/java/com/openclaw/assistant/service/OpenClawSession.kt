@@ -50,6 +50,7 @@ import com.openclaw.assistant.speech.TTSUtils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import java.util.concurrent.atomic.AtomicBoolean
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
@@ -126,6 +127,17 @@ class OpenClawSession(context: Context) : VoiceInteractionSession(context),
     
     // Audio Cue
     private val toneGenerator = android.media.ToneGenerator(android.media.AudioManager.STREAM_MUSIC, 100)
+    private val toneGeneratorReleased = AtomicBoolean(false)
+
+    private fun playTone(tone: Int, durationMs: Int = -1) {
+        if (toneGeneratorReleased.get()) return
+        try {
+            if (durationMs == -1) toneGenerator.startTone(tone)
+            else toneGenerator.startTone(tone, durationMs)
+        } catch (e: RuntimeException) {
+            Log.w(TAG, "ToneGenerator already released", e)
+        }
+    }
 
     // AudioFocus management
     private var audioFocusRequest: android.media.AudioFocusRequest? = null
@@ -301,6 +313,7 @@ class OpenClawSession(context: Context) : VoiceInteractionSession(context),
 
         SessionForegroundService.stop(context)
         ttsManager.shutdown()
+        toneGeneratorReleased.set(true)
         toneGenerator.release()
         releaseWakeLock()
     }
@@ -363,7 +376,7 @@ class OpenClawSession(context: Context) : VoiceInteractionSession(context),
                             is SpeechResult.Ready -> {
                                 Log.d(TAG, "SpeechResult.Ready received, transitioning to LISTENING")
                                 currentState.value = AssistantState.LISTENING
-                                toneGenerator.startTone(android.media.ToneGenerator.TONE_PROP_BEEP)
+                                playTone(android.media.ToneGenerator.TONE_PROP_BEEP)
                             }
                             is SpeechResult.Processing -> {
                                 // No sound here - thinking ACK sound will play when AI starts processing
@@ -407,11 +420,11 @@ class OpenClawSession(context: Context) : VoiceInteractionSession(context),
                                         Log.d(TAG, "Speech timeout but AI is $state, not closing session")
                                         hasActuallySpoken = true // break the loop but don't finish
                                     } else {
-                                        toneGenerator.startTone(android.media.ToneGenerator.TONE_PROP_NACK, 100)
+                                        playTone(android.media.ToneGenerator.TONE_PROP_NACK, 100)
                                         finish() // Close the session
                                     }
                                 } else {
-                                    toneGenerator.startTone(android.media.ToneGenerator.TONE_PROP_NACK, 100)
+                                    playTone(android.media.ToneGenerator.TONE_PROP_NACK, 100)
                                     currentState.value = AssistantState.ERROR
                                     errorMessage.value = result.message
                                     hasActuallySpoken = true
@@ -450,7 +463,7 @@ class OpenClawSession(context: Context) : VoiceInteractionSession(context),
         thinkingSoundJob = scope.launch {
             delay(2000)
             while (isActive) {
-                toneGenerator.startTone(android.media.ToneGenerator.TONE_SUP_RINGTONE, 100)
+                playTone(android.media.ToneGenerator.TONE_SUP_RINGTONE, 100)
                 delay(3000)
             }
         }
@@ -464,7 +477,7 @@ class OpenClawSession(context: Context) : VoiceInteractionSession(context),
     private fun sendToOpenClaw(message: String) {
         Log.d(TAG, "sendToOpenClaw() called, transitioning to THINKING")
         currentState.value = AssistantState.THINKING
-        toneGenerator.startTone(android.media.ToneGenerator.TONE_PROP_ACK, 150)
+        playTone(android.media.ToneGenerator.TONE_PROP_ACK, 150)
         startThinkingSound()
         displayText.value = ""
 
