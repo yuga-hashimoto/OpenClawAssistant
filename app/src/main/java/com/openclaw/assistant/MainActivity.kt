@@ -745,10 +745,7 @@ fun MainScreen(
 @Composable
 fun OperatorOfflineCard(deviceId: String, displayName: String = "") {
     val context = LocalContext.current
-    val safeName = displayName.replace("\\", "\\\\").replace("'", "\\'")
-    val safeId = deviceId.replace("\\", "\\\\").replace("'", "\\'")
-    val pythonScript = "import sys,json;d=json.load(sys.stdin);ids={'$safeName','$safeId'};r=next((x for x in d.get('pending',[]) if any(str(v) in ids for v in x.values())),None);print(next((str(v) for k,v in (r or {}).items() if k.lower()=='request'),'NOT_FOUND'))"
-    val command = "openclaw devices approve \$(openclaw devices list --json | python3 -c \"$pythonScript\")"
+    val command = "openclaw devices approve $deviceId"
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(

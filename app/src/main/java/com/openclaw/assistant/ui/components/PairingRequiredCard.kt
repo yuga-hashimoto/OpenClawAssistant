@@ -31,13 +31,8 @@ fun PairingRequiredCard(deviceId: String, displayName: String = "") {
     val nodeRuntime = remember { (context.applicationContext as OpenClawApplication).nodeRuntime }
     val clipboardManager = remember { context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager }
 
-    // Command generation — match any field value against known identifiers (name or device ID hash).
-    // This avoids depending on specific field names that may change across openclaw versions.
-    val safeName = displayName.replace("\\", "\\\\").replace("'", "\\'")
-    val safeId = deviceId.replace("\\", "\\\\").replace("'", "\\'")
-    val pythonScript = "import sys,json;d=json.load(sys.stdin);ids={'$safeName','$safeId'};[print(v) for x in d.get('pending',[]) if any(str(v) in ids for v in x.values()) for k,v in x.items() if k.lower() in ('request','requestid')]"
-    val approveCommand = "openclaw devices list --json | python3 -c \"$pythonScript\" | while read id; do openclaw devices approve \"\$id\"; done"
-    val rejectCommand = "openclaw devices list --json | python3 -c \"$pythonScript\" | while read id; do openclaw devices reject \"\$id\"; done"
+    val approveCommand = "openclaw devices approve $deviceId"
+    val rejectCommand = "openclaw devices reject $deviceId"
 
     var expanded by remember { mutableStateOf(false) }
 
