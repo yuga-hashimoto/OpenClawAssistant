@@ -207,9 +207,9 @@ class AndroidTTSProvider(private val context: Context) : TTSProvider {
 
         if (isInitialized) {
             setupVoice()
+            trySend(TTSState.Preparing)
             tts?.setOnUtteranceProgressListener(listener)
             tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
-            trySend(TTSState.Preparing)
         } else {
             trySend(TTSState.Error(context.getString(R.string.tts_error_not_initialized)))
             close()
