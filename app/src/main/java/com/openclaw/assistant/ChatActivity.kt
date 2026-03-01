@@ -451,7 +451,7 @@ fun ChatScreen(
                                 onStartListening()
                             }
                         },
-                        onAttachClick = { pickFiles.launch("*/*") }
+                        onAttachClick = { pickFiles.launch("image/*") }
                     )
                 }
             }

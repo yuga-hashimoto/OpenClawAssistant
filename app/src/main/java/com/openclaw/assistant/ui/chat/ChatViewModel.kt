@@ -474,7 +474,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             viewModelScope.launch {
                 try {
                     val outgoing = attachmentsToProcess.map { att ->
-                        val attachType = if (att.mimeType.startsWith("image/")) "image" else "file"
+                        val attachType = if (att.mimeType.startsWith("image/")) "image" else "image" // Gateway only supports image attachments
                         com.openclaw.assistant.chat.OutgoingAttachment(
                             type = attachType,
                             mimeType = att.mimeType,
