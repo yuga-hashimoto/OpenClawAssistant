@@ -52,19 +52,29 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.openclaw.assistant.speech.TTSUtils
-import com.openclaw.assistant.ui.chat.ChatMessage
 import com.openclaw.assistant.ui.components.MarkdownText
+import androidx.compose.material.icons.filled.AttachFile
+import androidx.activity.compose.rememberLauncherForActivityResult
 import com.openclaw.assistant.ui.components.PairingRequiredCard
 import com.openclaw.assistant.ui.chat.ChatUiState
 import com.openclaw.assistant.ui.chat.ChatViewModel
+import com.openclaw.assistant.ui.chat.PendingFileAttachment
+import com.openclaw.assistant.ui.chat.ChatMessage
 import com.openclaw.assistant.gateway.AgentInfo
 import com.openclaw.assistant.ui.theme.OpenClawAssistantTheme
 import androidx.compose.material3.TextButton
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.Locale
+import java.io.ByteArrayOutputStream
+import android.util.Base64
+import android.content.ContentResolver
 
 import com.openclaw.assistant.data.SettingsRepository
 import com.openclaw.assistant.service.HotwordService
@@ -160,7 +170,9 @@ class ChatActivity : ComponentActivity() {
                     onBack = { finish() },
                     onAgentSelected = { viewModel.setAgent(it) },
                     onAcceptGatewayTrust = { viewModel.acceptGatewayTrust() },
-                    onDeclineGatewayTrust = { viewModel.declineGatewayTrust() }
+                    onDeclineGatewayTrust = { viewModel.declineGatewayTrust() },
+                    onAttachFiles = { viewModel.addAttachments(it) },
+                    onRemoveAttachment = { viewModel.removeAttachment(it) }
                 )
             }
         }
@@ -252,11 +264,48 @@ fun ChatScreen(
     onBack: () -> Unit,
     onAgentSelected: (String?) -> Unit = {},
     onAcceptGatewayTrust: () -> Unit = {},
-    onDeclineGatewayTrust: () -> Unit = {}
+    onDeclineGatewayTrust: () -> Unit = {},
+    onAttachFiles: (List<PendingFileAttachment>) -> Unit = {},
+    onRemoveAttachment: (String) -> Unit = {}
 ) {
     var inputText by rememberSaveable { mutableStateOf(initialText) }
     val listState = rememberLazyListState()
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val resolver = context.contentResolver
+    val scope = rememberCoroutineScope()
+
+    val pickFiles = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
+        if (uris.isNullOrEmpty()) return@rememberLauncherForActivityResult
+        scope.launch(Dispatchers.IO) {
+            val next = uris.take(10).mapNotNull { uri ->
+                try {
+                    val mimeType = resolver.getType(uri) ?: "application/octet-stream"
+                    val fileName = (uri.lastPathSegment ?: "file").substringAfterLast('/')
+                    val bytes = resolver.openInputStream(uri)?.use { input ->
+                        val out = ByteArrayOutputStream()
+                        input.copyTo(out)
+                        out.toByteArray()
+                    } ?: ByteArray(0)
+                    if (bytes.isNotEmpty()) {
+                        val base64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
+                        PendingFileAttachment(
+                            id = uri.toString() + "#" + System.currentTimeMillis().toString(),
+                            fileName = fileName,
+                            mimeType = mimeType,
+                            base64 = base64
+                        )
+                    } else null
+                } catch (e: Exception) {
+                    null
+                }
+            }
+            withContext(Dispatchers.Main) {
+                if (next.isNotEmpty()) onAttachFiles(next)
+            }
+        }
+    }
 
     // Group messages by date
     val groupedItems = remember(uiState.messages) {
@@ -352,6 +401,13 @@ fun ChatScreen(
                         )
                     }
 
+                    if (uiState.attachments.isNotEmpty()) {
+                        AttachmentsStrip(
+                            attachments = uiState.attachments,
+                            onRemoveAttachment = onRemoveAttachment
+                        )
+                    }
+
                     ChatInputArea(
                         value = inputText,
                         onValueChange = { inputText = it },
@@ -362,6 +418,7 @@ fun ChatScreen(
                         },
                         isListening = uiState.isListening,
                         isSpeaking = uiState.isSpeaking,
+                        hasAttachments = uiState.attachments.isNotEmpty(),
                         onMicClick = {
                             if (uiState.isSpeaking) {
                                 onInterruptAndListen()
@@ -370,7 +427,8 @@ fun ChatScreen(
                             } else {
                                 onStartListening()
                             }
-                        }
+                        },
+                        onAttachClick = { pickFiles.launch("*/*") }
                     )
                 }
             }
@@ -777,7 +835,9 @@ fun ChatInputArea(
     onSend: () -> Unit,
     isListening: Boolean,
     isSpeaking: Boolean = false,
-    onMicClick: () -> Unit
+    hasAttachments: Boolean = false,
+    onMicClick: () -> Unit,
+    onAttachClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -786,6 +846,17 @@ fun ChatInputArea(
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        IconButton(
+            onClick = onAttachClick,
+            modifier = Modifier.padding(end = 4.dp).size(40.dp)
+        ) {
+            Icon(
+                imageVector = androidx.compose.material.icons.Icons.Default.AttachFile,
+                contentDescription = "Attach file",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
@@ -805,21 +876,24 @@ fun ChatInputArea(
             // keyboardActions removed to allow newline on Enter
         )
 
+        val canSend = value.isNotBlank() || hasAttachments
+
         val fabColor = when {
-            value.isBlank() && isListening -> MaterialTheme.colorScheme.error
-            value.isBlank() && isSpeaking -> Color(0xFF2196F3) // Blue to indicate interrupt
+            canSend -> MaterialTheme.colorScheme.primary
+            isListening -> MaterialTheme.colorScheme.error
+            isSpeaking -> Color(0xFF2196F3) // Blue to indicate interrupt
             else -> MaterialTheme.colorScheme.primary
         }
 
         FloatingActionButton(
             onClick = {
-                if (value.isBlank()) onMicClick() else onSend()
+                if (!canSend) onMicClick() else onSend()
             },
             containerColor = fabColor,
             shape = CircleShape
         ) {
             Icon(
-                imageVector = if (value.isBlank()) {
+                imageVector = if (!canSend) {
                      when {
                          isListening -> Icons.Default.Stop
                          isSpeaking -> Icons.Default.Mic  // Interrupt TTS and listen
@@ -831,6 +905,49 @@ fun ChatInputArea(
                 contentDescription = stringResource(R.string.send_description),
                 tint = Color.White
             )
+        }
+    }
+}
+
+@Composable
+fun AttachmentsStrip(
+    attachments: List<PendingFileAttachment>,
+    onRemoveAttachment: (id: String) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        for (att in attachments) {
+            AttachmentChip(
+                fileName = att.fileName,
+                onRemove = { onRemoveAttachment(att.id) },
+            )
+        }
+    }
+}
+
+@Composable
+fun AttachmentChip(fileName: String, onRemove: () -> Unit) {
+    androidx.compose.material3.Surface(
+        shape = RoundedCornerShape(999.dp),
+        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(text = fileName, style = MaterialTheme.typography.bodySmall, maxLines = 1)
+            androidx.compose.material3.FilledTonalIconButton(
+                onClick = onRemove,
+                modifier = Modifier.size(30.dp),
+            ) {
+                Text("×")
+            }
         }
     }
 }

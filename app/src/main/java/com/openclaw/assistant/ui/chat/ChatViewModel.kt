@@ -26,6 +26,13 @@ import java.util.UUID
 
 private const val TAG = "ChatViewModel"
 
+data class PendingFileAttachment(
+    val id: String,
+    val fileName: String,
+    val mimeType: String,
+    val base64: String,
+)
+
 data class ChatMessage(
     val id: String = UUID.randomUUID().toString(),
     val text: String,
@@ -49,7 +56,8 @@ data class ChatUiState(
     val pendingToolCalls: List<String> = emptyList(),
     val isNodeChatMode: Boolean = false,
     val pendingGatewayTrust: com.openclaw.assistant.node.NodeRuntime.GatewayTrustPrompt? = null,
-    val displayName: String = ""
+    val displayName: String = "",
+    val attachments: List<PendingFileAttachment> = emptyList()
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -429,6 +437,14 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         // HTTP mode: agentId is sent via x-openclaw-agent-id header in sendViaHttp
     }
 
+    fun addAttachments(newAttachments: List<PendingFileAttachment>) {
+        _uiState.update { it.copy(attachments = it.attachments + newAttachments) }
+    }
+
+    fun removeAttachment(id: String) {
+        _uiState.update { it.copy(attachments = it.attachments.filterNot { att -> att.id == id }) }
+    }
+
     private fun getEffectiveAgentId(): String? {
         val selected = _uiState.value.selectedAgentId
         if (selected != null) return selected
@@ -446,7 +462,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 _uiState.update { it.copy(error = "接続が確立されていません。しばらく待ってから再送信してください。") }
                 return
             }
-            _uiState.update { it.copy(error = null) }
+            val attachmentsToProcess = _uiState.value.attachments
+            _uiState.update { it.copy(error = null, attachments = emptyList()) }
             pendingNodeChatTts = true
             if (lastInputWasVoice) {
                 toneGenerator.startTone(android.media.ToneGenerator.TONE_PROP_ACK, 150)
@@ -454,10 +471,19 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             startThinkingSound()
             viewModelScope.launch {
                 try {
+                    val outgoing = attachmentsToProcess.map { att ->
+                        val attachType = if (att.mimeType.startsWith("image/")) "image" else "document"
+                        com.openclaw.assistant.chat.OutgoingAttachment(
+                            type = attachType,
+                            mimeType = att.mimeType,
+                            fileName = att.fileName,
+                            base64 = att.base64
+                        )
+                    }
                     nodeRuntime.sendChat(
                         message = text,
                         thinking = "low",
-                        attachments = emptyList()
+                        attachments = outgoing
                     )
                 } catch (e: Exception) {
                     pendingNodeChatTts = false
@@ -471,7 +497,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         // Ensure we have a session
         val sessionId = _currentSessionId.value ?: return
 
-        _uiState.update { it.copy(isThinking = true) }
+        _uiState.update { it.copy(isThinking = true, attachments = emptyList()) }
         if (lastInputWasVoice) {
             toneGenerator.startTone(android.media.ToneGenerator.TONE_PROP_ACK, 150)
         }
@@ -481,6 +507,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 // Save User Message
                 chatRepository.addMessage(sessionId, text, isUser = true)
+                // HTTP API currently doesn't support generic file attachments yet in OpenClaw backend structure natively without node format
+                // So they are technically dropped in the original HTTP flow here unless backend translates them.
                 sendViaHttp(sessionId, text)
             } catch (e: Exception) {
                 stopThinkingSound()
