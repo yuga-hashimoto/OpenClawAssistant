@@ -245,6 +245,24 @@ class ChatActivity : ComponentActivity() {
             .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
+
+    private fun getFileName(context: android.content.Context, uri: android.net.Uri): String? {
+        if (uri.scheme == "content") {
+            val cursor = context.contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val nameIndex = it.getColumnIndex(android.util.OpenableColumns.DISPLAY_NAME)
+                    if (nameIndex != -1) {
+                        return it.getString(nameIndex)
+                    }
+                }
+            }
+        }
+        return uri.path?.let { path ->
+            val cut = path.lastIndexOf('/')
+            if (cut != -1) path.substring(cut + 1) else path
+        }
+    }
 }
 
 sealed interface ChatListItem {
@@ -286,7 +304,7 @@ fun ChatScreen(
             val next = uris.take(10).mapNotNull { uri ->
                 try {
                     val mimeType = resolver.getType(uri) ?: "application/octet-stream"
-                    val fileName = (uri.lastPathSegment ?: "file").substringAfterLast('/')
+                    val fileName = getFileName(context, uri) ?: "file"
                     val bytes = resolver.openInputStream(uri)?.use { input ->
                         val out = ByteArrayOutputStream()
                         input.copyTo(out)
