@@ -868,7 +868,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         val mergedText = content.joinToString("\n") { it.text ?: "" }.trim().ifBlank { "(thinking)" }
         val preprocessed = ChatMarkdownPreprocessor.preprocess(mergedText)
         val isUserMessage = role.equals("user", ignoreCase = true)
-        val attachmentContents = content.filter { it.type != "text" || it.base64 != null }
+        val attachmentContents = content.filter { it.type != "text" && it.base64 != null }
         return ChatMessage(
             id = id,
             text = preprocessed,
