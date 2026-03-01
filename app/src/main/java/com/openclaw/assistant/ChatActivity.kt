@@ -304,23 +304,46 @@ fun ChatScreen(
         scope.launch(Dispatchers.IO) {
             val next = uris.take(10).mapNotNull { uri ->
                 try {
-                    val mimeType = resolver.getType(uri) ?: "application/octet-stream"
-                    val fileName = getFileName(context, uri) ?: "file"
-                    val bytes = resolver.openInputStream(uri)?.use { input ->
+                    val mimeType = resolver.getType(uri) ?: "image/jpeg"
+                    val fileName = getFileName(context, uri) ?: "image.jpg"
+
+                    // Decode, resize and compress image to avoid server stack overflow
+                    // on large Base64 payloads (server regex limit ~3.5MB decoded).
+                    val MAX_DIMENSION = 1024
+                    val JPEG_QUALITY = 70
+
+                    val rawBytes = resolver.openInputStream(uri)?.use { input ->
                         val out = ByteArrayOutputStream()
                         input.copyTo(out)
                         out.toByteArray()
                     } ?: ByteArray(0)
-                    if (bytes.isNotEmpty()) {
-                        val base64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
-                        PendingFileAttachment(
-                            id = uri.toString() + "#" + System.currentTimeMillis().toString(),
-                            fileName = fileName,
-                            mimeType = mimeType,
-                            base64 = base64
-                        )
-                    } else null
+                    if (rawBytes.isEmpty()) return@mapNotNull null
+
+                    val bitmap = android.graphics.BitmapFactory.decodeByteArray(rawBytes, 0, rawBytes.size)
+                        ?: return@mapNotNull null
+                    val scaledBitmap = if (bitmap.width > MAX_DIMENSION || bitmap.height > MAX_DIMENSION) {
+                        val scale = MAX_DIMENSION.toFloat() / maxOf(bitmap.width, bitmap.height)
+                        val newW = (bitmap.width * scale).toInt()
+                        val newH = (bitmap.height * scale).toInt()
+                        android.graphics.Bitmap.createScaledBitmap(bitmap, newW, newH, true).also {
+                            if (it !== bitmap) bitmap.recycle()
+                        }
+                    } else bitmap
+
+                    val compressedOut = ByteArrayOutputStream()
+                    scaledBitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, JPEG_QUALITY, compressedOut)
+                    scaledBitmap.recycle()
+                    val compressedBytes = compressedOut.toByteArray()
+
+                    val base64 = Base64.encodeToString(compressedBytes, Base64.NO_WRAP)
+                    PendingFileAttachment(
+                        id = uri.toString() + "#" + System.currentTimeMillis().toString(),
+                        fileName = fileName,
+                        mimeType = "image/jpeg",
+                        base64 = base64
+                    )
                 } catch (e: Exception) {
+                    Log.w("ChatDbg", "pickFiles: failed to process image", e)
                     null
                 }
             }
