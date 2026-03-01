@@ -454,12 +454,13 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun sendMessage(text: String) {
-        if (text.isBlank()) return
+        if (text.isBlank() && _uiState.value.attachments.isEmpty()) return
 
         if (useNodeChat) {
             // Check gateway health before sending; if not ready, show a clear error
             // instead of letting the message silently fail inside ChatController.
             if (!nodeRuntime.chatHealthOk.value) {
+                Log.w(TAG, "sendMessage: chatHealthOk is false. useNodeChat=true")
                 _uiState.update { it.copy(error = "接続が確立されていません。しばらく待ってから再送信してください。") }
                 return
             }
@@ -473,7 +474,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             viewModelScope.launch {
                 try {
                     val outgoing = attachmentsToProcess.map { att ->
-                        val attachType = if (att.mimeType.startsWith("image/")) "image" else "file"
+                        val attachType = if (att.mimeType.startsWith("image/")) "image" else "document"
                         com.openclaw.assistant.chat.OutgoingAttachment(
                             type = attachType,
                             mimeType = att.mimeType,
