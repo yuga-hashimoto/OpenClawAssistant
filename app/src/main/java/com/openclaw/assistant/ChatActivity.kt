@@ -251,7 +251,7 @@ class ChatActivity : ComponentActivity() {
             val cursor = context.contentResolver.query(uri, null, null, null, null)
             cursor?.use {
                 if (it.moveToFirst()) {
-                    val nameIndex = it.getColumnIndex(android.util.OpenableColumns.DISPLAY_NAME)
+                    val nameIndex = it.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
                     if (nameIndex != -1) {
                         return it.getString(nameIndex)
                     }
