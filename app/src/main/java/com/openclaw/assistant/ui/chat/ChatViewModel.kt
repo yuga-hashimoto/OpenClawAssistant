@@ -37,7 +37,8 @@ data class ChatMessage(
     val id: String = UUID.randomUUID().toString(),
     val text: String,
     val isUser: Boolean,
-    val timestamp: Long = System.currentTimeMillis()
+    val timestamp: Long = System.currentTimeMillis(),
+    val attachments: List<com.openclaw.assistant.chat.ChatMessageContent> = emptyList()
 )
 
 data class ChatUiState(
@@ -472,7 +473,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             viewModelScope.launch {
                 try {
                     val outgoing = attachmentsToProcess.map { att ->
-                        val attachType = if (att.mimeType.startsWith("image/")) "image" else "document"
+                        val attachType = if (att.mimeType.startsWith("image/")) "image" else "file"
                         com.openclaw.assistant.chat.OutgoingAttachment(
                             type = attachType,
                             mimeType = att.mimeType,
@@ -866,11 +867,13 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         val mergedText = content.joinToString("\n") { it.text ?: "" }.trim().ifBlank { "(thinking)" }
         val preprocessed = ChatMarkdownPreprocessor.preprocess(mergedText)
         val isUserMessage = role.equals("user", ignoreCase = true)
+        val attachmentContents = content.filter { it.type != "text" || it.base64 != null }
         return ChatMessage(
             id = id,
             text = preprocessed,
             isUser = isUserMessage,
-            timestamp = timestampMs ?: System.currentTimeMillis()
+            timestamp = timestampMs ?: System.currentTimeMillis(),
+            attachments = attachmentContents
         )
     }
 }

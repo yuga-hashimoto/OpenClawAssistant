@@ -58,6 +58,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.openclaw.assistant.speech.TTSUtils
 import com.openclaw.assistant.ui.components.MarkdownText
+import androidx.compose.foundation.Image
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.material.icons.automirrored.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.activity.compose.rememberLauncherForActivityResult
 import com.openclaw.assistant.ui.components.PairingRequiredCard
@@ -579,6 +583,13 @@ fun MessageBubble(message: ChatMessage) {
                             color = contentColor
                         )
                     }
+                    if (message.attachments.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        for (att in message.attachments) {
+                            ChatAttachmentPreview(att, contentColor)
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+                    }
                     Row(
                         modifier = Modifier.align(Alignment.End),
                         horizontalArrangement = Arrangement.End,
@@ -606,6 +617,64 @@ fun MessageBubble(message: ChatMessage) {
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun ChatAttachmentPreview(attachment: com.openclaw.assistant.chat.ChatMessageContent, contentColor: Color) {
+    if (attachment.type == "image" && attachment.base64 != null) {
+        var image by remember(attachment.base64) { mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null) }
+        var failed by remember(attachment.base64) { mutableStateOf(false) }
+
+        LaunchedEffect(attachment.base64) {
+            failed = false
+            image = withContext(Dispatchers.Default) {
+                try {
+                    val bytes = android.util.Base64.decode(attachment.base64, android.util.Base64.DEFAULT)
+                    val bitmap = android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return@withContext null
+                    bitmap.asImageBitmap()
+                } catch (_: Throwable) {
+                    null
+                }
+            }
+            if (image == null) failed = true
+        }
+
+        if (image != null) {
+            Image(
+                bitmap = image!!,
+                contentDescription = attachment.fileName ?: "Image attachment",
+                contentScale = androidx.compose.ui.layout.ContentScale.Fit,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp))
+            )
+        } else if (failed) {
+            Text("Failed to load image", style = MaterialTheme.typography.bodySmall, color = contentColor.copy(alpha = 0.7f))
+        }
+    } else {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(contentColor.copy(alpha = 0.1f), RoundedCornerShape(8.dp))
+                .padding(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.InsertDriveFile,
+                contentDescription = "File",
+                tint = contentColor,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = attachment.fileName ?: "File",
+                style = MaterialTheme.typography.bodyMedium,
+                color = contentColor,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            )
         }
     }
 }
