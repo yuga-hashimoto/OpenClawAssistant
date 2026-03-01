@@ -201,6 +201,7 @@ class ChatController(
             }
           }
         Log.d("ChatDbg", "chat.send start idempotencyKey=$runId sessionKey=$sessionKey")
+        Log.d("ChatDbg", "chat.send payload: ${params.toString().take(1000)}")
         val res = session.request("chat.send", params.toString(), timeoutMs = 35_000)
         val actualRunId = parseRunId(res) ?: runId
         Log.d("ChatDbg", "chat.send response: actualRunId=$actualRunId (same=${actualRunId == runId}) res=$res")

@@ -1,0 +1,19 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.13/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+[Incubating] Problems report is available at: file:///Users/yu-ga/Documents/GitHub/OpenClawAssistant/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Task 'compileDebugKotlin' is ambiguous in root project 'OpenClawAssistant' and its subprojects. Candidates are: 'compileFullDebugAndroidTestKotlin', 'compileFullDebugKotlin', 'compileFullDebugUnitTestKotlin', 'compileStandardDebugAndroidTestKotlin', 'compileStandardDebugKotlin', 'compileStandardDebugUnitTestKotlin'.
+
+* Try:
+> Run gradlew tasks to get a list of available tasks.
+> For more on name expansion, please refer to https://docs.gradle.org/8.13/userguide/command_line_interface.html#sec:name_abbreviation in the Gradle documentation.
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 14s

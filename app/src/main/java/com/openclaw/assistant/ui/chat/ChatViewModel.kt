@@ -474,7 +474,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             viewModelScope.launch {
                 try {
                     val outgoing = attachmentsToProcess.map { att ->
-                        val attachType = if (att.mimeType.startsWith("image/")) "image" else "document"
+                        val attachType = if (att.mimeType.startsWith("image/")) "image" else "file"
                         com.openclaw.assistant.chat.OutgoingAttachment(
                             type = attachType,
                             mimeType = att.mimeType,

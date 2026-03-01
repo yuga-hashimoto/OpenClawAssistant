@@ -1,0 +1,350 @@
+Initialized native services in: /Users/yu-ga/.gradle/native
+Initialized jansi services in: /Users/yu-ga/.gradle/native
+Found daemon DaemonInfo{pid=86318, address=[ec6c61a0-5949-4da4-b74f-0ee7621e5a68 port:63861, addresses:[/127.0.0.1]], state=Idle, lastBusy=1772374416190, context=DefaultDaemonContext[uid=6c1813f8-21bf-49a3-80dc-3ac2d48330f1,javaHome=/Users/yu-ga/.antigravity/extensions/redhat.java-1.53.0-darwin-arm64/jre/21.0.10-macosx-aarch64,javaVersion=21,javaVendor=Eclipse Adoptium,daemonRegistryDir=/Users/yu-ga/.gradle/daemon,pid=86318,idleTimeout=10800000,priority=NORMAL,applyInstrumentationAgent=true,nativeServicesMode=ENABLED,daemonOpts=-Xmx4096m,-Dfile.encoding=UTF-8,-Duser.country=JP,-Duser.language=ja,-Duser.variant]} however its context does not match the desired criteria.
+JVM is incompatible.
+Wanted: DaemonRequestContext{jvmCriteria=/Applications/Android Studio.app/Contents/jbr/Contents/Home (no JDK specified, using current Java home), daemonOpts=[-Xmx4096m, -Dfile.encoding=UTF-8, -Duser.country=JP, -Duser.language=ja, -Duser.variant], applyInstrumentationAgent=true, nativeServicesMode=ENABLED, priority=NORMAL}
+Actual: DefaultDaemonContext[uid=6c1813f8-21bf-49a3-80dc-3ac2d48330f1,javaHome=/Users/yu-ga/.antigravity/extensions/redhat.java-1.53.0-darwin-arm64/jre/21.0.10-macosx-aarch64,javaVersion=21,javaVendor=Eclipse Adoptium,daemonRegistryDir=/Users/yu-ga/.gradle/daemon,pid=86318,idleTimeout=10800000,priority=NORMAL,applyInstrumentationAgent=true,nativeServicesMode=ENABLED,daemonOpts=-Xmx4096m,-Dfile.encoding=UTF-8,-Duser.country=JP,-Duser.language=ja,-Duser.variant]
+
+  Looking for a different daemon...
+The client will now receive all logging from the daemon (pid: 86710). The daemon log file: /Users/yu-ga/.gradle/daemon/8.13/daemon-86710.out.log
+Starting 9th build in daemon [uptime: 26 mins 34.456 secs, performance: 98%, GC rate: 0.00/s, heap usage: 0% of 4 GiB]
+Using 10 worker leases.
+Now considering [/Users/yu-ga/Documents/GitHub/OpenClawAssistant] as hierarchies to watch
+Watching the file system is configured to be enabled if available
+File system watching is active
+Starting Build
+Settings evaluated using settings file '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/settings.gradle.kts'.
+Projects loaded. Root project using build file '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/build.gradle.kts'.
+Included projects: [root project 'OpenClawAssistant', project ':app']
+
+> Configure project :
+Evaluating root project 'OpenClawAssistant' using build file '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/build.gradle.kts'.
+Resolved plugin [id: 'com.android.application', version: '8.13.2', apply: false]
+Resolved plugin [id: 'org.jetbrains.kotlin.android', version: '1.9.22', apply: false]
+Resolved plugin [id: 'org.jetbrains.kotlin.plugin.serialization', version: '1.9.22', apply: false]
+Resolved plugin [id: 'com.google.gms.google-services', version: '4.4.4', apply: false]
+Resolved plugin [id: 'com.google.firebase.crashlytics', version: '3.0.2', apply: false]
+
+> Configure project :app
+Evaluating project ':app' using build file '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/build.gradle.kts'.
+Resolved plugin [id: 'com.android.application']
+Resolved plugin [id: 'org.jetbrains.kotlin.android']
+Resolved plugin [id: 'kotlin-kapt']
+Resolved plugin [id: 'org.jetbrains.kotlin.plugin.serialization']
+Resolved plugin [id: 'com.google.gms.google-services']
+Resolved plugin [id: 'com.google.firebase.crashlytics']
+Using default execution profile
+Using Kotlin Gradle Plugin gradle82 variant
+All projects evaluated.
+Task name matched 'compileStandardDebugKotlin'
+Selected primary task 'compileStandardDebugKotlin' from project :
+Tasks to be executed: [task ':app:checkKotlinGradlePluginConfigurationErrors', task ':app:preBuild', task ':app:preStandardDebugBuild', task ':app:generateStandardDebugBuildConfig', task ':app:checkStandardDebugAarMetadata', task ':app:processStandardDebugNavigationResources', task ':app:compileStandardDebugNavigationResources', task ':app:generateStandardDebugResValues', task ':app:injectCrashlyticsMappingFileIdStandardDebug', task ':app:processStandardDebugGoogleServices', task ':app:mapStandardDebugSourceSetPaths', task ':app:generateStandardDebugResources', task ':app:mergeStandardDebugResources', task ':app:packageStandardDebugResources', task ':app:parseStandardDebugLocalResources', task ':app:createStandardDebugCompatibleScreenManifests', task ':app:extractDeepLinksStandardDebug', task ':app:processStandardDebugMainManifest', task ':app:processStandardDebugManifest', task ':app:processStandardDebugManifestForPackage', task ':app:processStandardDebugResources', task ':app:kaptGenerateStubsStandardDebugKotlin', task ':app:kaptStandardDebugKotlin', task ':app:compileStandardDebugKotlin']
+Tasks that were excluded: []
+Resolve mutations for :app:checkKotlinGradlePluginConfigurationErrors (Thread[#881,Execution worker,5,main]) started.
+:app:checkKotlinGradlePluginConfigurationErrors (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:checkKotlinGradlePluginConfigurationErrors
+Caching disabled for task ':app:checkKotlinGradlePluginConfigurationErrors' because:
+  Build cache is disabled
+Task ':app:checkKotlinGradlePluginConfigurationErrors' is not up-to-date because:
+  Task has not declared any outputs despite executing actions.
+Resolve mutations for :app:preBuild (Thread[#881,Execution worker,5,main]) started.
+:app:preBuild (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:preBuild UP-TO-DATE
+Skipping task ':app:preBuild' as it has no actions.
+Resolve mutations for :app:preStandardDebugBuild (Thread[#881,Execution worker,5,main]) started.
+:app:preStandardDebugBuild (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:preStandardDebugBuild UP-TO-DATE
+Skipping task ':app:preStandardDebugBuild' as it has no actions.
+Resolve mutations for :app:generateStandardDebugBuildConfig (Thread[#881,Execution worker,5,main]) started.
+:app:generateStandardDebugBuildConfig (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:generateStandardDebugBuildConfig UP-TO-DATE
+Caching disabled for task ':app:generateStandardDebugBuildConfig' because:
+  Build cache is disabled
+Skipping task ':app:generateStandardDebugBuildConfig' as it is up-to-date.
+Resolve mutations for :app:checkStandardDebugAarMetadata (Thread[#881,Execution worker,5,main]) started.
+:app:checkStandardDebugAarMetadata (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:checkStandardDebugAarMetadata UP-TO-DATE
+Caching disabled for task ':app:checkStandardDebugAarMetadata' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:checkStandardDebugAarMetadata' as it is up-to-date.
+Resolve mutations for :app:processStandardDebugNavigationResources (Thread[#881,Execution worker,5,main]) started.
+:app:processStandardDebugNavigationResources (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:processStandardDebugNavigationResources UP-TO-DATE
+Caching disabled for task ':app:processStandardDebugNavigationResources' because:
+  Build cache is disabled
+Skipping task ':app:processStandardDebugNavigationResources' as it is up-to-date.
+Resolve mutations for :app:compileStandardDebugNavigationResources (Thread[#881,Execution worker,5,main]) started.
+:app:compileStandardDebugNavigationResources (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:compileStandardDebugNavigationResources UP-TO-DATE
+Caching disabled for task ':app:compileStandardDebugNavigationResources' because:
+  Build cache is disabled
+Skipping task ':app:compileStandardDebugNavigationResources' as it is up-to-date.
+Resolve mutations for :app:generateStandardDebugResValues (Thread[#881,Execution worker,5,main]) started.
+:app:generateStandardDebugResValues (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:generateStandardDebugResValues UP-TO-DATE
+Caching disabled for task ':app:generateStandardDebugResValues' because:
+  Build cache is disabled
+Skipping task ':app:generateStandardDebugResValues' as it is up-to-date.
+Resolve mutations for :app:injectCrashlyticsMappingFileIdStandardDebug (Thread[#881,Execution worker,5,main]) started.
+:app:injectCrashlyticsMappingFileIdStandardDebug (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:injectCrashlyticsMappingFileIdStandardDebug UP-TO-DATE
+Caching disabled for task ':app:injectCrashlyticsMappingFileIdStandardDebug' because:
+  Build cache is disabled
+  Caching has not been enabled for the task
+Skipping task ':app:injectCrashlyticsMappingFileIdStandardDebug' as it is up-to-date.
+Resolve mutations for :app:processStandardDebugGoogleServices (Thread[#881,Execution worker,5,main]) started.
+:app:processStandardDebugGoogleServices (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:processStandardDebugGoogleServices UP-TO-DATE
+Caching disabled for task ':app:processStandardDebugGoogleServices' because:
+  Build cache is disabled
+Skipping task ':app:processStandardDebugGoogleServices' as it is up-to-date.
+Resolve mutations for :app:mapStandardDebugSourceSetPaths (Thread[#881,Execution worker,5,main]) started.
+:app:mapStandardDebugSourceSetPaths (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:mapStandardDebugSourceSetPaths UP-TO-DATE
+Caching disabled for task ':app:mapStandardDebugSourceSetPaths' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:mapStandardDebugSourceSetPaths' as it is up-to-date.
+Resolve mutations for :app:generateStandardDebugResources (Thread[#881,Execution worker,5,main]) started.
+:app:generateStandardDebugResources (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:generateStandardDebugResources UP-TO-DATE
+Caching disabled for task ':app:generateStandardDebugResources' because:
+  Build cache is disabled
+Skipping task ':app:generateStandardDebugResources' as it is up-to-date.
+Resolve mutations for :app:mergeStandardDebugResources (Thread[#881,Execution worker,5,main]) started.
+:app:mergeStandardDebugResources (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:mergeStandardDebugResources UP-TO-DATE
+Caching disabled for task ':app:mergeStandardDebugResources' because:
+  Build cache is disabled
+Skipping task ':app:mergeStandardDebugResources' as it is up-to-date.
+Resolve mutations for :app:packageStandardDebugResources (Thread[#881,Execution worker,5,main]) started.
+:app:packageStandardDebugResources (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:packageStandardDebugResources UP-TO-DATE
+Caching disabled for task ':app:packageStandardDebugResources' because:
+  Build cache is disabled
+Skipping task ':app:packageStandardDebugResources' as it is up-to-date.
+Resolve mutations for :app:parseStandardDebugLocalResources (Thread[#881,Execution worker,5,main]) started.
+:app:parseStandardDebugLocalResources (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:parseStandardDebugLocalResources UP-TO-DATE
+Caching disabled for task ':app:parseStandardDebugLocalResources' because:
+  Build cache is disabled
+Skipping task ':app:parseStandardDebugLocalResources' as it is up-to-date.
+Resolve mutations for :app:createStandardDebugCompatibleScreenManifests (Thread[#881,Execution worker,5,main]) started.
+:app:createStandardDebugCompatibleScreenManifests (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:createStandardDebugCompatibleScreenManifests UP-TO-DATE
+Caching disabled for task ':app:createStandardDebugCompatibleScreenManifests' because:
+  Build cache is disabled
+  Caching has been disabled for the task
+Skipping task ':app:createStandardDebugCompatibleScreenManifests' as it is up-to-date.
+Resolve mutations for :app:extractDeepLinksStandardDebug (Thread[#881,Execution worker,5,main]) started.
+:app:extractDeepLinksStandardDebug (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:extractDeepLinksStandardDebug UP-TO-DATE
+Caching disabled for task ':app:extractDeepLinksStandardDebug' because:
+  Build cache is disabled
+Skipping task ':app:extractDeepLinksStandardDebug' as it is up-to-date.
+Resolve mutations for :app:processStandardDebugMainManifest (Thread[#881,Execution worker,5,main]) started.
+:app:processStandardDebugMainManifest (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:processStandardDebugMainManifest UP-TO-DATE
+Caching disabled for task ':app:processStandardDebugMainManifest' because:
+  Build cache is disabled
+Skipping task ':app:processStandardDebugMainManifest' as it is up-to-date.
+Resolve mutations for :app:processStandardDebugManifest (Thread[#881,Execution worker,5,main]) started.
+:app:processStandardDebugManifest (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:processStandardDebugManifest UP-TO-DATE
+Caching disabled for task ':app:processStandardDebugManifest' because:
+  Build cache is disabled
+Skipping task ':app:processStandardDebugManifest' as it is up-to-date.
+Resolve mutations for :app:processStandardDebugManifestForPackage (Thread[#881,Execution worker,5,main]) started.
+:app:processStandardDebugManifestForPackage (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:processStandardDebugManifestForPackage UP-TO-DATE
+Custom actions are attached to task ':app:processStandardDebugManifestForPackage'.
+Caching disabled for task ':app:processStandardDebugManifestForPackage' because:
+  Build cache is disabled
+Skipping task ':app:processStandardDebugManifestForPackage' as it is up-to-date.
+Resolve mutations for :app:processStandardDebugResources (Thread[#881,Execution worker,5,main]) started.
+:app:processStandardDebugResources (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:processStandardDebugResources UP-TO-DATE
+Registered task dependencies: app:standardDebugCompileClasspath
+Skipping misunderstood TO dep string: androidx.compose.ui:ui-tooling
+Skipping misunderstood TO dep string: androidx.compose.ui:ui-test-manifest
+Skipping misunderstood TO dep string: androidx.compose.ui:ui
+Skipping misunderstood TO dep string: androidx.compose.ui:ui-graphics
+Skipping misunderstood TO dep string: androidx.compose.ui:ui-tooling-preview
+Skipping misunderstood TO dep string: androidx.compose.material3:material3
+Skipping misunderstood TO dep string: androidx.compose.material:material-icons-extended
+Skipping misunderstood TO dep string: org.jetbrains.kotlin:kotlin-stdlib
+Skipping misunderstood TO dep string: com.google.firebase:firebase-crashlytics
+Skipping misunderstood TO dep string: com.google.firebase:firebase-analytics
+Starting dependency analysis
+Caching disabled for task ':app:processStandardDebugResources' because:
+  Build cache is disabled
+Skipping task ':app:processStandardDebugResources' as it is up-to-date.
+Resolve mutations for :app:kaptGenerateStubsStandardDebugKotlin (Thread[#881,Execution worker,5,main]) started.
+:app:kaptGenerateStubsStandardDebugKotlin (Thread[#881,Execution worker,5,main]) started.
+
+> Task :app:kaptGenerateStubsStandardDebugKotlin
+Registered task dependencies: app:kotlinCompilerClasspath
+Starting dependency analysis
+Registered task dependencies: app:kotlinCompilerPluginClasspathStandardDebug
+Starting dependency analysis
+Caching disabled for task ':app:kaptGenerateStubsStandardDebugKotlin' because:
+  Build cache is disabled
+Task ':app:kaptGenerateStubsStandardDebugKotlin' is not up-to-date because:
+  Input property 'additionalSources' file /Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/build/generated/source/buildConfig/standard/debug/com/openclaw/assistant/BuildConfig.java has changed.
+  Input property 'javaSources' file /Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/build/generated/source/buildConfig/standard/debug/com/openclaw/assistant/BuildConfig.java has changed.
+  Input property 'sources' file /Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/java/com/openclaw/assistant/ChatActivity.kt has changed.
+  and more...
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standard/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standard/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standard/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standard/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standard/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standard/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standard/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standard/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standard/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standard/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standard/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standard/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standard/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standard/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standard/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standard/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standard/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standard/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/kotlin', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/debug/java', not found
+file or directory '/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/standardDebug/java', not found
+Using Kotlin/JVM incremental compilation
+[KOTLIN] Kotlin compilation 'jdkHome' argument: null
+i: found daemon on port 17659 (1587526 ms old), trying to connect
+i: connected to the daemon
+Options for KOTLIN DAEMON: IncrementalCompilationOptions(super=CompilationOptions(compilerMode=INCREMENTAL_COMPILER, targetPlatform=JVM, reportCategories=[0, 3], reportSeverity=2, requestedCompilationResults=[0], kotlinScriptExtensions=[]), areFileChangesKnown=true, modifiedFiles=[/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/java/com/openclaw/assistant/ChatActivity.kt, /Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/java/com/openclaw/assistant/ui/chat/ChatViewModel.kt, /Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/build/generated/source/buildConfig/standard/debug/com/openclaw/assistant/BuildConfig.java], deletedFiles=[/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/java/com/openclaw/assistant/ui/chat/ChatComposer.kt, /Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/src/main/java/com/openclaw/assistant/ui/chat/ChatSheetContent.kt], classpathChanges=NoChanges, workingDir=/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/build/kotlin/kaptGenerateStubsStandardDebugKotlin/cacheable, multiModuleICSettings=MultiModuleICSettings(buildHistoryFile=/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/build/kotlin/kaptGenerateStubsStandardDebugKotlin/local-state/build-history.bin, useModuleDetection=true), usePreciseJavaTracking=true, outputFiles=[/Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/build/tmp/kapt3/incrementalData/standardDebug, /Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/build/tmp/kapt3/stubs/standardDebug, /Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/build/kotlin/kaptGenerateStubsStandardDebugKotlin/cacheable, /Users/yu-ga/Documents/GitHub/OpenClawAssistant/app/build/kotlin/kaptGenerateStubsStandardDebugKotlin/local-state])
+Restoring task outputs to pre-compilation state
+
+> Task :app:kaptGenerateStubsStandardDebugKotlin FAILED
+
+[Incubating] Problems report is available at: file:///Users/yu-ga/Documents/GitHub/OpenClawAssistant/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.13/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+20 actionable tasks: 2 executed, 18 up-to-date
+Watched directory hierarchies: [/Users/yu-ga/Documents/GitHub/OpenClawAssistant]
