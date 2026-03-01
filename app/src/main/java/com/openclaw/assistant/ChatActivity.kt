@@ -245,30 +245,31 @@ class ChatActivity : ComponentActivity() {
             .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
-
-    private fun getFileName(context: android.content.Context, uri: android.net.Uri): String? {
-        if (uri.scheme == "content") {
-            val cursor = context.contentResolver.query(uri, null, null, null, null)
-            cursor?.use {
-                if (it.moveToFirst()) {
-                    val nameIndex = it.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
-                    if (nameIndex != -1) {
-                        return it.getString(nameIndex)
-                    }
-                }
-            }
-        }
-        return uri.path?.let { path ->
-            val cut = path.lastIndexOf('/')
-            if (cut != -1) path.substring(cut + 1) else path
-        }
-    }
 }
 
 sealed interface ChatListItem {
     data class DateSeparator(val dateText: String) : ChatListItem
     data class MessageItem(val message: ChatMessage) : ChatListItem
 }
+
+private fun getFileName(context: Context, uri: Uri): String? {
+    if (uri.scheme == "content") {
+        val cursor = context.contentResolver.query(uri, null, null, null, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val nameIndex = it.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                if (nameIndex != -1) {
+                    return it.getString(nameIndex)
+                }
+            }
+        }
+    }
+    return uri.path?.let { path ->
+        val cut = path.lastIndexOf('/')
+        if (cut != -1) path.substring(cut + 1) else path
+    }
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
