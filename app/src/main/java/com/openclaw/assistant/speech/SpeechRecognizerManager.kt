@@ -55,12 +55,7 @@ class SpeechRecognizerManager(private val context: Context) {
             }
             if (SpeechRecognizer.isRecognitionAvailable(context)) {
                 val appContext = context.applicationContext
-                val serviceComponent = findRecognitionService(appContext)
-                recognizer = if (serviceComponent != null) {
-                    SpeechRecognizer.createSpeechRecognizer(appContext, serviceComponent)
-                } else {
-                    SpeechRecognizer.createSpeechRecognizer(appContext)
-                }
+                recognizer = SpeechRecognizer.createSpeechRecognizer(appContext)
                 android.util.Log.d("SpeechRecognizerManager", "Created new recognizer instance")
             }
         }
@@ -155,7 +150,6 @@ class SpeechRecognizerManager(private val context: Context) {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, targetLanguage)
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, targetLanguage)
-            putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, targetLanguage)
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
             putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, silenceTimeoutMs)
@@ -167,7 +161,7 @@ class SpeechRecognizerManager(private val context: Context) {
 
         // Run on Main thread
         android.util.Log.d("SpeechRecognizerManager", "Dispatching startListening(intent) to Main thread")
-        Dispatchers.Main.dispatch(kotlin.coroutines.EmptyCoroutineContext, Runnable {
+        withContext(Dispatchers.Main) {
              try {
                  android.util.Log.d("SpeechRecognizerManager", "Calling recognizer.startListening()")
                  currentRecognizer.startListening(intent)
@@ -176,7 +170,7 @@ class SpeechRecognizerManager(private val context: Context) {
                  trySend(SpeechResult.Error(context.getString(com.openclaw.assistant.R.string.error_start_failed, e.message)))
                  close()
              }
-        })
+        }
 
         awaitClose {
             android.util.Log.d("SpeechRecognizerManager", "awaitClose: flow closing, destroying recognizer")
@@ -209,38 +203,6 @@ class SpeechRecognizerManager(private val context: Context) {
             // Ignore
         }
         recognizer = null
-    }
-
-    /**
-     * Find a real speech recognition service, skipping our own stub service.
-     * This app registers a no-op RecognitionService (required for VoiceInteractionService),
-     * which some devices may select as the default, breaking SpeechRecognizer.
-     */
-    private fun findRecognitionService(context: Context): ComponentName? {
-        val pm = context.packageManager
-        val services = pm.queryIntentServices(
-            Intent(RecognitionService.SERVICE_INTERFACE),
-            PackageManager.GET_META_DATA
-        )
-
-        val ownPackage = context.packageName
-
-        // Prefer Google's service
-        val google = services.firstOrNull {
-            it.serviceInfo.packageName == "com.google.android.googlequicksearchbox"
-        }
-        if (google != null) {
-            return ComponentName(google.serviceInfo.packageName, google.serviceInfo.name)
-        }
-
-        // Use any other service that is NOT our own stub
-        val other = services.firstOrNull { it.serviceInfo.packageName != ownPackage }
-        if (other != null) {
-            return ComponentName(other.serviceInfo.packageName, other.serviceInfo.name)
-        }
-
-        // No external service found; fall back to default
-        return null
     }
 }
 
