@@ -82,6 +82,14 @@ data class PermissionInfo(
     val descResId: Int
 )
 
+sealed class AppTab(val route: String, val labelResId: Int, val icon: ImageVector) {
+    object Home     : AppTab("home",     R.string.tab_nav_home,     Icons.Default.Home)
+    object Chat     : AppTab("chat",     R.string.tab_nav_chat,     Icons.AutoMirrored.Filled.Chat)
+    object Canvas   : AppTab("canvas",   R.string.tab_nav_canvas,   Icons.Default.Brush)
+    object Settings : AppTab("settings", R.string.tab_nav_settings, Icons.Default.Settings)
+    companion object { val ALL by lazy { listOf(Home, Chat, Canvas, Settings) } }
+}
+
 class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var settings: SettingsRepository
@@ -90,6 +98,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     private var missingPermissions by mutableStateOf<List<PermissionInfo>>(emptyList())
     private var allPermissionsStatus by mutableStateOf<List<PermissionStatusInfo>>(emptyList())
     private var pendingHotwordStart = false
+    private var chatRefreshTrigger by mutableStateOf(0)
 
     private lateinit var screenCaptureRequester: ScreenCaptureRequester
     private lateinit var permissionRequester: PermissionRequester
@@ -192,12 +201,12 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                         }
                     )
                 } else {
-                    MainScreen(
+                    MainNavHost(
                         settings = settings,
                         diagnostic = voiceDiagnostic,
                         missingPermissions = missingPermissions,
                         allPermissionsStatus = allPermissionsStatus,
-                        onOpenSettings = { startActivity(Intent(this, SettingsActivity::class.java)) },
+                        chatRefreshTrigger = chatRefreshTrigger,
                         onOpenAssistantSettings = { openAssistantSettings() },
                         onRefreshDiagnostics = {
                             initializeTTS() // Re-init on manual refresh
@@ -368,6 +377,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
     override fun onResume() {
         super.onResume()
+        chatRefreshTrigger++
         refreshMissingPermissions()
         refreshAllPermissionsStatus()
 
@@ -392,6 +402,142 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     override fun onDestroy() {
         super.onDestroy()
         tts?.shutdown()
+    }
+}
+
+@Composable
+fun MainNavHost(
+    settings: SettingsRepository,
+    diagnostic: VoiceDiagnostic?,
+    missingPermissions: List<PermissionInfo>,
+    allPermissionsStatus: List<PermissionStatusInfo>,
+    chatRefreshTrigger: Int,
+    onOpenAssistantSettings: () -> Unit,
+    onRefreshDiagnostics: () -> Unit,
+    onRequestPermissions: (List<String>) -> Unit,
+    onOpenAppSettings: () -> Unit
+) {
+    var selectedTab by rememberSaveable(
+        stateSaver = androidx.compose.runtime.saveable.Saver(
+            save    = { it.route },
+            restore = { route ->
+                when (route) {
+                    AppTab.Chat.route     -> AppTab.Chat
+                    AppTab.Canvas.route   -> AppTab.Canvas
+                    AppTab.Settings.route -> AppTab.Settings
+                    else                  -> AppTab.Home
+                }
+            }
+        )
+    ) { mutableStateOf<AppTab>(AppTab.Home) }
+    var showSettingsCredits by rememberSaveable { mutableStateOf(false) }
+
+    val sessionListViewModel: SessionListViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+
+    LaunchedEffect(selectedTab) {
+        if (selectedTab == AppTab.Chat) sessionListViewModel.refreshSessions()
+    }
+    LaunchedEffect(chatRefreshTrigger) {
+        sessionListViewModel.refreshSessions()
+    }
+
+    Scaffold(
+        bottomBar = {
+            NavigationBar {
+                AppTab.ALL.forEach { tab ->
+                    NavigationBarItem(
+                        selected  = selectedTab == tab,
+                        onClick   = { selectedTab = tab },
+                        icon      = { Icon(tab.icon, contentDescription = null) },
+                        label     = { Text(stringResource(tab.labelResId)) }
+                    )
+                }
+            }
+        }
+    ) { innerPadding ->
+        Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+            when (selectedTab) {
+                AppTab.Home -> MainScreen(
+                    settings             = settings,
+                    diagnostic           = diagnostic,
+                    missingPermissions   = missingPermissions,
+                    allPermissionsStatus = allPermissionsStatus,
+                    onOpenSettings       = { selectedTab = AppTab.Settings },
+                    onOpenAssistantSettings = onOpenAssistantSettings,
+                    onRefreshDiagnostics = onRefreshDiagnostics,
+                    onRequestPermissions = onRequestPermissions,
+                    onOpenAppSettings    = onOpenAppSettings
+                )
+                AppTab.Chat -> {
+                    val sessions        by sessionListViewModel.allSessions.collectAsState()
+                    val agentListResult by sessionListViewModel.agentList.collectAsState()
+                    val context = LocalContext.current
+                    SessionListScreen(
+                        sessions            = sessions,
+                        isGatewayConfigured = sessionListViewModel.isGatewayConfigured,
+                        isHttpConfigured    = sessionListViewModel.isHttpConfigured,
+                        agents              = agentListResult?.agents ?: emptyList(),
+                        defaultAgentId      = agentListResult?.defaultId ?: "main",
+                        onBack              = { selectedTab = AppTab.Home },
+                        onSessionClick      = { session ->
+                            sessionListViewModel.setUseNodeChat(session.isGateway)
+                            context.startActivity(
+                                Intent(context, ChatActivity::class.java).apply {
+                                    putExtra(ChatActivity.EXTRA_SESSION_ID, session.id)
+                                }
+                            )
+                        },
+                        onCreateSession     = { name, isGateway, agentId ->
+                            sessionListViewModel.setUseNodeChat(isGateway)
+                            sessionListViewModel.createSession(name, isGateway, agentId) { sessionId, _ ->
+                                context.startActivity(
+                                    Intent(context, ChatActivity::class.java).apply {
+                                        putExtra(ChatActivity.EXTRA_SESSION_ID, sessionId)
+                                        putExtra(ChatActivity.EXTRA_SESSION_TITLE, name)
+                                    }
+                                )
+                            }
+                        },
+                        onDeleteSession     = { id, gw -> sessionListViewModel.deleteSession(id, gw) },
+                        onRenameSession     = { id, nm, gw -> sessionListViewModel.renameSession(id, nm, gw) }
+                    )
+                }
+                AppTab.Canvas -> {
+                    val context = LocalContext.current
+                    val (canvasController, nodeRuntime) = remember(context.applicationContext) {
+                        val nr = (context.applicationContext as OpenClawApplication).nodeRuntime
+                        nr.canvas to nr
+                    }
+                    com.openclaw.assistant.ui.CanvasScreen(
+                        canvasController = canvasController,
+                        nodeRuntime = nodeRuntime,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                AppTab.Settings -> {
+                    if (showSettingsCredits) {
+                        com.openclaw.assistant.ui.settings.CreditsScreen(
+                            settings = settings,
+                            onBack   = { showSettingsCredits = false }
+                        )
+                    } else {
+                        val context = LocalContext.current
+                        SettingsScreen(
+                            settings  = settings,
+                            onSave    = {
+                                android.widget.Toast.makeText(
+                                    context,
+                                    context.getString(R.string.saved),
+                                    android.widget.Toast.LENGTH_SHORT
+                                ).show()
+                            },
+                            onBack    = { selectedTab = AppTab.Home },
+                            onCredits = { showSettingsCredits = true }
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 

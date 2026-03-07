@@ -735,6 +735,7 @@ class NodeRuntime(context: Context) {
 
   fun attachPermissionRequester(requester: PermissionRequester) {
     notificationsHandler.attachPermissionRequester(requester)
+    systemHandler.attachPermissionRequester(requester)
     contactsHandler.attachPermissionRequester(requester)
     calendarHandler.attachPermissionRequester(requester)
     photosHandler.attachPermissionRequester(requester)

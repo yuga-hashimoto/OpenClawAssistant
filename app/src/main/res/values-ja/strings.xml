@@ -491,4 +491,24 @@
     <string name="credits_support_title">開発をサポートする</string>
     <string name="operator_offline_command">openclaw devices approve $(openclaw devices list --json | tr \'{\' \'\\n\' | grep \'\"deviceId\":\"%s\"\' | grep -o \'\"requestId\":\"[^\"]*\"\' | cut -d\'\"\' -f4)</string>
     <string name="reject_command_format">openclaw devices reject $(openclaw devices list --json | tr \'{\' \'\\n\' | grep \'\"deviceId\":\"%s\"\' | grep -o \'\"requestId\":\"[^\"]*\"\' | cut -d\'\"\' -f4)</string>
+
+    <!-- Bottom tab navigation -->
+    <string name="tab_nav_home">ホーム</string>
+    <string name="tab_nav_chat">チャット</string>
+    <string name="tab_nav_canvas">Canvas</string>
+    <string name="tab_nav_settings">設定</string>
+
+    <!-- Canvas screen -->
+    <string name="canvas_placeholder_title">Canvas</string>
+    <string name="canvas_placeholder_body">Canvas は AI アシスタントが操作する表示エリアです。チャットでアシスタントに「Canvas に表示して」と依頼してみてください。</string>
+    <string name="canvas_go_to_chat">チャットへ</string>
+    <string name="canvas_chat_hint">Canvas を使ってみよう</string>
+    <string name="canvas_chat_not_connected">Gateway に接続してください</string>
+    <string name="canvas_chat_send">送信</string>
+    <string name="canvas_status_sending">送信中...</string>
+    <string name="canvas_status_thinking">考え中...</string>
+    <string name="canvas_status_tool">ツール使用中...</string>
+    <string name="canvas_status_loading">Canvas読み込み中...</string>
+    <string name="canvas_diag_no_canvas">AIはCanvasを使いませんでした。テキストで返答しています。\nCanvasツールが有効になっているか確認してください。</string>
+    <string name="canvas_diag_not_connected">Gatewayに接続されていません。接続するとAIがCanvasを操作できます。</string>
 </resources>
