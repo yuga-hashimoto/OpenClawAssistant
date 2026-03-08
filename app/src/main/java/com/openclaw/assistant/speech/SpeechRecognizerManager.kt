@@ -55,7 +55,12 @@ class SpeechRecognizerManager(private val context: Context) {
             }
             if (SpeechRecognizer.isRecognitionAvailable(context)) {
                 val appContext = context.applicationContext
-                recognizer = SpeechRecognizer.createSpeechRecognizer(appContext)
+                val serviceComponent = findRecognitionService(appContext)
+                recognizer = if (serviceComponent != null) {
+                    SpeechRecognizer.createSpeechRecognizer(appContext, serviceComponent)
+                } else {
+                    SpeechRecognizer.createSpeechRecognizer(appContext)
+                }
                 android.util.Log.d("SpeechRecognizerManager", "Created new recognizer instance")
             }
         }
@@ -191,6 +196,22 @@ class SpeechRecognizerManager(private val context: Context) {
      */
     fun stopListening() { 
         // No-op, flow cancellation triggers cleanup
+    }
+
+    /**
+     * Find a real speech recognition service, skipping our own stub service.
+     * This app registers a no-op RecognitionService (required for VoiceInteractionService),
+     * which some devices (e.g. LineageOS) may select as the default, causing Error 12.
+     */
+    private fun findRecognitionService(context: Context): ComponentName? {
+        val pm = context.packageManager
+        val services = pm.queryIntentServices(
+            Intent(RecognitionService.SERVICE_INTERFACE),
+            PackageManager.GET_META_DATA
+        )
+        val ownPackage = context.packageName
+        val other = services.firstOrNull { it.serviceInfo.packageName != ownPackage }
+        return other?.let { ComponentName(it.serviceInfo.packageName, it.serviceInfo.name) }
     }
 
     /**
