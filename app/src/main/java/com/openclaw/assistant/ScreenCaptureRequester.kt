@@ -8,6 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import com.openclaw.assistant.service.NodeForegroundService
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -29,6 +30,9 @@ class ScreenCaptureRequester(private val activity: ComponentActivity) {
       pending = null
       val data = result.data
       if (result.resultCode == Activity.RESULT_OK && data != null) {
+        // Android 14+: must call startForegroundService() with MEDIA_PROJECTION type from
+        // within the activity result callback to satisfy OS background-start restrictions.
+        NodeForegroundService.prepareForMediaProjection(activity)
         p?.complete(CaptureResult(result.resultCode, data))
       } else {
         p?.complete(null)

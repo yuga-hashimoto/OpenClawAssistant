@@ -18,6 +18,7 @@ import com.openclaw.assistant.MainActivity
 import com.openclaw.assistant.OpenClawApplication
 import com.openclaw.assistant.R
 import com.openclaw.assistant.VoiceWakeMode
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -25,12 +26,14 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicReference
 
 class NodeForegroundService : Service() {
   private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
   private var notificationJob: Job? = null
   private var lastRequiresMic = false
   private var didStartForeground = false
+  private var lastNotification: Notification? = null
 
   private val pauseResumeReceiver = object : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -81,7 +84,7 @@ class NodeForegroundService : Service() {
 
           val requiresMic =
             voiceMode == VoiceWakeMode.Always && hasRecordAudioPermission()
-          
+
           startForegroundWithTypes(
             notification = buildNotification(title = title, text = text),
             requiresMic = requiresMic,
@@ -96,6 +99,19 @@ class NodeForegroundService : Service() {
         (application as OpenClawApplication).nodeRuntime.disconnect()
         stopSelf()
         return START_NOT_STICKY
+      }
+      ACTION_PREPARE_MEDIA_PROJECTION -> {
+        // Android 14+: startForeground() with MEDIA_PROJECTION type must be called in response
+        // to a startForegroundService() that was itself called inside the activity result callback.
+        // This satisfies the OS requirement that the FGS be started from the permission grant callback.
+        val notification = lastNotification ?: buildNotification("OpenClaw Node", "Starting…")
+        var types = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC or
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+        if (lastRequiresMic) types = types or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+        startForeground(NOTIFICATION_ID, notification, types)
+        lastNotification = notification
+        mediaProjectionReady.getAndSet(null)?.complete(Unit)
+        return START_STICKY
       }
     }
     // Keep running; connection is managed by NodeRuntime (auto-reconnect + manual).
@@ -166,11 +182,12 @@ class NodeForegroundService : Service() {
   private fun startForegroundWithTypes(notification: Notification, requiresMic: Boolean) {
     if (didStartForeground && requiresMic == lastRequiresMic) {
       updateNotification(notification)
+      lastNotification = notification
       return
     }
 
     lastRequiresMic = requiresMic
-    
+
     var types = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC or
         ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
     if (requiresMic) {
@@ -178,6 +195,7 @@ class NodeForegroundService : Service() {
     }
 
     startForeground(NOTIFICATION_ID, notification, types)
+    lastNotification = notification
     didStartForeground = true
   }
 
@@ -196,6 +214,11 @@ class NodeForegroundService : Service() {
     private const val ACTION_STOP = "com.openclaw.assistant.action.STOP"
     private const val ACTION_PAUSE_HOTWORD = "com.openclaw.assistant.ACTION_PAUSE_HOTWORD"
     private const val ACTION_RESUME_HOTWORD = "com.openclaw.assistant.ACTION_RESUME_HOTWORD"
+    private const val ACTION_PREPARE_MEDIA_PROJECTION = "com.openclaw.assistant.action.PREPARE_MEDIA_PROJECTION"
+
+    // Completed when startForeground(MEDIA_PROJECTION) is called from ACTION_PREPARE_MEDIA_PROJECTION.
+    // ScreenRecordManager awaits this before calling getMediaProjection() on Android 14+.
+    val mediaProjectionReady = AtomicReference<CompletableDeferred<Unit>?>(null)
 
     fun start(context: Context) {
       val intent = Intent(context, NodeForegroundService::class.java)
@@ -205,6 +228,20 @@ class NodeForegroundService : Service() {
     fun stop(context: Context) {
       val intent = Intent(context, NodeForegroundService::class.java).setAction(ACTION_STOP)
       context.startService(intent)
+    }
+
+    /**
+     * Must be called from within an ActivityResult callback (after user grants media projection
+     * permission). Sends ACTION_PREPARE_MEDIA_PROJECTION to the service so it can call
+     * startForeground() with FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION while still within the
+     * OS-granted background-start exemption window.
+     */
+    fun prepareForMediaProjection(context: Context) {
+      val deferred = CompletableDeferred<Unit>()
+      mediaProjectionReady.set(deferred)
+      val intent = Intent(context, NodeForegroundService::class.java)
+        .setAction(ACTION_PREPARE_MEDIA_PROJECTION)
+      context.startForegroundService(intent)
     }
   }
 }

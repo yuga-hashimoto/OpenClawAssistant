@@ -3,13 +3,18 @@ package com.openclaw.assistant.node
 import android.content.Context
 import android.hardware.display.DisplayManager
 import android.media.MediaRecorder
+import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.util.Base64
 import com.openclaw.assistant.ScreenCaptureRequester
+import com.openclaw.assistant.service.NodeForegroundService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import java.io.File
 import kotlin.math.roundToInt
 
@@ -58,10 +63,30 @@ class ScreenRecordManager(private val context: Context) {
           "SCREEN_PERMISSION_REQUIRED: grant Screen Recording permission",
         )
 
+      // Android 14+: wait for NodeForegroundService to call startForeground() with
+      // FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION before calling getMediaProjection().
+      // prepareForMediaProjection() was called from the activity result callback in
+      // ScreenCaptureRequester, which satisfies the OS background-start restriction.
+      // Android 14+: wait for NodeForegroundService to call startForeground() with
+      // FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION before calling getMediaProjection().
+      // Use get() not getAndSet() to avoid a race where we steal the reference before
+      // onStartCommand can complete it (which would cause an indefinite hang).
+      NodeForegroundService.mediaProjectionReady.get()?.let { deferred ->
+        withTimeout(5_000L) { deferred.await() }
+      }
+
       val mgr =
         context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
       val projection = mgr.getMediaProjection(capture.resultCode, capture.data)
         ?: throw IllegalStateException("UNAVAILABLE: screen capture unavailable")
+
+      // Android 14+: must register a callback before using the projection.
+      // The callback handles projection stopping (e.g., user revokes permission mid-recording).
+      projection.registerCallback(object : MediaProjection.Callback() {
+        override fun onStop() {
+          stopSignal?.complete(Unit)
+        }
+      }, Handler(Looper.getMainLooper()))
 
       val metrics = context.resources.displayMetrics
       val width = metrics.widthPixels
