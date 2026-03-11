@@ -231,6 +231,7 @@ class NodeForegroundService : Service() {
   }
 
   companion object {
+    private const val TAG = "NodeFgService"
     private const val CHANNEL_ID = "connection"
     private const val NOTIFICATION_ID = 1
 
