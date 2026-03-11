@@ -63,6 +63,10 @@ object UpdateChecker {
                     downloadUrl = release.htmlUrl
                 )
             }
+        } catch (e: java.io.IOException) {
+            // Expected network errors (timeout, DNS failure, etc.) — not worth reporting to Crashlytics
+            Log.w(TAG, "Update check failed: ${e.message}")
+            return@withContext null
         } catch (e: Exception) {
             Log.e(TAG, "Error checking for updates", e)
             FirebaseCrashlytics.getInstance().recordException(e)

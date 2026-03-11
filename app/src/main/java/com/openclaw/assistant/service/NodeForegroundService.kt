@@ -108,8 +108,21 @@ class NodeForegroundService : Service() {
         var types = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC or
             ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
         if (lastRequiresMic) types = types or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
-        startForeground(NOTIFICATION_ID, notification, types)
-        lastNotification = notification
+        try {
+          startForeground(NOTIFICATION_ID, notification, types)
+          lastNotification = notification
+        } catch (e: SecurityException) {
+          android.util.Log.w(TAG, "startForeground(mediaProjection) failed, falling back to dataSync: ${e.message}")
+          try {
+            val fallbackTypes = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC.let {
+              if (lastRequiresMic) it or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE else it
+            }
+            startForeground(NOTIFICATION_ID, notification, fallbackTypes)
+            lastNotification = notification
+          } catch (e2: SecurityException) {
+            android.util.Log.e(TAG, "startForeground fallback also failed: ${e2.message}")
+          }
+        }
         mediaProjectionReady.getAndSet(null)?.complete(Unit)
         return START_STICKY
       }
@@ -192,7 +205,19 @@ class NodeForegroundService : Service() {
         types = types or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
     }
 
-    startForeground(NOTIFICATION_ID, notification, types)
+    try {
+      startForeground(NOTIFICATION_ID, notification, types)
+    } catch (e: SecurityException) {
+      android.util.Log.w(TAG, "startForeground failed (types=$types): ${e.message}")
+      // Fall back to dataSync-only if microphone type was the cause
+      if (requiresMic) {
+        try {
+          startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        } catch (e2: SecurityException) {
+          android.util.Log.e(TAG, "startForeground fallback also failed: ${e2.message}")
+        }
+      }
+    }
     lastNotification = notification
     didStartForeground = true
   }

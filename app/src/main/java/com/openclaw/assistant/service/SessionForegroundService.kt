@@ -1,5 +1,6 @@
 package com.openclaw.assistant.service
 
+import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -7,11 +8,13 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.openclaw.assistant.MainActivity
 import com.openclaw.assistant.R
 
@@ -49,14 +52,29 @@ class SessionForegroundService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(
-                NOTIFICATION_ID,
-                createNotification(),
-                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
-            )
-        } else {
-            startForeground(NOTIFICATION_ID, createNotification())
+        val hasMicPermission = ContextCompat.checkSelfPermission(
+            this, Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && hasMicPermission) {
+                startForeground(
+                    NOTIFICATION_ID,
+                    createNotification(),
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+                )
+            } else {
+                startForeground(NOTIFICATION_ID, createNotification())
+            }
+        } catch (e: SecurityException) {
+            Log.w(TAG, "startForeground(microphone) failed, falling back: ${e.message}")
+            try {
+                startForeground(NOTIFICATION_ID, createNotification())
+            } catch (e2: SecurityException) {
+                Log.e(TAG, "startForeground fallback also failed: ${e2.message}")
+                stopSelf()
+                return START_NOT_STICKY
+            }
         }
         acquireWakeLock()
         Log.d(TAG, "Session foreground service started")

@@ -502,7 +502,12 @@ class GatewaySession(
     }
 
     private suspend fun handleMessage(text: String) {
-      val frame = json.parseToJsonElement(text).asObjectOrNull() ?: return
+      val frame = try {
+        json.parseToJsonElement(text).asObjectOrNull() ?: return
+      } catch (e: Throwable) {
+        Log.w(TAG, "Failed to parse gateway message: ${e.message}")
+        return
+      }
       when (frame["type"].asStringOrNull()) {
         "res" -> handleResponse(frame)
         "event" -> handleEvent(frame)
