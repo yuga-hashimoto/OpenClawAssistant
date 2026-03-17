@@ -1008,19 +1008,6 @@ fun SystemStatusCard(
 
     val backgroundColor = if (connected) Color(0xFFE8F5E9) else Color(0xFFFFEBEE)
     val contentColor = if (connected) Color(0xFF1B5E20) else Color(0xFFB71C1C)
-    val statusLabelColor = if (connected) Color(0xFF2E7D32) else Color(0xFFC62828)
-    val statusDotColor = if (connected) Color(0xFF4CAF50) else if (isConnecting) Color(0xFFFFA726) else Color(0xFFF44336)
-
-    val transition = rememberInfiniteTransition(label = "pulse")
-    val dotAlpha by transition.animateFloat(
-        initialValue = 1f,
-        targetValue = if (isConnecting) 0.3f else 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(800),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "dotAlpha"
-    )
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -1032,13 +1019,12 @@ fun SystemStatusCard(
     ) {
         Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .clip(CircleShape)
-                        .alpha(dotAlpha)
-                        .background(statusDotColor)
-                )
+                val state = when {
+                    connected -> ConnectionState.Connected
+                    isConnecting -> ConnectionState.Connecting
+                    else -> ConnectionState.Disconnected
+                }
+                StatusIndicator(state = state)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = stringResource(R.string.app_name),
