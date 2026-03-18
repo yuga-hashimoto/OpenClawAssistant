@@ -247,6 +247,9 @@
     <string name="chat_type_http">HTTP Chat</string>
 
     <!-- Session List -->
+    <string name="chat_sessions_dialog_title">Sessions</string>
+    <string name="chat_sessions_dialog_no_sessions">No sessions</string>
+    <string name="chat_sessions_dialog_current">Current</string>
     <string name="no_sessions">No conversations yet. Tap + to start a new one.</string>
     <string name="session_name_label">Name</string>
     <string name="session_name_hint">e.g. Work, Travel, Study</string>

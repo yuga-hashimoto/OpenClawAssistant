@@ -223,6 +223,10 @@
 <string name="select_chat_type">选择聊天类型</string>
 <string name="chat_type_gateway">网关聊天</string>
 <string name="chat_type_http">HTTP 聊天</string>
+<!-- Session List -->
+<string name="chat_sessions_dialog_title">会话</string>
+<string name="chat_sessions_dialog_no_sessions">无会话</string>
+<string name="chat_sessions_dialog_current">当前</string>
 <string name="no_sessions">还没有对话。点击 + 开始一个新的。</string>
 <string name="session_name_label">名称</string>
 <string name="session_name_hint">e.g。工作、旅行、学习</string>

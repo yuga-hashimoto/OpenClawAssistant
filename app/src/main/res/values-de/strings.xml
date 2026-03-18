@@ -222,6 +222,10 @@ Weitere Informationen finden Sie auf der offiziellen Website von VOICEVOX.</stri
 <string name="select_chat_type">Wählen Sie Chat-Typ</string>
 <string name="chat_type_gateway">Gateway-Chat</string>
 <string name="chat_type_http">HTTP-Chat</string>
+<!-- Session List -->
+<string name="chat_sessions_dialog_title">Sitzungen</string>
+<string name="chat_sessions_dialog_no_sessions">Keine Sitzungen</string>
+<string name="chat_sessions_dialog_current">Aktuell</string>
 <string name="no_sessions">Noch keine Gespräche. Tippen Sie auf +, um ein neues zu starten.</string>
 <string name="session_name_label">Name</string>
 <string name="session_name_hint">z.B. Arbeiten, Reisen, Studieren</string>

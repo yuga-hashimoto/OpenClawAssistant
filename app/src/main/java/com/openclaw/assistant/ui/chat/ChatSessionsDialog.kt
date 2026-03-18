@@ -37,7 +37,7 @@ fun ChatSessionsDialog(
     confirmButton = {},
     title = {
       Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-        Text("Sessions", style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.chat_sessions_dialog_title), style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.weight(1f))
         FilledTonalIconButton(onClick = onRefresh) {
           Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.action_refresh))
@@ -46,7 +46,7 @@ fun ChatSessionsDialog(
     },
     text = {
       if (sessions.isEmpty()) {
-        Text("No sessions", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(stringResource(R.string.chat_sessions_dialog_no_sessions), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
       } else {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
           items(sessions, key = { it.key }) { entry ->
@@ -87,7 +87,7 @@ private fun SessionRow(
       Text(entry.displayName ?: entry.key, style = MaterialTheme.typography.bodyMedium)
       Spacer(modifier = Modifier.weight(1f))
       if (isCurrent) {
-        Text("Current", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(stringResource(R.string.chat_sessions_dialog_current), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
       }
     }
   }

@@ -222,6 +222,11 @@
 <string name="select_chat_type">チャット形式を選択</string>
 <string name="chat_type_gateway">Gateway Chat</string>
 <string name="chat_type_http">HTTP Chat</string>
+
+<!-- Session List -->
+<string name="chat_sessions_dialog_title">セッション</string>
+<string name="chat_sessions_dialog_no_sessions">セッションがありません</string>
+<string name="chat_sessions_dialog_current">現在</string>
 <string name="no_sessions">まだ会話がありません。＋をタップして新しい会話を始めましょう。</string>
 <string name="session_name_label">名前</string>
 <string name="session_name_hint">例: 仕事、旅行、勉強</string>

@@ -222,6 +222,10 @@
 <string name="select_chat_type">選擇聊天類型</string>
 <string name="chat_type_gateway">網關聊天</string>
 <string name="chat_type_http">HTTP 聊天</string>
+<!-- Session List -->
+<string name="chat_sessions_dialog_title">工作階段</string>
+<string name="chat_sessions_dialog_no_sessions">無工作階段</string>
+<string name="chat_sessions_dialog_current">目前</string>
 <string name="no_sessions">還沒有對話。點擊 + 開始一個新的。</string>
 <string name="session_name_label">姓名</string>
 <string name="session_name_hint">例如工作、旅行、學習</string>

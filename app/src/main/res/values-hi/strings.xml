@@ -223,6 +223,10 @@
 <string name="select_chat_type">चैट प्रकार चुनें</string>
 <string name="chat_type_gateway">गेटवे चैट</string>
 <string name="chat_type_http">HTTP चैट</string>
+<!-- Session List -->
+<string name="chat_sessions_dialog_title">सत्र</string>
+<string name="chat_sessions_dialog_no_sessions">कोई सत्र नहीं</string>
+<string name="chat_sessions_dialog_current">वर्तमान</string>
 <string name="no_sessions">अभी तक कोई बातचीत नहीं. नई शुरुआत करने के लिए + टैप करें.</string>
 <string name="session_name_label">नाम</string>
 <string name="session_name_hint">जैसे काम, यात्रा, अध्ययन</string>

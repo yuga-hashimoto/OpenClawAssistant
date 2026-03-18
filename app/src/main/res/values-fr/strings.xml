@@ -223,6 +223,10 @@ Pour plus de détails, consultez le site officiel de VOICEVOX.</string>
 <string name="select_chat_type">Sélectionner le type de conversation</string>
 <string name="chat_type_gateway">Gateway Chat</string>
 <string name="chat_type_http">Chat HTTP</string>
+<!-- Session List -->
+<string name="chat_sessions_dialog_title">Sessions</string>
+<string name="chat_sessions_dialog_no_sessions">Aucune session</string>
+<string name="chat_sessions_dialog_current">Actuel</string>
 <string name="no_sessions">Aucune conversation pour l\'instant. Appuyez sur + pour en créer un nouveau.</string>
 <string name="session_name_label">Nom</string>
 <string name="session_name_hint">e.g. Travail, voyages, études</string>

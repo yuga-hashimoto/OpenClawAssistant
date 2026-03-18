@@ -223,6 +223,10 @@
 <string name="select_chat_type">Выберите тип чата</string>
 <string name="chat_type_gateway">Чат на шлюзе</string>
 <string name="chat_type_http">HTTP-чат</string>
+<!-- Session List -->
+<string name="chat_sessions_dialog_title">Сессии</string>
+<string name="chat_sessions_dialog_no_sessions">Нет сессий</string>
+<string name="chat_sessions_dialog_current">Текущий</string>
 <string name="no_sessions">Обсуждений пока нет. Нажмите +, чтобы начать новый.</string>
 <string name="session_name_label">Имя</string>
 <string name="session_name_hint">e.g. Работа, путешествия, учеба</string>
