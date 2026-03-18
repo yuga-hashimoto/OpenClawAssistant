@@ -112,7 +112,7 @@ class NodeForegroundService : Service() {
           try {
             startForeground(NOTIFICATION_ID, notification, types)
             lastNotification = notification
-          } catch (e: SecurityException) {
+          } catch (e: Exception) {
             android.util.Log.w(TAG, "startForeground(mediaProjection) failed, falling back to dataSync: ${e.message}")
             try {
               val fallbackTypes = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC.let {
@@ -221,13 +221,13 @@ class NodeForegroundService : Service() {
 
       try {
         startForeground(NOTIFICATION_ID, notification, types)
-      } catch (e: SecurityException) {
+      } catch (e: Exception) {
         android.util.Log.w(TAG, "startForeground failed (types=$types): ${e.message}")
         // Fall back to dataSync-only if microphone type was the cause
         if (requiresMic) {
           try {
             startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
-          } catch (e2: SecurityException) {
+          } catch (e2: Exception) {
             android.util.Log.e(TAG, "startForeground fallback also failed: ${e2.message}")
           }
         }
