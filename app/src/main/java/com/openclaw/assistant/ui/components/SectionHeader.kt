@@ -22,7 +22,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import com.openclaw.assistant.R
 
 /**
  * Collapsible section with a header and animated content visibility.
@@ -44,11 +47,24 @@ fun CollapsibleSection(
     var expanded by rememberSaveable { mutableStateOf(initiallyExpanded) }
     val isExpanded = if (collapsible) expanded else true
 
+    val actionLabel = if (isExpanded) {
+        stringResource(R.string.action_collapse)
+    } else {
+        stringResource(R.string.action_expand)
+    }
+
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .then(if (collapsible) Modifier.clickable { expanded = !expanded } else Modifier)
+                .then(
+                    if (collapsible) {
+                        Modifier.clickable(
+                            onClickLabel = actionLabel,
+                            role = Role.Button
+                        ) { expanded = !expanded }
+                    } else Modifier
+                )
                 .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -70,7 +86,7 @@ fun CollapsibleSection(
             if (collapsible) {
                 Icon(
                     imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = if (isExpanded) "Collapse" else "Expand",
+                    contentDescription = null, // Handled by onClickLabel on parent Row
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

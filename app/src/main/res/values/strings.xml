@@ -623,4 +623,8 @@
     <string name="wake_word_debug_panel_title">Wake Word Debug Log</string>
     <string name="wake_word_debug_empty">Waiting for Vosk events…</string>
     <string name="clear">Clear</string>
+
+    <string name="action_collapse">Collapse</string>
+    <string name="action_expand">Expand</string>
+    <string name="action_refresh">Refresh</string>
 </resources>

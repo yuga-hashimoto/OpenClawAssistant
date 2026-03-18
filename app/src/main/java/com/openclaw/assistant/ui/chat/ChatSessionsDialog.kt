@@ -19,7 +19,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.openclaw.assistant.R
 import com.openclaw.assistant.chat.ChatSessionEntry
 
 @Composable
@@ -38,7 +40,7 @@ fun ChatSessionsDialog(
         Text("Sessions", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.weight(1f))
         FilledTonalIconButton(onClick = onRefresh) {
-          Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+          Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.action_refresh))
         }
       }
     },
