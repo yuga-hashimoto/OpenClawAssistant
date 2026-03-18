@@ -536,4 +536,7 @@
     <string name="wake_word_debug_panel_title">Журнал отладки Wake Word</string>
     <string name="wake_word_debug_empty">Ожидание событий Vosk…</string>
     <string name="clear">Очистить</string>
+    <string name="action_collapse">Свернуть</string>
+    <string name="action_expand">Развернуть</string>
+    <string name="action_refresh">Обновить</string>
 </resources>

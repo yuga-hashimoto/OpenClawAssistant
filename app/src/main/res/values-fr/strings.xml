@@ -536,4 +536,7 @@ Pour plus de détails, consultez le site officiel de VOICEVOX.</string>
     <string name="wake_word_debug_panel_title">Journal de débogage Wake Word</string>
     <string name="wake_word_debug_empty">En attente d\'événements Vosk…</string>
     <string name="clear">Effacer</string>
+    <string name="action_collapse">Réduire</string>
+    <string name="action_expand">Développer</string>
+    <string name="action_refresh">Actualiser</string>
 </resources>

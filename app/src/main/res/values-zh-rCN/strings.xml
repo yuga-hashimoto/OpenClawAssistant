@@ -536,4 +536,7 @@
     <string name="wake_word_debug_panel_title">唤醒词调试日志</string>
     <string name="wake_word_debug_empty">等待 Vosk 事件…</string>
     <string name="clear">清除</string>
+    <string name="action_collapse">折叠</string>
+    <string name="action_expand">展开</string>
+    <string name="action_refresh">刷新</string>
 </resources>

@@ -537,4 +537,7 @@
     <string name="wake_word_debug_panel_title">ウェイクワード デバッグログ</string>
     <string name="wake_word_debug_empty">Voskイベントを待機中…</string>
     <string name="clear">クリア</string>
+    <string name="action_collapse">折りたたむ</string>
+    <string name="action_expand">展開する</string>
+    <string name="action_refresh">更新</string>
 </resources>
