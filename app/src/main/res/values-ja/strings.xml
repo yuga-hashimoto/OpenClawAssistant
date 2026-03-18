@@ -513,6 +513,9 @@
     <string name="tab_nav_chat">チャット</string>
     <string name="tab_nav_canvas">Canvas</string>
     <string name="tab_nav_settings">設定</string>
+    <string name="attach_file">ファイルを添付</string>
+    <string name="file">ファイル</string>
+    <string name="image_attachment">画像添付</string>
 
     <!-- Canvas screen -->
     <string name="canvas_placeholder_title">Canvas</string>

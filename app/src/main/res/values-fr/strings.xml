@@ -511,6 +511,9 @@ Pour plus de détails, consultez le site officiel de VOICEVOX.</string>
     <string name="tab_nav_chat">Chat</string>
     <string name="tab_nav_canvas">Canvas</string>
     <string name="tab_nav_settings">Paramètres</string>
+    <string name="attach_file">Joindre un fichier</string>
+    <string name="file">Fichier</string>
+    <string name="image_attachment">Pièce jointe image</string>
     <string name="canvas_placeholder_title">Canvas</string>
     <string name="canvas_placeholder_body">Canvas est une zone d\'affichage contrôlée par l\'assistant IA. Demandez à l\'assistant dans le Chat d\'afficher quelque chose ici.</string>
     <string name="canvas_go_to_chat">Aller au Chat</string>

@@ -511,6 +511,9 @@
     <string name="tab_nav_chat">Чат</string>
     <string name="tab_nav_canvas">Canvas</string>
     <string name="tab_nav_settings">Настройки</string>
+    <string name="attach_file">Прикрепить файл</string>
+    <string name="file">Файл</string>
+    <string name="image_attachment">Вложение изображения</string>
     <string name="canvas_placeholder_title">Canvas</string>
     <string name="canvas_placeholder_body">Canvas — это область отображения, управляемая ИИ-ассистентом. Попросите ассистента в чате показать что-нибудь здесь.</string>
     <string name="canvas_go_to_chat">Перейти в чат</string>

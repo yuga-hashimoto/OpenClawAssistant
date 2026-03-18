@@ -510,6 +510,9 @@ Weitere Informationen finden Sie auf der offiziellen Website von VOICEVOX.</stri
     <string name="tab_nav_chat">Chat</string>
     <string name="tab_nav_canvas">Canvas</string>
     <string name="tab_nav_settings">Einstellungen</string>
+    <string name="attach_file">Datei anhängen</string>
+    <string name="file">Datei</string>
+    <string name="image_attachment">Bildanhang</string>
     <string name="canvas_placeholder_title">Canvas</string>
     <string name="canvas_placeholder_body">Canvas ist ein Anzeigebereich, der vom KI-Assistenten gesteuert wird. Bitte den Assistenten im Chat, etwas hier anzuzeigen.</string>
     <string name="canvas_go_to_chat">Zum Chat</string>

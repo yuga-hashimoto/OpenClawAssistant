@@ -511,6 +511,9 @@
     <string name="tab_nav_chat">聊天</string>
     <string name="tab_nav_canvas">Canvas</string>
     <string name="tab_nav_settings">设置</string>
+    <string name="attach_file">附加文件</string>
+    <string name="file">文件</string>
+    <string name="image_attachment">图片附件</string>
     <string name="canvas_placeholder_title">Canvas</string>
     <string name="canvas_placeholder_body">Canvas 是由 AI 助手控制的显示区域。请在聊天中让助手在这里显示一些内容。</string>
     <string name="canvas_go_to_chat">前往聊天</string>

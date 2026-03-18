@@ -511,6 +511,9 @@
     <string name="tab_nav_chat">चैट</string>
     <string name="tab_nav_canvas">Canvas</string>
     <string name="tab_nav_settings">सेटिंग्स</string>
+    <string name="attach_file">फ़ाइल संलग्न करें</string>
+    <string name="file">फ़ाइल</string>
+    <string name="image_attachment">छवि अनुलग्नक</string>
     <string name="canvas_placeholder_title">Canvas</string>
     <string name="canvas_placeholder_body">Canvas AI असिस्टेंट द्वारा नियंत्रित एक डिस्प्ले क्षेत्र है। Chat में असिस्टेंट से यहाँ कुछ दिखाने के लिए कहें।</string>
     <string name="canvas_go_to_chat">Chat पर जाएं</string>

@@ -510,6 +510,9 @@
     <string name="tab_nav_chat">聊天</string>
     <string name="tab_nav_canvas">Canvas</string>
     <string name="tab_nav_settings">設定</string>
+    <string name="attach_file">附加檔案</string>
+    <string name="file">檔案</string>
+    <string name="image_attachment">圖片附件</string>
     <string name="canvas_placeholder_title">Canvas</string>
     <string name="canvas_placeholder_body">Canvas 是由 AI 助手控制的顯示區域。請在聊天中請求助手在這裡顯示內容。</string>
     <string name="canvas_go_to_chat">前往聊天</string>
