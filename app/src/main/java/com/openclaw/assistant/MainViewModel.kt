@@ -105,6 +105,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     runtime.setGatewayToken(value)
   }
 
+  fun setGatewayBootstrapToken(value: String) {
+    runtime.setGatewayBootstrapToken(value)
+  }
+
   fun setCanvasDebugStatusEnabled(value: Boolean) {
     runtime.setCanvasDebugStatusEnabled(value)
   }

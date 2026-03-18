@@ -1,6 +1,7 @@
 package com.openclaw.assistant.node
 
 import android.Manifest
+import android.util.Log
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -362,6 +363,14 @@ class NodeRuntime(context: Context) {
       onTlsFingerprint = { stableId, fingerprint ->
         prefs.saveGatewayTlsFingerprint(stableId, fingerprint)
       },
+      onBootstrapTokenInvalid = {
+        // The bootstrapToken was consumed by the server (single-use). Clear it from persistent
+        // storage so future retries don't loop on the expired token. The user must scan a fresh
+        // setup code — on second scan the device is already approved, so the server issues a
+        // deviceToken directly without requiring another pairing approval.
+        Log.i("NodeRuntime", "bootstrapToken consumed/expired — clearing from prefs")
+        prefs.saveGatewayBootstrapToken("")
+      },
     )
 
   private val chat: ChatController =
@@ -381,7 +390,7 @@ class NodeRuntime(context: Context) {
   }
 
   private fun updateStatus() {
-    _isConnected.value = operatorConnected
+    _isConnected.value = operatorConnected || nodeConnected
     _isOperatorOffline.value = !operatorConnected && nodeConnected
 
     val pairingKeyword = "pairing required"
@@ -408,6 +417,10 @@ class NodeRuntime(context: Context) {
         operatorConnected && nodeConnected -> "Connected"
         operatorConnected && !nodeConnected -> "Operator Online (Node Offline)"
         !operatorConnected && nodeConnected -> "Node Online (Operator Offline)"
+        // Prefer nodeStatusText when informative: bootstrapToken is issued for the node role, so
+        // nodeSession carries the meaningful auth error. operatorSession's "password missing" is
+        // expected noise when bootstrapToken-only setup is used.
+        nodeStatusText.isNotBlank() && nodeStatusText != "Offline" -> nodeStatusText
         operatorStatusText.isNotBlank() && operatorStatusText != "Offline" -> operatorStatusText
         else -> nodeStatusText
       }
@@ -450,6 +463,8 @@ class NodeRuntime(context: Context) {
   fun setGatewayToken(value: String) = prefs.setGatewayToken(value)
   fun getGatewayPassword(): String? = prefs.loadGatewayPassword()
   fun setGatewayPassword(value: String) = prefs.saveGatewayPassword(value)
+  fun getGatewayBootstrapToken(): String? = prefs.loadGatewayBootstrapToken()
+  fun setGatewayBootstrapToken(value: String) = prefs.saveGatewayBootstrapToken(value)
   val lastDiscoveredStableId: StateFlow<String> = prefs.lastDiscoveredStableId
   val canvasDebugStatusEnabled: StateFlow<Boolean> = prefs.canvasDebugStatusEnabled
 
@@ -665,9 +680,11 @@ class NodeRuntime(context: Context) {
     val endpoint = connectedEndpoint ?: return
     val token = prefs.loadGatewayToken()
     val password = prefs.loadGatewayPassword()
+    val bootstrapToken = prefs.loadGatewayBootstrapToken()
     val tls = connectionManager.resolveTlsParams(endpoint)
-    operatorSession.connect(endpoint, token, password, connectionManager.buildOperatorConnectOptions(), tls)
-    nodeSession.connect(endpoint, token, password, connectionManager.buildNodeConnectOptions(), tls)
+    // bootstrapToken is single-use and issued for the node role only — do not pass to operatorSession.
+    operatorSession.connect(endpoint, token, password, null, connectionManager.buildOperatorConnectOptions(), tls)
+    nodeSession.connect(endpoint, token, password, bootstrapToken, connectionManager.buildNodeConnectOptions(), tls)
     operatorSession.reconnect()
     nodeSession.reconnect()
   }
@@ -696,8 +713,10 @@ class NodeRuntime(context: Context) {
     updateStatus()
     val token = prefs.loadGatewayToken()
     val password = prefs.loadGatewayPassword()
-    operatorSession.connect(endpoint, token, password, connectionManager.buildOperatorConnectOptions(), tls)
-    nodeSession.connect(endpoint, token, password, connectionManager.buildNodeConnectOptions(), tls)
+    val bootstrapToken = prefs.loadGatewayBootstrapToken()
+    // bootstrapToken is single-use and issued for the node role only — do not pass to operatorSession.
+    operatorSession.connect(endpoint, token, password, null, connectionManager.buildOperatorConnectOptions(), tls)
+    nodeSession.connect(endpoint, token, password, bootstrapToken, connectionManager.buildNodeConnectOptions(), tls)
   }
 
   fun acceptGatewayTrustPrompt() {

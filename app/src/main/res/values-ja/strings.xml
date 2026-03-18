@@ -343,7 +343,7 @@
 <string name="status_online">オンライン</string>
 <string name="status_offline">オフライン</string>
 <string name="status_operator_online_node_offline">オペレーター接続中（ノードオフライン）</string>
-<string name="status_node_online_operator_offline">オペレーター接続中（ノード未認証）</string>
+<string name="status_node_online_operator_offline">ノード接続中（オペレーター未認証）</string>
 <string name="gateway_trust_title">このゲートウェイを信頼しますか？</string>
 <string name="gateway_trust_message">初回TLS接続です。\n\n接続を信頼する前に、以下のSHA-256フィンガープリントを他の手段で確認してください：\n%s</string>
 <string name="gateway_trust_confirm">信頼して接続</string>
@@ -424,6 +424,9 @@
 <string name="http_use_gateway_url">GatewayのURLを使用</string>
 <string name="setup_code_applied">設定を適用しました！</string>
 <string name="setup_code_invalid_code">セットアップコードが無効または不完全です。</string>
+<string name="setup_code_credential_copy_button">コマンドをコピー</string>
+    <string name="setup_code_credential_hint_title">ゲートウェイのパスワードまたはトークンを入力してください</string>
+<string name="setup_code_credential_hint_desc">セットアップコードでサーバーURLを設定しました。オペレーターセッションを接続するには、ゲートウェイのパスワードまたはトークンを入力してください。\n\nOpenClawを起動しているホストで以下のコマンドを実行して取得できます：</string>
 <string name="permission_camera_desc">AIがカメラ映像を確認するために必要です</string>
 <string name="permission_location_desc">AIがあなたの現在地を把握するために必要です</string>
 <string name="setup_guide_auth_token_password">トークン + パスワード</string>

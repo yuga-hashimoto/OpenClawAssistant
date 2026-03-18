@@ -423,6 +423,9 @@ Para más detalles, consulta el sitio oficial de VOICEVOX.</string>
 <string name="http_use_gateway_url">Usar URL de puerta de enlace</string>
 <string name="setup_code_applied">¡Configuración aplicada!</string>
 <string name="setup_code_invalid_code">Código de configuración no válido o incompleto.</string>
+<string name="setup_code_credential_copy_button">Copiar comando</string>
+    <string name="setup_code_credential_hint_title">Ingrese su contraseña o token de gateway</string>
+<string name="setup_code_credential_hint_desc">El código de configuración configuró la URL del servidor. Para conectar la sesión de operador, ingrese su contraseña o token de gateway.\n\nEjecute este comando en el host donde se ejecuta OpenClaw para obtenerlo:</string>
 <string name="permission_camera_desc">Requerido para que la IA vea la transmisión de tu cámara</string>
 <string name="permission_location_desc">Requerido para que la IA conozca tu ubicación</string>
 <string name="setup_guide_auth_token_password">Token + Contraseña</string>

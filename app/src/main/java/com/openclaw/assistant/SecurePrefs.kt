@@ -185,6 +185,17 @@ class SecurePrefs(context: Context) {
     prefs.edit { putString(key, password.trim()) }
   }
 
+  fun loadGatewayBootstrapToken(): String? {
+    val key = "gateway.bootstrapToken.${_instanceId.value}"
+    val stored = prefs.getString(key, null)?.trim()
+    return stored?.takeIf { it.isNotEmpty() }
+  }
+
+  fun saveGatewayBootstrapToken(token: String) {
+    val key = "gateway.bootstrapToken.${_instanceId.value}"
+    prefs.edit { putString(key, token.trim()) }
+  }
+
   fun loadGatewayTlsFingerprint(stableId: String): String? {
     val key = "gateway.tls.$stableId"
     return prefs.getString(key, null)?.trim()?.takeIf { it.isNotEmpty() }

@@ -422,6 +422,9 @@
 <string name="http_use_gateway_url">使用網關 URL</string>
 <string name="setup_code_applied">設定已套用！</string>
 <string name="setup_code_invalid_code">設定代碼無效或不完整。</string>
+<string name="setup_code_credential_copy_button">複製指令</string>
+    <string name="setup_code_credential_hint_title">輸入閘道密碼或令牌</string>
+<string name="setup_code_credential_hint_desc">設定代碼已設定伺服器URL。若要連接操作員工作階段，請輸入閘道密碼或令牌。\n\n在執行OpenClaw的主機上執行以下命令取得：</string>
 <string name="permission_camera_desc">AI 需要查看您的攝影機串流</string>
 <string name="permission_location_desc">AI 需要知道您的位置</string>
 <string name="setup_guide_auth_token_password">令牌+密碼</string>

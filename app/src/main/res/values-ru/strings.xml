@@ -423,6 +423,9 @@
 <string name="http_use_gateway_url">Использовать URL-адрес шлюза</string>
 <string name="setup_code_applied">Настройки применены!</string>
 <string name="setup_code_invalid_code">Неверный или неполный код настройки.</string>
+<string name="setup_code_credential_copy_button">Копировать команду</string>
+    <string name="setup_code_credential_hint_title">Введите пароль или токен шлюза</string>
+<string name="setup_code_credential_hint_desc">Код настройки сконфигурировал URL сервера. Для подключения сеанса оператора введите пароль или токен шлюза.\n\nЗапустите эту команду на хосте с OpenClaw для получения значения:</string>
 <string name="permission_camera_desc">Требуется, чтобы ИИ мог видеть трансляцию с вашей камеры</string>
 <string name="permission_location_desc">Необходимо, чтобы ИИ знал ваше местоположение</string>
 <string name="setup_guide_auth_token_password">Токен + Пароль</string>

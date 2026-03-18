@@ -423,6 +423,9 @@
 <string name="http_use_gateway_url">गेटवे यूआरएल का प्रयोग करें</string>
 <string name="setup_code_applied">सेटिंग्स लागू!</string>
 <string name="setup_code_invalid_code">अमान्य या अपूर्ण सेटअप कोड.</string>
+<string name="setup_code_credential_copy_button">कमांड कॉपी करें</string>
+    <string name="setup_code_credential_hint_title">गेटवे पासवर्ड या टोकन दर्ज करें</string>
+<string name="setup_code_credential_hint_desc">सेटअप कोड ने आपका सर्वर URL कॉन्फ़िगर किया। ऑपरेटर सेशन कनेक्ट करने के लिए अपना गेटवे पासवर्ड या टोकन दर्ज करें।\n\nप्राप्त करने के लिए OpenClaw चलाने वाले होस्ट पर यह कमांड चलाएं:</string>
 <string name="permission_camera_desc">आपके कैमरे की स्ट्रीम देखने के लिए AI की आवश्यकता है</string>
 <string name="permission_location_desc">आपका स्थान जानने के लिए AI के लिए आवश्यक है</string>
 <string name="setup_guide_auth_token_password">टोकन + पासवर्ड</string>

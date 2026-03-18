@@ -1,6 +1,7 @@
 package com.openclaw.assistant.ui
 
 import android.Manifest
+import android.util.Log
 import android.content.Context
 import android.content.pm.PackageManager
 import android.hardware.Sensor
@@ -298,18 +299,48 @@ fun SetupGuideScreen(
                         // Apply settings
                         if (connectionMode == ConnectionMode.SetupCode) {
                             val decoded = GatewayConfigUtils.decodeGatewaySetupCode(setupCode)
+                            Log.d("SetupGuide", "Setup code decoded: decoded=${decoded != null}, hasToken=${decoded?.token != null}, hasPassword=${decoded?.password != null}")
                             if (decoded != null) {
                                 val parsed = GatewayConfigUtils.parseGatewayEndpoint(decoded.url)
+                                Log.d("SetupGuide", "Endpoint parsed: parsed=${parsed != null}")
                                 if (parsed != null) {
                                     runtime.setManualHost(parsed.host)
                                     runtime.setManualPort(parsed.port)
                                     runtime.setManualTls(parsed.tls)
-                                    // Save to gateway-specific storage (prefs), not HTTP settings
-                                    if (decoded.token != null) {
-                                        runtime.prefs.saveGatewayToken(decoded.token)
-                                    }
-                                    if (decoded.password != null) {
-                                        runtime.setGatewayPassword(decoded.password)
+                                    // Save credentials and clear stale fields from previous setup codes.
+                                    // Only one auth type is valid at a time.
+                                    when {
+                                        decoded.bootstrapToken != null -> {
+                                            runtime.setGatewayBootstrapToken(decoded.bootstrapToken)
+                                            // Save user-entered credential (password takes priority over token)
+                                            when {
+                                                manualPassword.isNotBlank() -> {
+                                                    runtime.setGatewayPassword(manualPassword.trim())
+                                                    runtime.prefs.setGatewayToken("")
+                                                    runtime.prefs.saveGatewayToken("")
+                                                }
+                                                authToken.isNotBlank() -> {
+                                                    runtime.prefs.saveGatewayToken(authToken.trim())
+                                                    runtime.setGatewayPassword("")
+                                                }
+                                                else -> {
+                                                    runtime.prefs.setGatewayToken("")
+                                                    runtime.prefs.saveGatewayToken("")
+                                                    runtime.setGatewayPassword("")
+                                                }
+                                            }
+                                        }
+                                        decoded.token != null -> {
+                                            runtime.prefs.saveGatewayToken(decoded.token)
+                                            runtime.setGatewayBootstrapToken("")
+                                            runtime.setGatewayPassword("")
+                                        }
+                                        decoded.password != null -> {
+                                            runtime.setGatewayPassword(decoded.password)
+                                            runtime.prefs.setGatewayToken("")
+                                            runtime.prefs.saveGatewayToken("")
+                                            runtime.setGatewayBootstrapToken("")
+                                        }
                                     }
                                     // Auto-generate HTTP URL and token from gateway endpoint
                                     GatewayConfigUtils.composeGatewayManualUrl(parsed.host, parsed.port.toString(), parsed.tls)
@@ -319,7 +350,6 @@ fun SetupGuideScreen(
                                             }
                                         }
                                     decoded.token?.let { settings.authToken = it }
-                                        ?: decoded.password?.let { settings.authToken = it }
                                 }
                             }
                         } else {
@@ -477,7 +507,13 @@ private fun ConnectionStep(
         Spacer(modifier = Modifier.height(24.dp))
 
         if (mode == ConnectionMode.SetupCode) {
-            // --- Option 1: QR Scan ---
+            val decodedSetupCode = GatewayConfigUtils.decodeGatewaySetupCode(setupCode)
+            val isCodeValid = decodedSetupCode != null
+            val hasBootstrapOnly = isCodeValid &&
+                decodedSetupCode?.bootstrapToken != null &&
+                decodedSetupCode.password == null &&
+                decodedSetupCode.token == null
+
             Text(
                 text = stringResource(R.string.setup_guide_qr_scan_title),
                 style = MaterialTheme.typography.titleMedium,
@@ -501,7 +537,17 @@ private fun ConnectionStep(
                     GmsBarcodeScanning.getClient(context, options)
                         .startScan()
                         .addOnSuccessListener { barcode ->
-                            barcode.rawValue?.let { onSetupCodeChange(it) }
+                            barcode.rawValue?.let { rawValue ->
+                                // openclaw qr generates {"setupCode":"base64..."} JSON; extract the inner code
+                                val code = try {
+                                    org.json.JSONObject(rawValue.trim())
+                                        .optString("setupCode")
+                                        .takeIf { it.isNotBlank() } ?: rawValue
+                                } catch (_: Exception) {
+                                    rawValue
+                                }
+                                onSetupCodeChange(code)
+                            }
                         }
                         .addOnFailureListener { /* scan cancelled or failed — no action needed */ }
                 },
@@ -517,41 +563,37 @@ private fun ConnectionStep(
                 Text(stringResource(R.string.qr_scan_prompt), fontSize = 16.sp)
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-            HorizontalDivider(color = OnboardingBorder)
-            Spacer(modifier = Modifier.height(24.dp))
+            // Show scan result
+            if (setupCode.isNotBlank()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                if (isCodeValid) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Default.CheckCircle,
+                            contentDescription = null,
+                            tint = Color(0xFF4CAF50),
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = decodedSetupCode!!.url,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                            color = Color(0xFF4CAF50)
+                        )
+                    }
+                } else {
+                    Text(
+                        text = stringResource(R.string.setup_guide_invalid_code),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
 
-            // --- Option 2: Text input ---
-            Text(
-                text = stringResource(R.string.setup_guide_code_input_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = OnboardingTextPrimary,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = stringResource(R.string.setup_guide_connection_guide_cmd_1),
-                style = MaterialTheme.typography.bodySmall,
-                color = OnboardingTextSecondary
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            CommandBlock("openclaw qr --setup-code-only")
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = stringResource(R.string.setup_guide_connection_guide_json_desc),
-                style = MaterialTheme.typography.bodySmall,
-                color = OnboardingTextSecondary
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = setupCode,
-                onValueChange = onSetupCodeChange,
-                label = { Text(stringResource(R.string.setup_guide_setup_code_label)) },
-                placeholder = { Text(stringResource(R.string.setup_guide_setup_code_hint)) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
+            // When QR contains only bootstrapToken, prompt for password/token
+            if (hasBootstrapOnly) {
+                val credFieldColors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = OnboardingTextPrimary,
                     unfocusedTextColor = OnboardingTextPrimary,
                     focusedLabelColor = OnboardingGradientMid,
@@ -561,16 +603,30 @@ private fun ConnectionStep(
                     cursorColor = OnboardingGradientMid,
                     focusedPlaceholderColor = OnboardingTextSecondary,
                     unfocusedPlaceholderColor = OnboardingTextSecondary,
-                ),
-            )
-
-            val isCodeValid = GatewayConfigUtils.decodeGatewaySetupCode(setupCode) != null
-            if (setupCode.isNotBlank() && !isCodeValid) {
-                Text(
-                    text = stringResource(R.string.setup_guide_invalid_code),
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                com.openclaw.assistant.ui.components.CredentialHintCard()
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = manualPassword,
+                    onValueChange = onManualPasswordChange,
+                    label = { Text(stringResource(R.string.setup_guide_manual_password)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    colors = credFieldColors,
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                OutlinedTextField(
+                    value = authToken,
+                    onValueChange = onAuthTokenChange,
+                    label = { Text(stringResource(R.string.setup_guide_manual_token)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    colors = credFieldColors,
                 )
             }
         } else {

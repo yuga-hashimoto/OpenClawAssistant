@@ -61,6 +61,9 @@ class GatewaySession(
   private val onEvent: (event: String, payloadJson: String?) -> Unit,
   private val onInvoke: (suspend (InvokeRequest) -> InvokeResult)? = null,
   private val onTlsFingerprint: ((stableId: String, fingerprint: String) -> Unit)? = null,
+  // Called when a bootstrapToken is rejected as invalid/expired by the server.
+  // The consumer should clear the stored bootstrapToken so future retries don't reuse it.
+  private val onBootstrapTokenInvalid: (() -> Unit)? = null,
 ) {
   companion object {
     private const val TAG = "GatewaySession"
@@ -94,6 +97,7 @@ class GatewaySession(
     val endpoint: GatewayEndpoint,
     val token: String?,
     val password: String?,
+    val bootstrapToken: String?,
     val options: GatewayConnectOptions,
     val tls: GatewayTlsParams?,
   )
@@ -106,10 +110,11 @@ class GatewaySession(
     endpoint: GatewayEndpoint,
     token: String?,
     password: String?,
+    bootstrapToken: String? = null,
     options: GatewayConnectOptions,
     tls: GatewayTlsParams? = null,
   ) {
-    desired = DesiredConnection(endpoint, token, password, options, tls)
+    desired = DesiredConnection(endpoint, token, password, bootstrapToken, options, tls)
     if (job == null) {
       job = scope.launch(Dispatchers.IO) { runLoop() }
     }
@@ -175,6 +180,7 @@ class GatewaySession(
     private val endpoint: GatewayEndpoint,
     private val token: String?,
     private val password: String?,
+    private val bootstrapToken: String?,
     private val options: GatewayConnectOptions,
     private val tls: GatewayTlsParams?,
   ) {
@@ -312,9 +318,32 @@ class GatewaySession(
       val storedToken = deviceAuthStore.loadToken(identityId, options.role)
       val trimmedToken = token?.trim().orEmpty()
       val trimmedPassword = password?.trim().orEmpty()
+      val trimmedBootstrapToken = bootstrapToken?.trim().orEmpty()
       val authToken = if (storedToken.isNullOrBlank()) trimmedToken else storedToken
       val canFallbackToShared = !storedToken.isNullOrBlank() && trimmedToken.isNotBlank()
-      
+
+      // If no token/password but bootstrapToken is set, use bootstrapToken auth directly.
+      // Avoids trying token/password which would fail and potentially rate-limit.
+      // Only use bootstrapToken when no deviceToken is stored — bootstrapToken is single-use
+      // and gets invalidated after first use; the deviceToken takes over for reconnections.
+      if (trimmedToken.isEmpty() && trimmedPassword.isEmpty() && trimmedBootstrapToken.isNotEmpty() && storedToken.isNullOrBlank()) {
+        Log.d(TAG, "No token/password configured, using bootstrapToken auth directly")
+        val payload = buildConnectParams(identity, connectNonce, "", null, authBootstrapToken = trimmedBootstrapToken)
+        val res = request("connect", payload, timeoutMs = 8_000)
+        if (res.ok) {
+          handleConnectSuccess(res, canFallbackToShared, identityId)
+          return
+        }
+        val msg = res.error?.message ?: "connect failed"
+        Log.w(TAG, "BootstrapToken auth failed: $msg")
+        // The server consumed the bootstrapToken on first use. Clear it from the desired connection
+        // so subsequent retries don't loop on the same expired token. The consumer is notified via
+        // onBootstrapTokenInvalid to also clear it from persistent storage.
+        this@GatewaySession.desired = this@GatewaySession.desired?.copy(bootstrapToken = null)
+        onBootstrapTokenInvalid?.invoke()
+        throw IllegalStateException(msg)
+      }
+
       // If no explicit token is configured but password is set, use password auth directly.
       // Trying token first causes the server to close the WebSocket on rejection,
       // making the subsequent password request time out on the already-closed connection.
@@ -332,8 +361,11 @@ class GatewaySession(
         throw IllegalStateException(msg)
       }
 
-      // Try automatic auth mode detection: token first, then password fallback
-      val credential = trimmedToken.ifEmpty { trimmedPassword }
+      // Try automatic auth mode detection: token first, then password fallback.
+      // Use authToken (which includes the stored deviceToken) so that a device token
+      // acquired via bootstrapToken pairing is used on reconnections even when no
+      // manual token is stored in prefs.
+      val credential = authToken.ifEmpty { trimmedPassword }
 
       if (credential.isNotEmpty()) {
         // Try token auth first
@@ -360,7 +392,7 @@ class GatewaySession(
           // Both failed
           val msg = passwordRes.error?.message ?: "connect failed"
           Log.w(TAG, "Password auth failed: $msg (code=${passwordRes.error?.code})")
-          if (canFallbackToShared) {
+          if (canFallbackToShared || !storedToken.isNullOrBlank()) {
             deviceAuthStore.clearToken(identityId, options.role)
           }
           throw IllegalStateException(msg)
@@ -368,7 +400,7 @@ class GatewaySession(
 
         // Token failed and no password provided
         val msg = tokenRes.error?.message ?: "connect failed"
-        if (canFallbackToShared) {
+        if (canFallbackToShared || !storedToken.isNullOrBlank()) {
           deviceAuthStore.clearToken(identityId, options.role)
         }
         throw IllegalStateException(msg)
@@ -415,6 +447,7 @@ class GatewaySession(
       connectNonce: String?,
       authToken: String,
       authPassword: String?,
+      authBootstrapToken: String? = null,
     ): JsonObject {
       val identityId = identity.deviceId ?: throw IllegalStateException("missing device identity id")
       val client = options.client
@@ -432,11 +465,16 @@ class GatewaySession(
         }
 
       val password = authPassword?.trim().orEmpty()
+      val bootstrapTokenTrimmed = authBootstrapToken?.trim().orEmpty()
       val authJson =
         when {
           authToken.isNotEmpty() ->
             buildJsonObject {
               put("token", JsonPrimitive(authToken))
+            }
+          bootstrapTokenTrimmed.isNotEmpty() ->
+            buildJsonObject {
+              put("bootstrapToken", JsonPrimitive(bootstrapTokenTrimmed))
             }
           password.isNotEmpty() ->
             buildJsonObject {
@@ -454,7 +492,12 @@ class GatewaySession(
           role = options.role,
           scopes = options.scopes,
           signedAtMs = signedAtMs,
-          token = if (authToken.isNotEmpty()) authToken else null,
+          token =
+            when {
+              authToken.isNotEmpty() -> authToken
+              bootstrapTokenTrimmed.isNotEmpty() -> bootstrapTokenTrimmed
+              else -> null
+            },
           nonce = connectNonce,
         )
       val signature = identityStore.signPayload(payload, identity)
@@ -661,7 +704,7 @@ class GatewaySession(
   }
 
   private suspend fun connectOnce(target: DesiredConnection) = withContext(Dispatchers.IO) {
-    val conn = Connection(target.endpoint, target.token, target.password, target.options, target.tls)
+    val conn = Connection(target.endpoint, target.token, target.password, target.bootstrapToken, target.options, target.tls)
     currentConnection = conn
     try {
       conn.connect()

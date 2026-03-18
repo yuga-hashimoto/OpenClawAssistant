@@ -422,6 +422,9 @@ Weitere Informationen finden Sie auf der offiziellen Website von VOICEVOX.</stri
 <string name="http_use_gateway_url">Verwenden Sie die Gateway-URL</string>
 <string name="setup_code_applied">Einstellungen übernommen!</string>
 <string name="setup_code_invalid_code">Ungültiger oder unvollständiger Setup-Code.</string>
+<string name="setup_code_credential_copy_button">Befehl kopieren</string>
+    <string name="setup_code_credential_hint_title">Gateway-Passwort oder Token eingeben</string>
+<string name="setup_code_credential_hint_desc">Der Setup-Code hat Ihre Server-URL konfiguriert. Um die Operator-Sitzung zu verbinden, geben Sie Ihr Gateway-Passwort oder Token ein.\n\nFühren Sie diesen Befehl auf dem Host mit OpenClaw aus, um ihn abzurufen:</string>
 <string name="permission_camera_desc">Erforderlich, damit die KI Ihren Kamerastream sehen kann</string>
 <string name="permission_location_desc">Erforderlich, damit die KI Ihren Standort kennt</string>
 <string name="setup_guide_auth_token_password">Token + Passwort</string>

@@ -27,6 +27,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import android.content.ClipData
+import android.content.ClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -42,6 +44,7 @@ import com.openclaw.assistant.data.SettingsRepository
 import com.openclaw.assistant.service.NodeForegroundService
 import com.openclaw.assistant.service.HotwordService
 import com.openclaw.assistant.ui.components.CollapsibleSection
+import com.openclaw.assistant.ui.components.CredentialHintCard
 import com.openclaw.assistant.ui.components.ConnectionState
 import com.openclaw.assistant.ui.components.PairingRequiredCard
 import com.openclaw.assistant.ui.components.StatusIndicator
@@ -333,6 +336,7 @@ fun SettingsScreen(
     var gatewayTls by rememberSaveable { mutableStateOf(manualTlsState) }
     var gatewayToken by rememberSaveable { mutableStateOf(gatewayTokenState) }
     var gatewayPassword by rememberSaveable { mutableStateOf(runtime.getGatewayPassword() ?: "") }
+    var gatewayBootstrapToken by rememberSaveable { mutableStateOf(runtime.getGatewayBootstrapToken() ?: "") }
     var showGatewayPassword by rememberSaveable { mutableStateOf(false) }
     var usePasswordAuth by rememberSaveable { mutableStateOf(runtime.getGatewayPassword()?.isNotEmpty() == true) }
 
@@ -340,6 +344,8 @@ fun SettingsScreen(
     var setupCode by rememberSaveable { mutableStateOf("") }
     var setupCodeApplied by rememberSaveable { mutableStateOf(false) }
     var setupCodeError by rememberSaveable { mutableStateOf(false) }
+    // True when the applied setup code had only bootstrapToken (no password/token in QR)
+    var setupCodeHasBootstrapOnly by rememberSaveable { mutableStateOf(false) }
 
     // HTTP inputs
     var httpInputUrl by rememberSaveable { mutableStateOf(httpUrl) }
@@ -435,10 +441,16 @@ fun SettingsScreen(
                             runtime.setManualHost(gatewayHost.trim())
                             runtime.setManualPort(gatewayPort.toIntOrNull() ?: 18789)
                             runtime.setManualTls(gatewayTls)
-                            if (usePasswordAuth) {
+                            if (gatewayBootstrapToken.isNotBlank()) {
+                                runtime.setGatewayBootstrapToken(gatewayBootstrapToken.trim())
+                                runtime.setGatewayToken("")
+                                runtime.setGatewayPassword("")
+                            } else if (usePasswordAuth) {
+                                runtime.setGatewayBootstrapToken("")
                                 runtime.setGatewayToken("")
                                 runtime.setGatewayPassword(gatewayPassword.trim())
                             } else {
+                                runtime.setGatewayBootstrapToken("")
                                 runtime.setGatewayToken(gatewayToken.trim())
                                 runtime.setGatewayPassword("")
                             }
@@ -575,12 +587,22 @@ fun SettingsScreen(
                                                         gatewayHost = parsed.host
                                                         gatewayPort = parsed.port.toString()
                                                         gatewayTls = parsed.tls
-                                                        if (decoded.password != null) {
+                                                        if (decoded.bootstrapToken != null) {
+                                                            gatewayBootstrapToken = decoded.bootstrapToken
+                                                            gatewayToken = ""
+                                                            gatewayPassword = ""
+                                                            usePasswordAuth = false
+                                                            setupCodeHasBootstrapOnly = decoded.password == null && decoded.token == null
+                                                        } else if (decoded.password != null) {
+                                                            gatewayBootstrapToken = ""
                                                             usePasswordAuth = true
                                                             gatewayPassword = decoded.password
+                                                            setupCodeHasBootstrapOnly = false
                                                         } else if (decoded.token != null) {
+                                                            gatewayBootstrapToken = ""
                                                             usePasswordAuth = false
                                                             gatewayToken = decoded.token
+                                                            setupCodeHasBootstrapOnly = false
                                                         }
                                                         setupCodeApplied = true
                                                         setupCodeError = false
@@ -602,6 +624,11 @@ fun SettingsScreen(
                                     else -> null
                                 }
                             )
+
+                            if (setupCodeApplied && setupCodeHasBootstrapOnly) {
+                                Spacer(modifier = Modifier.height(12.dp))
+                                CredentialHintCard()
+                            }
 
                             Spacer(modifier = Modifier.height(16.dp))
 
@@ -636,21 +663,37 @@ fun SettingsScreen(
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.clickable { usePasswordAuth = false; testResult = null }
+                                    modifier = Modifier.clickable {
+                                        gatewayBootstrapToken = ""
+                                        usePasswordAuth = false
+                                        testResult = null
+                                    }
                                 ) {
                                     RadioButton(
                                         selected = !usePasswordAuth,
-                                        onClick = { usePasswordAuth = false; testResult = null }
+                                        onClick = {
+                                            gatewayBootstrapToken = ""
+                                            usePasswordAuth = false
+                                            testResult = null
+                                        }
                                     )
                                     Text(stringResource(R.string.gateway_token))
                                 }
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.clickable { usePasswordAuth = true; testResult = null }
+                                    modifier = Modifier.clickable {
+                                        gatewayBootstrapToken = ""
+                                        usePasswordAuth = true
+                                        testResult = null
+                                    }
                                 ) {
                                     RadioButton(
                                         selected = usePasswordAuth,
-                                        onClick = { usePasswordAuth = true; testResult = null }
+                                        onClick = {
+                                            gatewayBootstrapToken = ""
+                                            usePasswordAuth = true
+                                            testResult = null
+                                        }
                                     )
                                     Text(stringResource(R.string.gateway_password))
                                 }
@@ -661,7 +704,11 @@ fun SettingsScreen(
                             if (!usePasswordAuth) {
                                 OutlinedTextField(
                                     value = gatewayToken,
-                                    onValueChange = { gatewayToken = it; testResult = null },
+                                    onValueChange = {
+                                        gatewayBootstrapToken = ""
+                                        gatewayToken = it
+                                        testResult = null
+                                    },
                                     label = { Text(stringResource(R.string.gateway_token)) },
                                     trailingIcon = {
                                         IconButton(onClick = { showNodeToken = !showNodeToken }) {
@@ -678,7 +725,11 @@ fun SettingsScreen(
                             } else {
                                 OutlinedTextField(
                                     value = gatewayPassword,
-                                    onValueChange = { gatewayPassword = it; testResult = null },
+                                    onValueChange = {
+                                        gatewayBootstrapToken = ""
+                                        gatewayPassword = it
+                                        testResult = null
+                                    },
                                     label = { Text(stringResource(R.string.gateway_password)) },
                                     trailingIcon = {
                                         IconButton(onClick = { showGatewayPassword = !showGatewayPassword }) {

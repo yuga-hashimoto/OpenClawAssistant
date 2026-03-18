@@ -423,6 +423,9 @@
 <string name="http_use_gateway_url">使用网关 URL</string>
 <string name="setup_code_applied">设置已应用！</string>
 <string name="setup_code_invalid_code">设置代码无效或不完整。</string>
+<string name="setup_code_credential_copy_button">复制命令</string>
+    <string name="setup_code_credential_hint_title">输入网关密码或令牌</string>
+<string name="setup_code_credential_hint_desc">设置代码已配置服务器URL。要连接操作员会话，请输入网关密码或令牌。\n\n在运行OpenClaw的主机上运行以下命令获取：</string>
 <string name="permission_camera_desc">AI 需要查看您的摄像头流</string>
 <string name="permission_location_desc">AI 需要知道您的位置</string>
 <string name="setup_guide_auth_token_password">令牌 + 密码</string>

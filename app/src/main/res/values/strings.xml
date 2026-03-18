@@ -505,6 +505,9 @@
     <string name="http_use_gateway_url">Use Gateway URL</string>
     <string name="setup_code_applied">Settings applied!</string>
     <string name="setup_code_invalid_code">Invalid or incomplete setup code.</string>
+    <string name="setup_code_credential_copy_button">Copy command</string>
+    <string name="setup_code_credential_hint_title">Enter your gateway password or token</string>
+    <string name="setup_code_credential_hint_desc">The setup code configured your server URL. To connect the operator session, enter your gateway password or token below.\n\nRun this command on the host running OpenClaw to retrieve it:</string>
 
     <!-- Additional Setup Guide Strings -->
     <string name="permission_camera_desc">Required for the AI to see your camera stream</string>
