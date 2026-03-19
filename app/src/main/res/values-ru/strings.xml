@@ -223,6 +223,10 @@
 <string name="select_chat_type">Выберите тип чата</string>
 <string name="chat_type_gateway">Чат на шлюзе</string>
 <string name="chat_type_http">HTTP-чат</string>
+<!-- Session List -->
+<string name="chat_sessions_dialog_title">Сессии</string>
+<string name="chat_sessions_dialog_no_sessions">Нет сессий</string>
+<string name="chat_sessions_dialog_current">Текущий</string>
 <string name="no_sessions">Обсуждений пока нет. Нажмите +, чтобы начать новый.</string>
 <string name="session_name_label">Имя</string>
 <string name="session_name_hint">e.g. Работа, путешествия, учеба</string>
@@ -514,6 +518,9 @@
     <string name="tab_nav_chat">Чат</string>
     <string name="tab_nav_canvas">Canvas</string>
     <string name="tab_nav_settings">Настройки</string>
+    <string name="attach_file">Прикрепить файл</string>
+    <string name="file">Файл</string>
+    <string name="image_attachment">Вложение изображения</string>
     <string name="canvas_placeholder_title">Canvas</string>
     <string name="canvas_placeholder_body">Canvas — это область отображения, управляемая ИИ-ассистентом. Попросите ассистента в чате показать что-нибудь здесь.</string>
     <string name="canvas_go_to_chat">Перейти в чат</string>
@@ -536,4 +543,7 @@
     <string name="wake_word_debug_panel_title">Журнал отладки Wake Word</string>
     <string name="wake_word_debug_empty">Ожидание событий Vosk…</string>
     <string name="clear">Очистить</string>
+    <string name="action_collapse">Свернуть</string>
+    <string name="action_expand">Развернуть</string>
+    <string name="action_refresh">Обновить</string>
 </resources>

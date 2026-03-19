@@ -1084,8 +1084,15 @@ private fun FinalCheckStep(
                 textAlign = TextAlign.Center
             )
         } else {
+            val isConnecting = statusText.contains("Connecting", ignoreCase = true)
+            val state = when {
+                isConnected -> ConnectionState.Connected
+                isConnecting -> ConnectionState.Connecting
+                else -> ConnectionState.Disconnected
+            }
+
             StatusIndicator(
-                state = if (isConnected) ConnectionState.Connected else ConnectionState.Disconnected,
+                state = state,
                 label = statusText,
                 modifier = Modifier.padding(16.dp)
             )

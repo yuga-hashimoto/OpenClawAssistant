@@ -23,6 +23,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.openclaw.assistant.R
 
 enum class ConnectionState {
     Connected,
@@ -50,6 +52,12 @@ fun StatusIndicator(
         ConnectionState.Disconnected -> Color(0xFF757575)
     }
 
+    val stateDesc = when (state) {
+        ConnectionState.Connected -> stringResource(R.string.connected)
+        ConnectionState.Connecting -> stringResource(R.string.gateway_connecting)
+        ConnectionState.Disconnected -> stringResource(R.string.disconnected)
+    }
+
     val transition = rememberInfiniteTransition(label = "pulse")
     val alpha by transition.animateFloat(
         initialValue = 1f,
@@ -74,7 +82,7 @@ fun StatusIndicator(
                 .then(
                     if (label == null) {
                         Modifier.semantics {
-                            contentDescription = state.name
+                            contentDescription = stateDesc
                         }
                     } else {
                         Modifier

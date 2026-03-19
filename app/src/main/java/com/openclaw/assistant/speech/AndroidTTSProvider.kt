@@ -17,6 +17,9 @@ import kotlin.coroutines.resume
 
 private const val TAG = "AndroidTTSProvider"
 
+private val SENTENCE_ENDERS = listOf("。", "．", ". ", "! ", "? ", "！", "？")
+private val COMMA_ENDERS = listOf("。", "，", ", ")
+
 /**
  * Android native TTS provider (wrapper around TextToSpeech)
  */
@@ -249,9 +252,8 @@ class AndroidTTSProvider(private val context: Context) : TTSProvider {
         val paragraphBreak = text.lastIndexOf("\n\n")
         if (paragraphBreak > text.length / 2) return paragraphBreak + 2
         
-        val sentenceEnders = listOf("。", "．", ". ", "! ", "? ", "！", "？")
         var bestPos = -1
-        for (ender in sentenceEnders) {
+        for (ender in SENTENCE_ENDERS) {
             val pos = text.lastIndexOf(ender)
             if (pos > bestPos) bestPos = pos + ender.length
         }
@@ -260,8 +262,7 @@ class AndroidTTSProvider(private val context: Context) : TTSProvider {
         val lineBreak = text.lastIndexOf("\n")
         if (lineBreak > text.length / 3) return lineBreak + 1
         
-        val commaEnders = listOf("。", "，", ", ")
-        for (ender in commaEnders) {
+        for (ender in COMMA_ENDERS) {
             val pos = text.lastIndexOf(ender)
             if (pos > bestPos) bestPos = pos + ender.length
         }

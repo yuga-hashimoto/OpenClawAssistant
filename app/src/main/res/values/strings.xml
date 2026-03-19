@@ -247,6 +247,9 @@
     <string name="chat_type_http">HTTP Chat</string>
 
     <!-- Session List -->
+    <string name="chat_sessions_dialog_title">Sessions</string>
+    <string name="chat_sessions_dialog_no_sessions">No sessions</string>
+    <string name="chat_sessions_dialog_current">Current</string>
     <string name="no_sessions">No conversations yet. Tap + to start a new one.</string>
     <string name="session_name_label">Name</string>
     <string name="session_name_hint">e.g. Work, Travel, Study</string>
@@ -604,6 +607,9 @@
     <string name="tab_nav_chat">Chat</string>
     <string name="tab_nav_canvas">Canvas</string>
     <string name="tab_nav_settings">Settings</string>
+    <string name="attach_file">Attach file</string>
+    <string name="file">File</string>
+    <string name="image_attachment">Image attachment</string>
     <string name="canvas_placeholder_title">Canvas</string>
     <string name="canvas_placeholder_body">Canvas is a display area controlled by the AI assistant. Ask the assistant in Chat to show something here.</string>
     <string name="canvas_go_to_chat">Go to Chat</string>
@@ -623,4 +629,8 @@
     <string name="wake_word_debug_panel_title">Wake Word Debug Log</string>
     <string name="wake_word_debug_empty">Waiting for Vosk events…</string>
     <string name="clear">Clear</string>
+
+    <string name="action_collapse">Collapse</string>
+    <string name="action_expand">Expand</string>
+    <string name="action_refresh">Refresh</string>
 </resources>

@@ -223,6 +223,10 @@
 <string name="select_chat_type">चैट प्रकार चुनें</string>
 <string name="chat_type_gateway">गेटवे चैट</string>
 <string name="chat_type_http">HTTP चैट</string>
+<!-- Session List -->
+<string name="chat_sessions_dialog_title">सत्र</string>
+<string name="chat_sessions_dialog_no_sessions">कोई सत्र नहीं</string>
+<string name="chat_sessions_dialog_current">वर्तमान</string>
 <string name="no_sessions">अभी तक कोई बातचीत नहीं. नई शुरुआत करने के लिए + टैप करें.</string>
 <string name="session_name_label">नाम</string>
 <string name="session_name_hint">जैसे काम, यात्रा, अध्ययन</string>
@@ -514,6 +518,9 @@
     <string name="tab_nav_chat">चैट</string>
     <string name="tab_nav_canvas">Canvas</string>
     <string name="tab_nav_settings">सेटिंग्स</string>
+    <string name="attach_file">फ़ाइल संलग्न करें</string>
+    <string name="file">फ़ाइल</string>
+    <string name="image_attachment">छवि अनुलग्नक</string>
     <string name="canvas_placeholder_title">Canvas</string>
     <string name="canvas_placeholder_body">Canvas AI असिस्टेंट द्वारा नियंत्रित एक डिस्प्ले क्षेत्र है। Chat में असिस्टेंट से यहाँ कुछ दिखाने के लिए कहें।</string>
     <string name="canvas_go_to_chat">Chat पर जाएं</string>
@@ -536,4 +543,7 @@
     <string name="wake_word_debug_panel_title">Wake Word डीबग लॉग</string>
     <string name="wake_word_debug_empty">Vosk इवेंट की प्रतीक्षा में…</string>
     <string name="clear">साफ़ करें</string>
+    <string name="action_collapse">संकुचित करें</string>
+    <string name="action_expand">विस्तारित करें</string>
+    <string name="action_refresh">ताज़ा करें</string>
 </resources>

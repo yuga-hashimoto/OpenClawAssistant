@@ -222,6 +222,10 @@ Weitere Informationen finden Sie auf der offiziellen Website von VOICEVOX.</stri
 <string name="select_chat_type">Wählen Sie Chat-Typ</string>
 <string name="chat_type_gateway">Gateway-Chat</string>
 <string name="chat_type_http">HTTP-Chat</string>
+<!-- Session List -->
+<string name="chat_sessions_dialog_title">Sitzungen</string>
+<string name="chat_sessions_dialog_no_sessions">Keine Sitzungen</string>
+<string name="chat_sessions_dialog_current">Aktuell</string>
 <string name="no_sessions">Noch keine Gespräche. Tippen Sie auf +, um ein neues zu starten.</string>
 <string name="session_name_label">Name</string>
 <string name="session_name_hint">z.B. Arbeiten, Reisen, Studieren</string>
@@ -513,6 +517,9 @@ Weitere Informationen finden Sie auf der offiziellen Website von VOICEVOX.</stri
     <string name="tab_nav_chat">Chat</string>
     <string name="tab_nav_canvas">Canvas</string>
     <string name="tab_nav_settings">Einstellungen</string>
+    <string name="attach_file">Datei anhängen</string>
+    <string name="file">Datei</string>
+    <string name="image_attachment">Bildanhang</string>
     <string name="canvas_placeholder_title">Canvas</string>
     <string name="canvas_placeholder_body">Canvas ist ein Anzeigebereich, der vom KI-Assistenten gesteuert wird. Bitte den Assistenten im Chat, etwas hier anzuzeigen.</string>
     <string name="canvas_go_to_chat">Zum Chat</string>
@@ -535,4 +542,7 @@ Weitere Informationen finden Sie auf der offiziellen Website von VOICEVOX.</stri
     <string name="wake_word_debug_panel_title">Wake-Word Debug-Log</string>
     <string name="wake_word_debug_empty">Warte auf Vosk-Ereignisse…</string>
     <string name="clear">Leeren</string>
+    <string name="action_collapse">Einklappen</string>
+    <string name="action_expand">Ausklappen</string>
+    <string name="action_refresh">Aktualisieren</string>
 </resources>

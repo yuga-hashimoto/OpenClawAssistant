@@ -19,7 +19,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.openclaw.assistant.R
 import com.openclaw.assistant.chat.ChatSessionEntry
 
 @Composable
@@ -35,16 +37,16 @@ fun ChatSessionsDialog(
     confirmButton = {},
     title = {
       Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-        Text("Sessions", style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.chat_sessions_dialog_title), style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.weight(1f))
         FilledTonalIconButton(onClick = onRefresh) {
-          Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+          Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.action_refresh))
         }
       }
     },
     text = {
       if (sessions.isEmpty()) {
-        Text("No sessions", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(stringResource(R.string.chat_sessions_dialog_no_sessions), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
       } else {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
           items(sessions, key = { it.key }) { entry ->
@@ -85,7 +87,7 @@ private fun SessionRow(
       Text(entry.displayName ?: entry.key, style = MaterialTheme.typography.bodyMedium)
       Spacer(modifier = Modifier.weight(1f))
       if (isCurrent) {
-        Text("Current", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(stringResource(R.string.chat_sessions_dialog_current), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
       }
     }
   }

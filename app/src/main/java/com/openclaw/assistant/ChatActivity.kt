@@ -690,7 +690,7 @@ fun ChatAttachmentPreview(attachment: com.openclaw.assistant.chat.ChatMessageCon
         if (image != null) {
             Image(
                 bitmap = image!!,
-                contentDescription = attachment.fileName ?: "Image attachment",
+                contentDescription = attachment.fileName ?: stringResource(R.string.image_attachment),
                 contentScale = androidx.compose.ui.layout.ContentScale.Fit,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -709,13 +709,13 @@ fun ChatAttachmentPreview(attachment: com.openclaw.assistant.chat.ChatMessageCon
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.InsertDriveFile,
-                contentDescription = "File",
+                contentDescription = stringResource(R.string.file),
                 tint = contentColor,
                 modifier = Modifier.size(24.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = attachment.fileName ?: "File",
+                    text = attachment.fileName ?: stringResource(R.string.file),
                 style = MaterialTheme.typography.bodyMedium,
                 color = contentColor,
                 maxLines = 1,
@@ -968,7 +968,7 @@ fun ChatInputArea(
         ) {
             Icon(
                 imageVector = androidx.compose.material.icons.Icons.Default.AttachFile,
-                contentDescription = "Attach file",
+                contentDescription = stringResource(R.string.attach_file),
                 tint = MaterialTheme.colorScheme.primary
             )
         }

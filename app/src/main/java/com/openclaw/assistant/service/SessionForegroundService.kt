@@ -67,14 +67,13 @@ class SessionForegroundService : Service() {
                 startForeground(NOTIFICATION_ID, createNotification())
             }
         } catch (e: Exception) {
-            Log.w(TAG, "startForeground(microphone) failed, falling back: ${e.message}")
-            try {
-                startForeground(NOTIFICATION_ID, createNotification())
-            } catch (e2: Exception) {
-                Log.e(TAG, "startForeground fallback also failed: ${e2.message}")
-                stopSelf()
-                return START_NOT_STICKY
-            }
+            // This can happen on Android 14+ if the app is not in an eligible state
+            // (e.g. started from background without a visible activity).
+            // Attempting to fall back to an unrestricted type like dataSync for a microphone
+            // service violates Play Store policy. Handle gracefully by stopping.
+            Log.w(TAG, "startForeground(microphone) failed: ${e.message}")
+            stopSelf()
+            return START_NOT_STICKY
         }
         acquireWakeLock()
         Log.d(TAG, "Session foreground service started")

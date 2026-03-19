@@ -223,6 +223,10 @@ Para más detalles, consulta el sitio oficial de VOICEVOX.</string>
 <string name="select_chat_type">Seleccione el tipo de chat</string>
 <string name="chat_type_gateway">Chat de puerta de enlace</string>
 <string name="chat_type_http">Chat HTTP</string>
+<!-- Session List -->
+<string name="chat_sessions_dialog_title">Sesiones</string>
+<string name="chat_sessions_dialog_no_sessions">Sin sesiones</string>
+<string name="chat_sessions_dialog_current">Actual</string>
 <string name="no_sessions">Aún no hay conversaciones. Toca + para iniciar uno nuevo.</string>
 <string name="session_name_label">Nombre</string>
 <string name="session_name_hint">e.g. Trabajar, viajar, estudiar</string>
@@ -514,6 +518,9 @@ Para más detalles, consulta el sitio oficial de VOICEVOX.</string>
     <string name="tab_nav_chat">Chat</string>
     <string name="tab_nav_canvas">Canvas</string>
     <string name="tab_nav_settings">Ajustes</string>
+    <string name="attach_file">Adjuntar archivo</string>
+    <string name="file">Archivo</string>
+    <string name="image_attachment">Imagen adjunta</string>
     <string name="canvas_placeholder_title">Canvas</string>
     <string name="canvas_placeholder_body">Canvas es un área de visualización controlada por el asistente de IA. Pide al asistente en el Chat que muestre algo aquí.</string>
     <string name="canvas_go_to_chat">Ir al Chat</string>
@@ -536,4 +543,7 @@ Para más detalles, consulta el sitio oficial de VOICEVOX.</string>
     <string name="wake_word_debug_panel_title">Log de depuración Wake Word</string>
     <string name="wake_word_debug_empty">Esperando eventos de Vosk…</string>
     <string name="clear">Borrar</string>
+    <string name="action_collapse">Contraer</string>
+    <string name="action_expand">Expandir</string>
+    <string name="action_refresh">Actualizar</string>
 </resources>

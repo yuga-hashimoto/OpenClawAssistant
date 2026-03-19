@@ -222,6 +222,10 @@
 <string name="select_chat_type">選擇聊天類型</string>
 <string name="chat_type_gateway">網關聊天</string>
 <string name="chat_type_http">HTTP 聊天</string>
+<!-- Session List -->
+<string name="chat_sessions_dialog_title">工作階段</string>
+<string name="chat_sessions_dialog_no_sessions">無工作階段</string>
+<string name="chat_sessions_dialog_current">目前</string>
 <string name="no_sessions">還沒有對話。點擊 + 開始一個新的。</string>
 <string name="session_name_label">姓名</string>
 <string name="session_name_hint">例如工作、旅行、學習</string>
@@ -513,6 +517,9 @@
     <string name="tab_nav_chat">聊天</string>
     <string name="tab_nav_canvas">Canvas</string>
     <string name="tab_nav_settings">設定</string>
+    <string name="attach_file">附加檔案</string>
+    <string name="file">檔案</string>
+    <string name="image_attachment">圖片附件</string>
     <string name="canvas_placeholder_title">Canvas</string>
     <string name="canvas_placeholder_body">Canvas 是由 AI 助手控制的顯示區域。請在聊天中請求助手在這裡顯示內容。</string>
     <string name="canvas_go_to_chat">前往聊天</string>
@@ -535,4 +542,7 @@
     <string name="wake_word_debug_panel_title">喚醒詞除錯日誌</string>
     <string name="wake_word_debug_empty">等待 Vosk 事件…</string>
     <string name="clear">清除</string>
+    <string name="action_collapse">折疊</string>
+    <string name="action_expand">展開</string>
+    <string name="action_refresh">重新整理</string>
 </resources>
