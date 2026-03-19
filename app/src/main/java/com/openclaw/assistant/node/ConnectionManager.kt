@@ -253,7 +253,16 @@ class ConnectionManager(
 
   fun buildNodeConnectOptions(): GatewayConnectOptions {
     val caps = buildCapabilities()
-    val requestedScopes = caps.map { "node.$it" }
+    // Derive requested scopes only from permission-gated capabilities.
+    // Always-on capabilities (canvas, screen, system) are unconditionally supported and must not
+    // require the approving operator to hold specific node.* scopes — doing so causes
+    // `openclaw devices approve` to fail for CLI operators that lack those scopes.
+    val alwaysOnCaps = setOf(
+      OpenClawCapability.Canvas.rawValue,
+      OpenClawCapability.Screen.rawValue,
+      OpenClawCapability.System.rawValue,
+    )
+    val requestedScopes = caps.filterNot { it in alwaysOnCaps }.map { "node.$it" }
 
     return GatewayConnectOptions(
       role = "node",
