@@ -508,6 +508,7 @@
     <string name="operator_offline_command">openclaw devices approve $(openclaw devices list --json | tr \'{\' \'\\n\' | grep \'\"deviceId\":\"%s\"\' | grep -o \'\"requestId\":\"[^\"]*\"\' | cut -d\'\"\' -f4)</string>
     <string name="qr_scan_desc">Align the QR code within the frame to scan it</string>
     <string name="qr_scan_prompt">Scan QR Code</string>
+    <string name="qr_scan_unavailable">QR 掃描無法使用。請更新 Google Play 服務。</string>
     <string name="reject_command_format">openclaw devices reject $(openclaw devices list --json | tr \'{\' \'\\n\' | grep \'\"deviceId\":\"%s\"\' | grep -o \'\"requestId\":\"[^\"]*\"\' | cut -d\'\"\' -f4)</string>
     <string name="setup_guide_qr_scan_title">方式 1：掃描 QR 碼</string>
     <string name="setup_guide_qr_scan_cmd_label">在閘道主機上執行以下命令以顯示 QR 碼：</string>

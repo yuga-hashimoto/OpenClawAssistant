@@ -599,6 +599,7 @@
 
     <string name="qr_scan_prompt">Scan QR Code</string>
 <string name="qr_scan_desc">Align the QR code within the frame to scan it</string>
+    <string name="qr_scan_unavailable">QR scanning is unavailable. Please update Google Play Services.</string>
     <string name="setup_guide_qr_scan_title">Option 1: Scan QR Code</string>
     <string name="setup_guide_qr_scan_cmd_label">Run this on the gateway host to display a QR code:</string>
     <string name="setup_guide_code_input_title">Option 2: Enter Setup Code</string>

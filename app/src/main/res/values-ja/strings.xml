@@ -507,6 +507,7 @@
     <string name="setup_guide_qr_scan_cmd_label">QRコードを表示するには、ゲートウェイホストでこれを実行してください:</string>
     <string name="setup_guide_code_input_title">方法2：セットアップコードを入力</string>
     <string name="qr_scan_desc">QRスキャン</string>
+    <string name="qr_scan_unavailable">QRスキャンが利用できません。Google Play開発者サービスを更新してください。</string>
 
     <!-- Missing translations -->
     <string name="approve_command_format">openclaw devices approve $(openclaw devices list --json | tr \'{\' \'\\n\' | grep \'\"deviceId\":\"%s\"\' | grep -o \'\"requestId\":\"[^\"]*\"\' | cut -d\'\"\' -f4)</string>

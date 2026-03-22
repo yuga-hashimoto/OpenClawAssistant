@@ -508,6 +508,7 @@ Weitere Informationen finden Sie auf der offiziellen Website von VOICEVOX.</stri
     <string name="operator_offline_command">openclaw devices approve $(openclaw devices list --json | tr \'{\' \'\\n\' | grep \'\"deviceId\":\"%s\"\' | grep -o \'\"requestId\":\"[^\"]*\"\' | cut -d\'\"\' -f4)</string>
     <string name="qr_scan_desc">Align the QR code within the frame to scan it</string>
     <string name="qr_scan_prompt">Scan QR Code</string>
+    <string name="qr_scan_unavailable">QR-Scan ist nicht verfügbar. Bitte aktualisieren Sie die Google Play-Dienste.</string>
     <string name="reject_command_format">openclaw devices reject $(openclaw devices list --json | tr \'{\' \'\\n\' | grep \'\"deviceId\":\"%s\"\' | grep -o \'\"requestId\":\"[^\"]*\"\' | cut -d\'\"\' -f4)</string>
     <string name="setup_guide_qr_scan_title">Option 1: QR-Code scannen</string>
     <string name="setup_guide_qr_scan_cmd_label">Führen Sie dies auf dem Gateway-Host aus, um einen QR-Code anzuzeigen:</string>

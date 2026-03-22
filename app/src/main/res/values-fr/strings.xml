@@ -509,6 +509,7 @@ Pour plus de détails, consultez le site officiel de VOICEVOX.</string>
     <string name="operator_offline_command">openclaw devices approve $(openclaw devices list --json | tr \'{\' \'\\n\' | grep \'\"deviceId\":\"%s\"\' | grep -o \'\"requestId\":\"[^\"]*\"\' | cut -d\'\"\' -f4)</string>
     <string name="qr_scan_desc">Align the QR code within the frame to scan it</string>
     <string name="qr_scan_prompt">Scan QR Code</string>
+    <string name="qr_scan_unavailable">La numérisation QR n\'est pas disponible. Veuillez mettre à jour les services Google Play.</string>
     <string name="reject_command_format">openclaw devices reject $(openclaw devices list --json | tr \'{\' \'\\n\' | grep \'\"deviceId\":\"%s\"\' | grep -o \'\"requestId\":\"[^\"]*\"\' | cut -d\'\"\' -f4)</string>
     <string name="setup_guide_qr_scan_title">Option 1 : Scanner le QR code</string>
     <string name="setup_guide_qr_scan_cmd_label">Exécutez ceci sur l\'hôte de la passerelle pour afficher un QR code :</string>

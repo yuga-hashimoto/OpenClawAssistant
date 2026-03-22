@@ -13,6 +13,7 @@ import android.provider.Settings
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import com.google.android.gms.common.moduleinstall.ModuleInstall
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -535,22 +536,41 @@ private fun ConnectionStep(
                     val options = GmsBarcodeScannerOptions.Builder()
                         .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
                         .build()
-                    GmsBarcodeScanning.getClient(context, options)
-                        .startScan()
-                        .addOnSuccessListener { barcode ->
-                            barcode.rawValue?.let { rawValue ->
-                                // openclaw qr generates {"setupCode":"base64..."} JSON; extract the inner code
-                                val code = try {
-                                    org.json.JSONObject(rawValue.trim())
-                                        .optString("setupCode")
-                                        .takeIf { it.isNotBlank() } ?: rawValue
-                                } catch (_: Exception) {
-                                    rawValue
-                                }
-                                onSetupCodeChange(code)
+                    val scanner = GmsBarcodeScanning.getClient(context, options)
+                    ModuleInstall.getClient(context)
+                        .areModulesAvailable(scanner)
+                        .addOnSuccessListener { response ->
+                            if (response.areModulesAvailable()) {
+                                scanner.startScan()
+                                    .addOnSuccessListener { barcode ->
+                                        barcode.rawValue?.let { rawValue ->
+                                            // openclaw qr generates {"setupCode":"base64..."} JSON; extract the inner code
+                                            val code = try {
+                                                org.json.JSONObject(rawValue.trim())
+                                                    .optString("setupCode")
+                                                    .takeIf { it.isNotBlank() } ?: rawValue
+                                            } catch (_: Exception) {
+                                                rawValue
+                                            }
+                                            onSetupCodeChange(code)
+                                        }
+                                    }
+                                    .addOnFailureListener { /* scan cancelled or failed — no action needed */ }
+                            } else {
+                                android.widget.Toast.makeText(
+                                    context,
+                                    context.getString(R.string.qr_scan_unavailable),
+                                    android.widget.Toast.LENGTH_LONG
+                                ).show()
                             }
                         }
-                        .addOnFailureListener { /* scan cancelled or failed — no action needed */ }
+                        .addOnFailureListener {
+                            android.widget.Toast.makeText(
+                                context,
+                                context.getString(R.string.qr_scan_unavailable),
+                                android.widget.Toast.LENGTH_LONG
+                            ).show()
+                        }
                 },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(16.dp),
