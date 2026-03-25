@@ -81,7 +81,13 @@ class ElevenLabsProvider(private val context: Context) : TTSProvider {
         val requestBody = JSONObject().apply {
             put("text", text)
             put("model_id", modelId)
-            put("language_code", "ja")
+            val langCode = settings.speechLanguage
+                .takeIf { it.isNotEmpty() }
+                ?.let { Locale.forLanguageTag(it).language }
+                ?.takeIf { it.isNotEmpty() }
+            if (langCode != null) {
+                put("language_code", langCode)
+            }
             put("voice_settings", JSONObject().apply {
                 put("stability", 0.5)
                 put("similarity_boost", 0.75)

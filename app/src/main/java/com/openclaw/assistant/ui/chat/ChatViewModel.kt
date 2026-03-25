@@ -644,12 +644,14 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             // Wait for TTS resource release before starting mic
             delay(initialDelayMs)
 
+            var effectiveLanguage: String? = settings.speechLanguage.ifEmpty { null }
+
             try {
                 while (isActive && !hasActuallySpoken) {
                     Log.e(TAG, "Starting speechManager.startListening()")
                     _uiState.update { it.copy(isListening = false, partialText = "") }
 
-                    speechManager.startListening(settings.speechLanguage.ifEmpty { null }, settings.speechSilenceTimeout).collect { result ->
+                    speechManager.startListening(effectiveLanguage, settings.speechSilenceTimeout).collect { result ->
                         Log.e(TAG, "SpeechResult: $result")
                         when (result) {
                             is SpeechResult.Ready -> {
@@ -673,13 +675,21 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                             }
                             is SpeechResult.Error -> {
                                 val elapsed = System.currentTimeMillis() - startTime
-                                val isTimeout = result.code == SpeechRecognizer.ERROR_SPEECH_TIMEOUT || 
+                                val isTimeout = result.code == SpeechRecognizer.ERROR_SPEECH_TIMEOUT ||
                                               result.code == SpeechRecognizer.ERROR_NO_MATCH
                                 val isRetryableStartError =
                                     result.code == SpeechRecognizer.ERROR_RECOGNIZER_BUSY ||
                                     result.code == SpeechRecognizer.ERROR_CLIENT
-                                
-                                if (isRetryableStartError && elapsed < 10_000L) {
+                                val isLanguageUnsupported =
+                                    result.code == 12 /* ERROR_LANGUAGE_NOT_SUPPORTED */ ||
+                                    result.code == 13 /* ERROR_LANGUAGE_UNAVAILABLE */
+
+                                if (isLanguageUnsupported && effectiveLanguage != null) {
+                                    Log.w(TAG, "Speech language '$effectiveLanguage' unsupported, falling back to system default")
+                                    effectiveLanguage = null
+                                    speechManager.destroy()
+                                    delay(300)
+                                } else if (isRetryableStartError && elapsed < 10_000L) {
                                     Log.d(TAG, "Speech recognizer not ready yet ($result), retrying...")
                                     _uiState.update { it.copy(isListening = false, partialText = "") }
                                     speechManager.destroy()
