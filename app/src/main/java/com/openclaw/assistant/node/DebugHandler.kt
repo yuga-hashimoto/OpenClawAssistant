@@ -21,10 +21,10 @@ class DebugHandler(
       val testPayload = "test|${identity.deviceId}|${System.currentTimeMillis()}"
       val results = mutableListOf<String>()
       results.add("deviceId: ${identity.deviceId}")
-      results.add("publicKeyBase64Url: ${identity.publicKeyBase64Url?.take(20) ?: "null"}...")
+      val pubKeyUrl = identityStore.publicKeyBase64Url(identity)
+      results.add("publicKeyBase64Url: ${pubKeyUrl?.take(20) ?: "null"}...")
 
       // Test publicKeyBase64Url
-      val pubKeyUrl = identityStore.publicKeyBase64Url(identity)
       results.add("publicKeyBase64Url: ${pubKeyUrl ?: "NULL (FAILED)"}")
 
       // Test signing
