@@ -355,8 +355,7 @@ class NodeRuntime(context: Context) {
       onInvoke = { req ->
         val result = invokeDispatcher.handleInvoke(req.command, req.paramsJson)
         if (!result.ok) {
-          val errorMsg = result.error?.message ?: "Unknown error"
-          reportCapabilityError(errorMsg)
+          reportCapabilityError("Command failed (code=${result.error?.code ?: "UNKNOWN"})")
         }
         result
       },

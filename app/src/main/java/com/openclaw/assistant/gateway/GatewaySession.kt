@@ -432,14 +432,13 @@ class GatewaySession(
           handleConnectSuccess(res, canFallbackToShared, identityId)
           return
         }
-        val msg = res.error?.message ?: "connect failed"
         Log.w(TAG, "BootstrapToken auth failed (code=${res.error?.code})")
         // The server consumed the bootstrapToken on first use. Clear it from the desired connection
         // so subsequent retries don't loop on the same expired token. The consumer is notified via
         // onBootstrapTokenInvalid to also clear it from persistent storage.
         this@GatewaySession.desired = this@GatewaySession.desired?.copy(bootstrapToken = null)
         onBootstrapTokenInvalid?.invoke()
-        throw IllegalStateException(msg)
+        throw IllegalStateException("connect failed (code=${res.error?.code ?: "unknown"})")
       }
 
       // If no explicit token is configured but password is set, use password auth directly.
@@ -454,9 +453,8 @@ class GatewaySession(
           handleConnectSuccess(passwordRes, canFallbackToShared, identityId)
           return
         }
-        val msg = passwordRes.error?.message ?: "connect failed"
         Log.w(TAG, "Password auth failed (code=${passwordRes.error?.code})")
-        throw IllegalStateException(msg)
+        throw IllegalStateException("connect failed (code=${passwordRes.error?.code ?: "unknown"})")
       }
 
       // Try automatic auth mode detection: token first, then password fallback.
@@ -488,27 +486,24 @@ class GatewaySession(
           }
 
           // Both failed
-          val msg = passwordRes.error?.message ?: "connect failed"
           Log.w(TAG, "Password auth failed (code=${passwordRes.error?.code})")
           if (canFallbackToShared || !storedToken.isNullOrBlank()) {
             deviceAuthStore.clearToken(identityId, options.role)
           }
-          throw IllegalStateException(msg)
+          throw IllegalStateException("connect failed (code=${passwordRes.error?.code ?: "unknown"})")
         }
 
         // Token failed and no password provided
-        val msg = tokenRes.error?.message ?: "connect failed"
         if (canFallbackToShared || !storedToken.isNullOrBlank()) {
           deviceAuthStore.clearToken(identityId, options.role)
         }
-        throw IllegalStateException(msg)
+        throw IllegalStateException("connect failed (code=${tokenRes.error?.code ?: "unknown"})")
       } else {
         // No credential provided, try connect without auth
         val payload = buildConnectParams(identity, connectNonce, "", null)
         val res = request("connect", payload, timeoutMs = 8_000)
         if (!res.ok) {
-          val msg = res.error?.message ?: "connect failed"
-          throw IllegalStateException(msg)
+          throw IllegalStateException("connect failed (code=${res.error?.code ?: "unknown"})")
         }
         handleConnectSuccess(res, false, identityId)
       }
