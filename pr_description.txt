@@ -1,0 +1,11 @@
+💡 **What**:
+Extracted hardcoded English text (`contentDescription` and `onClickLabel`) used in `CompactActionCard`, `CapabilityCard`, and `VoiceVoxSettingsCard` into `strings.xml` string resources (`action_more_info` and `status_downloaded`).
+
+🎯 **Why**:
+Using hardcoded strings for accessibility descriptions prevents them from being localized by Android's resource system. This breaks the experience for non-English users using TalkBack or other screen readers, as they would hear English descriptions instead of their local language. Using `stringResource` enables full internationalization.
+
+📸 **Before/After**:
+N/A (Invisible change; only affects screen readers)
+
+♿ **Accessibility**:
+Screen readers will now read localized descriptive labels (e.g., "More info about [feature]") correctly based on the device's locale instead of enforcing English.
