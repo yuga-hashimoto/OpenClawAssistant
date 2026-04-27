@@ -1139,7 +1139,7 @@ fun CapabilityCard(
             .height(72.dp)
             .clickable(
                 onClick = onClick,
-                onClickLabel = if (isActive) "Disable $label" else "Enable $label",
+                onClickLabel = stringResource(if (isActive) R.string.action_disable else R.string.action_enable, label),
                 role = Role.Button
             ),
         colors = CardDefaults.cardColors(
@@ -1183,7 +1183,7 @@ fun CapabilityCard(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.HelpOutline,
-                        contentDescription = "More info about $label",
+                        contentDescription = stringResource(R.string.action_more_info, label),
                         tint = if (isActive) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(16.dp)
                     )
@@ -1286,7 +1286,7 @@ fun CompactActionCard(modifier: Modifier = Modifier, icon: ImageVector, title: S
             Column(modifier = Modifier.weight(1f).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                 Row(modifier = Modifier.fillMaxWidth().height(32.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Icon(imageVector = icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))
-                    if (showInfoIcon) Icon(imageVector = Icons.AutoMirrored.Filled.HelpOutline, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp).clickable(onClickLabel = "More information about $title", role = Role.Button) { onInfoClick?.invoke() })
+                    if (showInfoIcon) Icon(imageVector = Icons.AutoMirrored.Filled.HelpOutline, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp).clickable(onClickLabel = stringResource(R.string.action_more_info, title), role = Role.Button) { onInfoClick?.invoke() })
                     if (showSwitch) Switch(checked = switchValue, onCheckedChange = onSwitchChange, modifier = Modifier.scale(0.8f).offset(y = (-8).dp))
                 }
                 Spacer(modifier = Modifier.height(8.dp))
