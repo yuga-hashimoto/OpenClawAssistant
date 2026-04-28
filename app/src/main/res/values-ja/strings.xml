@@ -562,4 +562,6 @@
     <string name="action_hide_api_key">APIキーを隠す</string>
     <string name="action_show_api_key">APIキーを表示</string>
     <string name="action_refresh_agents">エージェントを更新</string>
+    <string name="a11y_downloaded">ダウンロード済み</string>
+    <string name="a11y_more_info_about">%sの詳細情報</string>
 </resources>
