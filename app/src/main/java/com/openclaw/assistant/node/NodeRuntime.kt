@@ -470,6 +470,12 @@ class NodeRuntime(context: Context) {
   fun setGatewayPassword(value: String) = prefs.saveGatewayPassword(value)
   fun getGatewayBootstrapToken(): String? = prefs.loadGatewayBootstrapToken()
   fun setGatewayBootstrapToken(value: String) = prefs.saveGatewayBootstrapToken(value)
+  fun resetGatewaySetupAuth() {
+    prefs.clearGatewaySetupAuth()
+    val currentDeviceId = deviceId ?: return
+    deviceAuthStore.clearToken(currentDeviceId, "node")
+    deviceAuthStore.clearToken(currentDeviceId, "operator")
+  }
   val lastDiscoveredStableId: StateFlow<String> = prefs.lastDiscoveredStableId
   val canvasDebugStatusEnabled: StateFlow<Boolean> = prefs.canvasDebugStatusEnabled
 

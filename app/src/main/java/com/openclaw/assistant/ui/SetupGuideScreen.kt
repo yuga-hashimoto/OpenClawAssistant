@@ -63,6 +63,7 @@ import com.openclaw.assistant.ui.GatewayTrustDialog
 import com.openclaw.assistant.ui.theme.*
 import com.openclaw.assistant.utils.GatewayConfigUtils
 import androidx.compose.ui.graphics.Brush
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private enum class SetupStep(val index: Int) {
@@ -76,6 +77,8 @@ private enum class ConnectionMode {
     SetupCode,
     Manual
 }
+
+private const val PAIRING_AUTO_RETRY_MS = 6_000L
 
 private enum class PermissionToggle(
     val titleRes: Int,
@@ -309,6 +312,7 @@ fun SetupGuideScreen(
                                 val parsed = GatewayConfigUtils.parseGatewayEndpoint(decoded.url)
                                 Log.d("SetupGuide", "Endpoint parsed: parsed=${parsed != null}")
                                 if (parsed != null) {
+                                    runtime.resetGatewaySetupAuth()
                                     runtime.setManualHost(parsed.host)
                                     runtime.setManualPort(parsed.port)
                                     runtime.setManualTls(parsed.tls)
@@ -358,6 +362,7 @@ fun SetupGuideScreen(
                                 }
                             }
                         } else {
+                            runtime.resetGatewaySetupAuth()
                             runtime.setManualHost(manualHost)
                             runtime.setManualPort(manualPort.toIntOrNull() ?: 18789)
                             runtime.setManualTls(manualTls)
@@ -993,6 +998,14 @@ private fun FinalCheckStep(
         }
     }
 
+    LaunchedEffect(isPairingRequired, attemptedConnect, isConnected) {
+        if (!isPairingRequired || !attemptedConnect || isConnected) return@LaunchedEffect
+        while (true) {
+            delay(PAIRING_AUTO_RETRY_MS)
+            runtime.connectManual()
+        }
+    }
+
     val gatewayUrl = remember(manualHost, manualPort, manualTls) {
         "${if (manualTls) "https" else "http"}://$manualHost:$manualPort"
     }
@@ -1223,7 +1236,7 @@ private fun PairingGuideBlock(deviceId: String?) {
         CommandBlock("openclaw devices list")
         CommandBlock(approveCmd)
         Text(
-            text = stringResource(R.string.setup_guide_pairing_retest_desc),
+            text = stringResource(R.string.setup_guide_pairing_auto_retry_desc),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

@@ -438,21 +438,38 @@ fun SettingsScreen(
                             }
 
                             // Save Gateway Settings
+                            val nextGatewayHost = gatewayHost.trim()
+                            val nextGatewayPort = gatewayPort.toIntOrNull() ?: 18789
+                            val nextGatewayBootstrapToken = gatewayBootstrapToken.trim()
+                            val nextGatewayPassword = if (nextGatewayBootstrapToken.isBlank() && usePasswordAuth) gatewayPassword.trim() else ""
+                            val nextGatewayToken = if (nextGatewayBootstrapToken.isBlank() && !usePasswordAuth) gatewayToken.trim() else ""
+                            val gatewaySetupChanged =
+                                manualHostState.trim() != nextGatewayHost ||
+                                    manualPortState != nextGatewayPort ||
+                                    manualTlsState != gatewayTls ||
+                                    runtime.prefs.loadGatewayBootstrapToken().orEmpty() != nextGatewayBootstrapToken ||
+                                    runtime.getGatewayPassword().orEmpty() != nextGatewayPassword ||
+                                    runtime.prefs.loadGatewayToken().orEmpty() != nextGatewayToken
+
+                            if (settings.connectionType == SettingsRepository.CONNECTION_TYPE_GATEWAY && gatewaySetupChanged) {
+                                runtime.resetGatewaySetupAuth()
+                            }
+
                             runtime.setManualEnabled(true)
-                            runtime.setManualHost(gatewayHost.trim())
-                            runtime.setManualPort(gatewayPort.toIntOrNull() ?: 18789)
+                            runtime.setManualHost(nextGatewayHost)
+                            runtime.setManualPort(nextGatewayPort)
                             runtime.setManualTls(gatewayTls)
-                            if (gatewayBootstrapToken.isNotBlank()) {
-                                runtime.setGatewayBootstrapToken(gatewayBootstrapToken.trim())
+                            if (nextGatewayBootstrapToken.isNotBlank()) {
+                                runtime.setGatewayBootstrapToken(nextGatewayBootstrapToken)
                                 runtime.setGatewayToken("")
                                 runtime.setGatewayPassword("")
                             } else if (usePasswordAuth) {
                                 runtime.setGatewayBootstrapToken("")
                                 runtime.setGatewayToken("")
-                                runtime.setGatewayPassword(gatewayPassword.trim())
+                                runtime.setGatewayPassword(nextGatewayPassword)
                             } else {
                                 runtime.setGatewayBootstrapToken("")
-                                runtime.setGatewayToken(gatewayToken.trim())
+                                runtime.setGatewayToken(nextGatewayToken)
                                 runtime.setGatewayPassword("")
                             }
 

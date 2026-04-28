@@ -526,6 +526,7 @@
     <string name="setup_guide_pairing_required">Pairing Required</string>
     <string name="setup_guide_pairing_run_on_host">Run these on the gateway host:</string>
     <string name="setup_guide_pairing_retest_desc">Then tap Test Connection again.</string>
+    <string name="setup_guide_pairing_auto_retry_desc">OpenClaw retries automatically while this screen stays open. Approve this device and wait for the status to update.</string>
     <string name="setup_guide_copied">Copied</string>
 
     <!-- Credits Screen -->

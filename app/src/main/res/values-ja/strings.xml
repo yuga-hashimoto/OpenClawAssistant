@@ -447,6 +447,7 @@
 <string name="setup_guide_pairing_required">ペアリングが必要です</string>
 <string name="setup_guide_pairing_run_on_host">Gatewayホストで以下を実行してください：</string>
 <string name="setup_guide_pairing_retest_desc">完了後、再度接続テストをタップしてください。</string>
+<string name="setup_guide_pairing_auto_retry_desc">この画面を開いている間は OpenClaw が自動で再試行します。デバイスを承認して、ステータスが更新されるまで待ってください。</string>
 <string name="setup_guide_copied">コピーしました</string>
 <string name="credits_title">クレジット</string>
 <string name="credits_back_description">戻る</string>

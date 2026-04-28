@@ -174,6 +174,17 @@ class SecurePrefs(context: Context) {
     prefs.edit { putString(key, token.trim()) }
   }
 
+  fun clearGatewaySetupAuth() {
+    val instanceId = _instanceId.value
+    prefs.edit {
+      remove("gateway.manual.token")
+      remove("gateway.token.$instanceId")
+      remove("gateway.bootstrapToken.$instanceId")
+      remove("gateway.password.$instanceId")
+    }
+    _gatewayToken.value = ""
+  }
+
   fun loadGatewayPassword(): String? {
     val key = "gateway.password.${_instanceId.value}"
     val stored = prefs.getString(key, null)?.trim()
