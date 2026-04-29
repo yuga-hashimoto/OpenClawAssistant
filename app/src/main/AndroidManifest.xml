@@ -201,6 +201,17 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <!-- Voice overlay Activity (fallback when not set as default assistant) -->
+        <activity
+            android:name=".VoiceOverlayActivity"
+            android:exported="false"
+            android:theme="@style/Theme.VoiceOverlay"
+            android:launchMode="singleTop"
+            android:showOnLockScreen="true"
+            android:turnScreenOn="true"
+            android:excludeFromRecents="true"
+            android:taskAffinity="" />
+
         <!-- Boot Receiver -->
         <receiver
             android:name="com.openclaw.assistant.receiver.BootReceiver"

@@ -79,7 +79,26 @@ class OpenClawAssistantService : VoiceInteractionService() {
         val compName = ComponentName(this, OpenClawAssistantService::class.java)
         val isActive = isActiveService(this, compName)
         Log.e(TAG, "triggerShowSession: isServiceReady=$isServiceReady, isActiveService=$isActive")
-        
+
+        if (!isActive) {
+            // Not the default assistant: onReady() will never fire and showSession() won't work.
+            // Fall back to VoiceOverlayActivity which uses an Activity context so SpeechRecognizer
+            // gets foreground mic access on Android 14+.
+            Log.e(TAG, "Not active assistant — launching VoiceOverlayActivity")
+            try {
+                val intent = Intent(this, com.openclaw.assistant.VoiceOverlayActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                }
+                startActivity(intent)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to start VoiceOverlayActivity, resuming hotword", e)
+                sendBroadcast(Intent(HotwordService.ACTION_RESUME_HOTWORD).apply {
+                    setPackage(packageName)
+                })
+            }
+            return
+        }
+
         if (isServiceReady) {
             try {
                 val args = Bundle()
