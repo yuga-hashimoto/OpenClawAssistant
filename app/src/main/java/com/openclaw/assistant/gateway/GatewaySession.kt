@@ -432,7 +432,8 @@ class GatewaySession(
           handleConnectSuccess(res, canFallbackToShared, identityId)
           return
         }
-        val msg = res.error?.message ?: "connect failed"
+        // Sanitized error message to prevent verbose error disclosure
+        val msg = "connect failed (code=${res.error?.code})"
         Log.w(TAG, "BootstrapToken auth failed (code=${res.error?.code})")
         // The server consumed the bootstrapToken on first use. Clear it from the desired connection
         // so subsequent retries don't loop on the same expired token. The consumer is notified via
@@ -454,7 +455,8 @@ class GatewaySession(
           handleConnectSuccess(passwordRes, canFallbackToShared, identityId)
           return
         }
-        val msg = passwordRes.error?.message ?: "connect failed"
+        // Sanitized error message to prevent verbose error disclosure
+        val msg = "connect failed (code=${passwordRes.error?.code})"
         Log.w(TAG, "Password auth failed (code=${passwordRes.error?.code})")
         throw IllegalStateException(msg)
       }
@@ -488,7 +490,8 @@ class GatewaySession(
           }
 
           // Both failed
-          val msg = passwordRes.error?.message ?: "connect failed"
+          // Sanitized error message to prevent verbose error disclosure
+          val msg = "connect failed (code=${passwordRes.error?.code})"
           Log.w(TAG, "Password auth failed (code=${passwordRes.error?.code})")
           if (canFallbackToShared || !storedToken.isNullOrBlank()) {
             deviceAuthStore.clearToken(identityId, options.role)
@@ -497,7 +500,8 @@ class GatewaySession(
         }
 
         // Token failed and no password provided
-        val msg = tokenRes.error?.message ?: "connect failed"
+        // Sanitized error message to prevent verbose error disclosure
+        val msg = "connect failed (code=${tokenRes.error?.code})"
         if (canFallbackToShared || !storedToken.isNullOrBlank()) {
           deviceAuthStore.clearToken(identityId, options.role)
         }
@@ -507,7 +511,8 @@ class GatewaySession(
         val payload = buildConnectParams(identity, connectNonce, "", null)
         val res = request("connect", payload, timeoutMs = 8_000)
         if (!res.ok) {
-          val msg = res.error?.message ?: "connect failed"
+          // Sanitized error message to prevent verbose error disclosure
+          val msg = "connect failed (code=${res.error?.code})"
           throw IllegalStateException(msg)
         }
         handleConnectSuccess(res, false, identityId)

@@ -1,15 +1,12 @@
-**Source**
-Upstream openclaw/openclaw commit `8790c54635`
+**What:**
+Sanitized server error messages thrown and logged during GatewaySession authentication failures. Replaced arbitrary server-provided error messages (`res.error?.message`) with safe, static messages that only include the relevant error codes.
 
-**Why**
-Gateway setup URLs or explicit manual endpoint inputs shouldn't enforce default ports blindly when displaying the connection UI or verifying connection security, particularly ensuring custom or cleartext implicit ports accurately reflect their configuration.
+**Why:**
+This prevents overly verbose and potentially sensitive remote error messages from being exposed directly to the application logs or UI through `IllegalStateException` throws and `Log.w` calls.
 
-**Adaptation**
-Ported the modified `displayUrl` string building logic from `GatewayConfigResolver.kt` (upstream) to `GatewayConfigUtils.kt` (this repo). Added tests covering various edge cases (bare domains vs default ports).
-Modified test parameters in `GatewayConfigUtilsTest` to use local `192.168.1.100` instead of `gateway.example` for cleartext, as `NetworkUtils.isUrlSecure` in this repo explicitly forbids public domains for WS/HTTP connections.
+**Impact:**
+Increases security hardening by avoiding information disclosure while still maintaining sufficient debuggability via standard error codes.
 
-**Excluded upstream behavior**
-N/A. This was a direct logic porting.
-
-**Verification**
-Locally verified by running `./gradlew app:testStandardDebugUnitTest app:lintStandardDebug` ensuring all updated assertions succeed and no memory or regressions are flagged.
+**Verification:**
+* Validated no syntax errors or regressions using `./gradlew testStandardDebugUnitTest` and `./gradlew lintStandardDebug`.
+* Pre-commit checks and code review completed.
