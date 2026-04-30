@@ -1183,7 +1183,7 @@ fun CapabilityCard(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.HelpOutline,
-                        contentDescription = "More info about $label",
+                        contentDescription = stringResource(R.string.more_info_about, label),
                         tint = if (isActive) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(16.dp)
                     )

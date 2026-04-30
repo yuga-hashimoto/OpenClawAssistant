@@ -25,6 +25,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import com.openclaw.assistant.R
 
 enum class ConnectionState {
@@ -47,6 +48,7 @@ fun StatusIndicator(
     dotSize: Dp = 10.dp,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val dotColor = when (state) {
         ConnectionState.Connected -> Color(0xFF4CAF50)
         ConnectionState.Connecting -> Color(0xFFFFA726)
@@ -73,7 +75,7 @@ fun StatusIndicator(
     Row(
         modifier = modifier.semantics(mergeDescendants = true) {
             if (label != null) {
-                contentDescription = "$stateDesc: $label"
+                contentDescription = context.getString(R.string.status_indicator_format, stateDesc, label)
             } else {
                 contentDescription = stateDesc
             }

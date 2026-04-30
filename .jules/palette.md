@@ -25,3 +25,7 @@
 ## 2025-10-24 - Dropdown Trigger Accessibility
 **Learning:** Using `Modifier.clickable` without a specific role and label for a row that opens a dropdown causes screen readers to misidentify its function.
 **Action:** When a clickable element opens a dropdown menu, always use `Modifier.clickable(onClickLabel = "...", role = Role.DropdownList)` to ensure proper screen reader announcement.
+
+## 2025-10-25 - Extracted Strings Definition Verification
+**Learning:** Extracting hardcoded accessibility strings into `strings.xml` using tools like `sed` can fail or cause collisions if an existing, unrelated string is overwritten instead of adding a new one. Overwriting existing translation strings breaks localization in other parts of the app.
+**Action:** When extracting new `contentDescription` strings to `strings.xml`, always add a completely new string identifier (e.g. `downloaded_content_description`) and verify its existence with `grep` rather than hijacking an existing string key.
