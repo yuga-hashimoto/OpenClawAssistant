@@ -646,4 +646,6 @@
     <string name="action_copy">Copy</string>
     <string name="error_mic_privacy_title">Microphone Access Blocked</string>
     <string name="error_mic_privacy_message">Your device\'s microphone privacy toggle is off. Enable it in Settings &gt; Privacy &gt; Microphone.</string>
+    <string name="more_info_about">More info about %1$s</string>
+    <string name="status_indicator_desc">%1$s: %2$s</string>
 </resources>
