@@ -25,3 +25,7 @@
 ## 2025-10-24 - Dropdown Trigger Accessibility
 **Learning:** Using `Modifier.clickable` without a specific role and label for a row that opens a dropdown causes screen readers to misidentify its function.
 **Action:** When a clickable element opens a dropdown menu, always use `Modifier.clickable(onClickLabel = "...", role = Role.DropdownList)` to ensure proper screen reader announcement.
+
+## 2023-11-09 - Avoid Translating English Fallback Strings in Localized XMLs
+**Learning:** Adding the base English strings directly into localized `strings.xml` files (e.g., `values-fr`, `values-de`) defeats Android's automatic string fallback mechanism and creates translation debt, tricking localization tools into believing strings have already been translated.
+**Action:** When adding new string resources to `strings.xml` to replace hardcoded strings, only modify the default `res/values/strings.xml` file. Do not script or patch the insertion of the raw English string into the localized resource folders.
