@@ -25,3 +25,7 @@
 ## 2025-10-24 - Dropdown Trigger Accessibility
 **Learning:** Using `Modifier.clickable` without a specific role and label for a row that opens a dropdown causes screen readers to misidentify its function.
 **Action:** When a clickable element opens a dropdown menu, always use `Modifier.clickable(onClickLabel = "...", role = Role.DropdownList)` to ensure proper screen reader announcement.
+
+## 2024-05-19 - Standardize contentDescription for File Attachments
+**Learning:** Hardcoded accessibility descriptions in Jetpack Compose (e.g., `contentDescription = "Attach file"`) prevent localization for screen readers, diminishing the experience for non-English users.
+**Action:** Always extract `contentDescription` strings to `strings.xml` and use `stringResource(R.string.key)` to ensure accessibility labels are fully localizable.
