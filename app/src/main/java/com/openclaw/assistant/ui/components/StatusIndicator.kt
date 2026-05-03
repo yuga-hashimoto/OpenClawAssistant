@@ -70,13 +70,11 @@ fun StatusIndicator(
         label = "dotAlpha"
     )
 
+    val statusLabel = if (label != null) stringResource(R.string.a11y_status_label, stateDesc, label) else stateDesc
+
     Row(
         modifier = modifier.semantics(mergeDescendants = true) {
-            if (label != null) {
-                contentDescription = "$stateDesc: $label"
-            } else {
-                contentDescription = stateDesc
-            }
+            contentDescription = statusLabel
         },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
