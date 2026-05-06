@@ -350,7 +350,7 @@ Pour plus de détails, consultez le site officiel de VOICEVOX.</string>
 <string name="status_operator_online_node_offline">Opérateur en ligne (nœud hors ligne)</string>
 <string name="status_node_online_operator_offline">Nœud en ligne (opérateur hors ligne)</string>
 <string name="gateway_trust_title">Faire confiance à cette passerelle ?</string>
-<string name="gateway_trust_message">Première connexion TLS.\n\nVérifiez cette empreinte digitale SHA-256 hors bande avant de faire confiance :\n%s</string>
+<string name="gateway_trust_message">Première connexion TLS.\n\nVérifiez cette empreinte digitale SHA-256 hors bande avant de faire confiance :</string>
 <string name="gateway_trust_confirm">Confiance et connexion</string>
 <string name="gateway_fingerprint_label">Empreinte digitale SHA-256 :</string>
 <string name="gateway_not_connected">Non connecté à la passerelle</string>

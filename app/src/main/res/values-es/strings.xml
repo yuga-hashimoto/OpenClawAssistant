@@ -350,7 +350,7 @@ Para más detalles, consulta el sitio oficial de VOICEVOX.</string>
 <string name="status_operator_online_node_offline">Operador en línea (nodo fuera de línea)</string>
 <string name="status_node_online_operator_offline">Nodo en línea (Operador fuera de línea)</string>
 <string name="gateway_trust_title">¿Confías en esta puerta de enlace?</string>
-<string name="gateway_trust_message">Conexión TLS por primera vez.\n\nVerifique esta huella digital SHA-256 fuera de banda antes de confiar:\n%s</string>
+<string name="gateway_trust_message">Conexión TLS por primera vez.\n\nVerifique esta huella digital SHA-256 fuera de banda antes de confiar:</string>
 <string name="gateway_trust_confirm">Confiar y conectar</string>
 <string name="gateway_fingerprint_label">SHA-256 Huella digital:</string>
 <string name="gateway_not_connected">No conectado a la puerta de enlace</string>

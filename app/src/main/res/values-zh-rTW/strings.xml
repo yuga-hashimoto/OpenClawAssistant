@@ -349,7 +349,7 @@
 <string name="status_operator_online_node_offline">運營商在線（節點離線）</string>
 <string name="status_node_online_operator_offline">節點上線（營運商離線）</string>
 <string name="gateway_trust_title">信任這個網關嗎？</string>
-<string name="gateway_trust_message">首次 TLS 連線。 \n\n在信任之前在帶外驗證此 SHA-256 指紋：\n%s</string>
+<string name="gateway_trust_message">首次 TLS 連線。 \n\n在信任之前在帶外驗證此 SHA-256 指紋：</string>
 <string name="gateway_trust_confirm">信任與聯繫</string>
 <string name="gateway_fingerprint_label">SHA-256 指紋：</string>
 <string name="gateway_not_connected">未連接到網關</string>

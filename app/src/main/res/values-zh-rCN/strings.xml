@@ -350,7 +350,7 @@
 <string name="status_operator_online_node_offline">操作员在线（节点离线）</string>
 <string name="status_node_online_operator_offline">节点在线（操作员离线）</string>
 <string name="gateway_trust_title">信任此网关吗？</string>
-<string name="gateway_trust_message">首次 TLS 连接。\n\n在信任之前在带外验证此 SHA-256 指纹：\n%s</string>
+<string name="gateway_trust_message">首次 TLS 连接。\n\n在信任之前在带外验证此 SHA-256 指纹：</string>
 <string name="gateway_trust_confirm">信任与连接</string>
 <string name="gateway_fingerprint_label">SHA-256 指纹：</string>
 <string name="gateway_not_connected">未连接到网关</string>

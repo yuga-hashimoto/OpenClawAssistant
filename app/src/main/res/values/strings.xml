@@ -416,7 +416,7 @@
 
     <!-- Gateway Trust Dialog -->
     <string name="gateway_trust_title">Trust this Gateway?</string>
-    <string name="gateway_trust_message">First-time TLS connection.\n\nVerify this SHA-256 fingerprint out-of-band before trusting:\n%s</string>
+    <string name="gateway_trust_message">First-time TLS connection.\n\nVerify this SHA-256 fingerprint out-of-band before trusting:</string>
     <string name="gateway_trust_confirm">Trust &amp; Connect</string>
     <string name="gateway_fingerprint_label">SHA-256 Fingerprint:</string>
 

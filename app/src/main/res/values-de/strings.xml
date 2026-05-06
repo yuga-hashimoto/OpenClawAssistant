@@ -349,7 +349,7 @@ Weitere Informationen finden Sie auf der offiziellen Website von VOICEVOX.</stri
 <string name="status_operator_online_node_offline">Operator online (Knoten offline)</string>
 <string name="status_node_online_operator_offline">Knoten online (Operator offline)</string>
 <string name="gateway_trust_title">Vertrauen Sie diesem Gateway?</string>
-<string name="gateway_trust_message">Erstmalige TLS-Verbindung.\n\nÜberprüfen Sie diesen SHA-256-Fingerabdruck Out-of-Band, bevor Sie ihm vertrauen:\n%s</string>
+<string name="gateway_trust_message">Erstmalige TLS-Verbindung.\n\nÜberprüfen Sie diesen SHA-256-Fingerabdruck Out-of-Band, bevor Sie ihm vertrauen:</string>
 <string name="gateway_trust_confirm">Vertrauen und verbinden</string>
 <string name="gateway_fingerprint_label">SHA-256 Fingerabdruck:</string>
 <string name="gateway_not_connected">Nicht mit dem Gateway verbunden</string>

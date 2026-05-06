@@ -352,7 +352,7 @@
 <string name="status_operator_online_node_offline">オペレーター接続中（ノードオフライン）</string>
 <string name="status_node_online_operator_offline">ノード接続中（オペレーター未認証）</string>
 <string name="gateway_trust_title">このゲートウェイを信頼しますか？</string>
-<string name="gateway_trust_message">初回TLS接続です。\n\n接続を信頼する前に、以下のSHA-256フィンガープリントを他の手段で確認してください：\n%s</string>
+<string name="gateway_trust_message">初回TLS接続です。\n\n接続を信頼する前に、以下のSHA-256フィンガープリントを他の手段で確認してください：</string>
 <string name="gateway_trust_confirm">信頼して接続</string>
 <string name="gateway_fingerprint_label">SHA-256 フィンガープリント:</string>
 <string name="gateway_not_connected">ゲートウェイに接続されていません</string>

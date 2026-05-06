@@ -350,7 +350,7 @@
 <string name="status_operator_online_node_offline">Оператор онлайн (узел не в сети)</string>
 <string name="status_node_online_operator_offline">Узел онлайн (оператор не в сети)</string>
 <string name="gateway_trust_title">Доверять этому шлюзу?</string>
-<string name="gateway_trust_message">Первое TLS-соединение.\n\nПроверьте этот отпечаток SHA-256 вне диапазона, прежде чем доверять:\n%s</string>
+<string name="gateway_trust_message">Первое TLS-соединение.\n\nПроверьте этот отпечаток SHA-256 вне диапазона, прежде чем доверять:</string>
 <string name="gateway_trust_confirm">Доверие и подключение</string>
 <string name="gateway_fingerprint_label">SHA-256 Отпечаток пальца:</string>
 <string name="gateway_not_connected">Не подключен к шлюзу</string>

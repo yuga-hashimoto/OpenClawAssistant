@@ -350,7 +350,7 @@
 <string name="status_operator_online_node_offline">ऑपरेटर ऑनलाइन (नोड ऑफ़लाइन)</string>
 <string name="status_node_online_operator_offline">नोड ऑनलाइन (ऑपरेटर ऑफ़लाइन)</string>
 <string name="gateway_trust_title">इस गेटवे पर भरोसा करें?</string>
-<string name="gateway_trust_message">पहली बार टीएलएस कनेक्शन।\n\nभरोसा करने से पहले इस SHA-256 फिंगरप्रिंट आउट-ऑफ-बैंड को सत्यापित करें:\n%s</string>
+<string name="gateway_trust_message">पहली बार टीएलएस कनेक्शन।\n\nभरोसा करने से पहले इस SHA-256 फिंगरप्रिंट आउट-ऑफ-बैंड को सत्यापित करें:</string>
 <string name="gateway_trust_confirm">भरोसा करें और जुड़ें</string>
 <string name="gateway_fingerprint_label">SHA-256 फ़िंगरप्रिंट:</string>
 <string name="gateway_not_connected">गेटवे से कनेक्ट नहीं है</string>
