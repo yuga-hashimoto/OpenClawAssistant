@@ -1076,6 +1076,14 @@ fun SystemStatusCard(
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.width(8.dp))
+                if (isConnecting) {
+                    androidx.compose.material3.CircularProgressIndicator(
+                        modifier = Modifier.size(12.dp),
+                        color = contentColor,
+                        strokeWidth = 2.dp
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                }
                 Text(
                     text = statusText,
                     fontSize = 13.sp,
