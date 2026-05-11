@@ -25,3 +25,7 @@
 ## 2025-10-24 - Dropdown Trigger Accessibility
 **Learning:** Using `Modifier.clickable` without a specific role and label for a row that opens a dropdown causes screen readers to misidentify its function.
 **Action:** When a clickable element opens a dropdown menu, always use `Modifier.clickable(onClickLabel = "...", role = Role.DropdownList)` to ensure proper screen reader announcement.
+
+## 2025-05-20 - Minimum Touch Target Accessibility for IconButtons
+**Learning:** Setting a modifier explicitly overriding the size of an `IconButton` to be smaller than 48x48dp (e.g. `Modifier.size(24.dp)`) violates Android's minimum touch target guidelines and diminishes accessibility for users with impaired motor functions. The `IconButton` component intrinsically applies proper touch target bounds when given no explicit sizing.
+**Action:** Always avoid setting small bounds directly on interactive compose elements like `IconButton`. If a visual size reduction is needed, set the size `Modifier` on the inner `Icon` rather than the `IconButton` container to maintain a large 48x48dp touch target while visually appearing smaller.
