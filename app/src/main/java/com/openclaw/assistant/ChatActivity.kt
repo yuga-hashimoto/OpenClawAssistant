@@ -781,8 +781,8 @@ fun SpeakingIndicator(onStop: () -> Unit) {
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
             )
             Spacer(modifier = Modifier.width(8.dp))
-            IconButton(onClick = onStop, modifier = Modifier.size(24.dp)) {
-                Icon(Icons.Default.Stop, contentDescription = stringResource(R.string.stop_description), tint = MaterialTheme.colorScheme.onErrorContainer)
+            IconButton(onClick = onStop) {
+                Icon(Icons.Default.Stop, contentDescription = stringResource(R.string.stop_description), tint = MaterialTheme.colorScheme.onErrorContainer, modifier = Modifier.size(24.dp))
             }
         }
     }

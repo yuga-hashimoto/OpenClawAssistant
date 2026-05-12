@@ -25,3 +25,6 @@
 ## 2025-10-24 - Dropdown Trigger Accessibility
 **Learning:** Using `Modifier.clickable` without a specific role and label for a row that opens a dropdown causes screen readers to misidentify its function.
 **Action:** When a clickable element opens a dropdown menu, always use `Modifier.clickable(onClickLabel = "...", role = Role.DropdownList)` to ensure proper screen reader announcement.
+## 2024-05-12 - IconButton Touch Targets
+**Learning:** In Jetpack Compose, explicitly setting `Modifier.size(24.dp)` directly on an `IconButton` forcefully overrides the parent container's size, shrinking the entire interactive touch target to 24x24dp. This violates the Android/Material accessibility minimum of 48x48dp.
+**Action:** Always place specific visual size constraints on the inner `Icon` element (e.g., `Icon(..., modifier = Modifier.size(24.dp))`) and allow the outer `IconButton` to retain its default padding and accessible touch target bounds.
