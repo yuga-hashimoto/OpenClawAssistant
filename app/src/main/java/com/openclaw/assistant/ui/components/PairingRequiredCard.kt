@@ -12,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,11 +38,8 @@ fun PairingRequiredCard(deviceId: String, displayName: String = "") {
 
     var expanded by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(PAIRING_AUTO_RETRY_MS)
-            nodeRuntime.refreshGatewayConnection()
-        }
+    PairingAutoRetryEffect(enabled = true) {
+        nodeRuntime.refreshGatewayConnection()
     }
 
     Card(
