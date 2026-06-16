@@ -551,7 +551,7 @@
     <!-- Operator Offline Warning -->
     <string name="operator_offline_title">Operator Offline / Permission Needed</string>
     <string name="operator_offline_message">Your device is connected, but the AI lacks permission to operate it.\n\nPlease run the following command on your server to grant operator access:</string>
-    <string name="operator_offline_command">openclaw devices approve --latest</string>
+    <string name="operator_offline_command">openclaw devices approve --latest %s</string>
     <string name="operator_offline_copy">Copy Command</string>
     <string name="operator_offline_copied">Command copied to clipboard</string>
     <string name="operator_offline_action">Run on server</string>
@@ -598,7 +598,7 @@
     <string name="pairing_copy_command">Copy Command</string>
     <string name="pairing_command_copied">Command copied to clipboard</string>
     <string name="pairing_device_id">Device ID: %s</string>
-    <string name="approve_command_format">openclaw devices approve --latest</string>
+    <string name="approve_command_format">openclaw devices approve --latest %s</string>
     <string name="reject_command_format">openclaw devices reject $(openclaw devices list --json | jq -r \'.pending[] | select(.deviceId == \"%s\") | .requestId\')</string>
     <string name="pairing_approve_command">Approve Command (Copy)</string>
     <string name="pairing_reject_command">Reject Command (Copy)</string>

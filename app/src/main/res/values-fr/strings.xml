@@ -576,11 +576,11 @@ Pour plus de détails, consultez le site officiel de VOICEVOX.</string>
 <string name="permission_summary_title">Résumé des autorisations</string>
 <string name="permission_summary_format">%1$d autorisations standard, %2$d accès spéciaux accordés</string>
     <!-- Missing translations -->
-    <string name="approve_command_format">openclaw devices approve --latest</string>
+    <string name="approve_command_format">openclaw devices approve --latest %s</string>
     <string name="credits_support_description">このアプリが役に立った場合は、Ko-fiでの支援をご検討ください。</string>
     <string name="credits_support_kofi_button">Support the Developer</string>
     <string name="credits_support_title">開発をサポートする</string>
-    <string name="operator_offline_command">openclaw devices approve --latest</string>
+    <string name="operator_offline_command">openclaw devices approve --latest %s</string>
     <string name="qr_scan_desc">Align the QR code within the frame to scan it</string>
     <string name="qr_scan_prompt">Scan QR Code</string>
     <string name="qr_scan_unavailable">La numérisation QR n\'est pas disponible. Veuillez mettre à jour les services Google Play.</string>

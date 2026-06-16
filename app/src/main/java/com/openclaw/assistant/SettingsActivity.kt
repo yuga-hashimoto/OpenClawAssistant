@@ -527,7 +527,7 @@ fun SettingsScreen(
                                 // Stop/Restart services
                                 HotwordService.stop(context)
 
-                                if (settings.connectionType == SettingsRepository.CONNECTION_TYPE_GATEWAY) {
+                                if (settings.connectionType == SettingsRepository.CONNECTION_TYPE_GATEWAY && gatewayHost.isNotBlank()) {
                                     runtime.connectManual()
                                 }
 
@@ -536,7 +536,7 @@ fun SettingsScreen(
                                 }
                                 onSave()
                             },
-                            enabled = gatewayHost.isNotBlank() || httpInputUrl.isNotBlank()
+                            enabled = true
                         ) {
                             Text(stringResource(R.string.save_button))
                         }

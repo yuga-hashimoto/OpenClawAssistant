@@ -637,11 +637,11 @@
     <string name="qr_scan_unavailable">QRスキャンが利用できません。Google Play開発者サービスを更新してください。</string>
 
     <!-- Missing translations -->
-    <string name="approve_command_format">openclaw devices approve --latest</string>
+    <string name="approve_command_format">openclaw devices approve --latest %s</string>
     <string name="credits_support_description">このアプリが役に立った場合は、Ko-fiでの支援をご検討ください。</string>
     <string name="credits_support_kofi_button">Support the Developer</string>
     <string name="credits_support_title">開発をサポートする</string>
-    <string name="operator_offline_command">openclaw devices approve --latest</string>
+    <string name="operator_offline_command">openclaw devices approve --latest %s</string>
     <string name="reject_command_format">openclaw devices reject $(openclaw devices list --json | jq -r \'.pending[] | select(.deviceId == \"%s\") | .requestId\')</string>
 
     <!-- Bottom tab navigation -->

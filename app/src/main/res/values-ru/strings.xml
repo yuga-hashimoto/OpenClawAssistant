@@ -576,11 +576,11 @@
 <string name="permission_summary_title">Permissions Summary</string>
 <string name="permission_summary_format">%1$d standard permissions, %2$d special access granted</string>
     <!-- Missing translations -->
-    <string name="approve_command_format">openclaw devices approve --latest</string>
+    <string name="approve_command_format">openclaw devices approve --latest %s</string>
     <string name="credits_support_description">このアプリが役に立った場合は、Ko-fiでの支援をご検討ください。</string>
     <string name="credits_support_kofi_button">Support the Developer</string>
     <string name="credits_support_title">開発をサポートする</string>
-    <string name="operator_offline_command">openclaw devices approve --latest</string>
+    <string name="operator_offline_command">openclaw devices approve --latest %s</string>
     <string name="qr_scan_desc">Align the QR code within the frame to scan it</string>
     <string name="qr_scan_prompt">Scan QR Code</string>
     <string name="qr_scan_unavailable">Сканирование QR недоступно. Пожалуйста, обновите сервисы Google Play.</string>
