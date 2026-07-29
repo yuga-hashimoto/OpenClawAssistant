@@ -21,8 +21,6 @@ object ChatMarkdownPreprocessor {
         """(?m)^\[[A-Za-z]{3}\s+\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}(?::\d{2})?\s+(?:GMT|UTC)[+-]?\d{0,2}\]\s*"""
     )
 
-    private val leadingNewlinesRegex = Regex("^\\n+")
-
     fun preprocess(raw: String): String {
         val withoutContextBlocks = stripInboundContextBlocks(raw)
         val withoutTimestamps = stripPrefixedTimestamps(withoutContextBlocks)
@@ -33,11 +31,15 @@ object ChatMarkdownPreprocessor {
         if (inboundContextHeaders.none { raw.contains(it) }) return raw
 
         val normalized = raw.replace("\r\n", "\n")
-        val outputLines = mutableListOf<String>()
+
+        // Use a pre-sized StringBuilder instead of mutableListOf to reduce GC overhead
+        val sb = StringBuilder(normalized.length)
         var inMetaBlock = false
         var inFencedJson = false
+        var isFirstLine = true
 
-        for (line in normalized.split("\n")) {
+        // Use lineSequence to iterate lines without allocating intermediate String lists
+        for (line in normalized.lineSequence()) {
             if (!inMetaBlock && inboundContextHeaders.any { line.startsWith(it) }) {
                 inMetaBlock = true
                 inFencedJson = false
@@ -62,11 +64,15 @@ object ChatMarkdownPreprocessor {
                 inMetaBlock = false
             }
 
-            outputLines.add(line)
+            if (!isFirstLine) {
+                sb.append('\n')
+            }
+            sb.append(line)
+            isFirstLine = false
         }
 
-        return outputLines.joinToString("\n")
-            .replace(leadingNewlinesRegex, "")
+        // Avoid Regex overhead for simple prefix removal
+        return sb.toString().trimStart('\n')
     }
 
     private fun stripPrefixedTimestamps(raw: String): String =
