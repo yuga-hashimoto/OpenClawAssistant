@@ -25,3 +25,7 @@
 ## 2025-10-24 - Dropdown Trigger Accessibility
 **Learning:** Using `Modifier.clickable` without a specific role and label for a row that opens a dropdown causes screen readers to misidentify its function.
 **Action:** When a clickable element opens a dropdown menu, always use `Modifier.clickable(onClickLabel = "...", role = Role.DropdownList)` to ensure proper screen reader announcement.
+
+## 2024-05-10 - Improved Empty State UI in SessionListActivity
+**Learning:** Adding visual elements (like an appropriately themed icon and better spacing/typography) to empty states significantly improves the perceived quality and user-friendliness of an application, making the interface feel more thoughtful and less stark.
+**Action:** Always look for plain text empty states and consider wrapping them in a `Column` with a descriptive, decorative icon (with `contentDescription = null` for accessibility if accompanied by text) and better alignment.
