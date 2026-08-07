@@ -95,18 +95,23 @@ suspend fun probeGatewayTlsFingerprint(
   if (port !in 1..65535) return null
 
   return withContext(Dispatchers.IO) {
-    val trustAll =
-      @SuppressLint("CustomX509TrustManager", "TrustAllX509TrustManager")
+    val fingerprintRef = java.util.concurrent.atomic.AtomicReference<String?>(null)
+    val probeTrustManager =
+      @SuppressLint("CustomX509TrustManager")
       object : X509TrustManager {
-        @SuppressLint("TrustAllX509TrustManager")
-        override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
-        @SuppressLint("TrustAllX509TrustManager")
-        override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
+        override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
+          throw CertificateException("gateway TLS probe does not accept client certificates")
+        }
+        override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
+          if (chain.isEmpty()) throw CertificateException("empty certificate chain")
+          fingerprintRef.set(sha256Hex(chain[0].encoded))
+          throw CertificateException("gateway TLS probe captured fingerprint")
+        }
         override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
       }
 
     val context = SSLContext.getInstance("TLS")
-    context.init(null, arrayOf(trustAll), SecureRandom())
+    context.init(null, arrayOf(probeTrustManager), SecureRandom())
 
     // Use createSocket() and connect() with timeout to ensure we don't hang on TCP connect.
     var socket: SSLSocket? = null
@@ -137,6 +142,7 @@ suspend fun probeGatewayTlsFingerprint(
       android.util.Log.e("GatewayTls", "Probe timeout ($timeoutMs ms) for $trimmedHost:$port", e)
       null
     } catch (e: Throwable) {
+      fingerprintRef.get()?.let { return@withContext it }
       android.util.Log.e("GatewayTls", "Probe failed with exception for $trimmedHost:$port", e)
       null
     } finally {
