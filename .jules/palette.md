@@ -25,3 +25,6 @@
 ## 2025-10-24 - Dropdown Trigger Accessibility
 **Learning:** Using `Modifier.clickable` without a specific role and label for a row that opens a dropdown causes screen readers to misidentify its function.
 **Action:** When a clickable element opens a dropdown menu, always use `Modifier.clickable(onClickLabel = "...", role = Role.DropdownList)` to ensure proper screen reader announcement.
+## 2024-05-09 - Grouping Semantics in Action Buttons
+**Learning:** TalkBack fragmentally announces `Button` and clickable `Row` content when they contain a decorative `Icon` (`contentDescription = null`) alongside a `Text` element. Jetpack Compose does not automatically group these into a cohesive announcement if the parent container isn't explicitly instructed to do so or if custom modifiers aren't structured correctly. Furthermore, clearing child semantics entirely using `Modifier.clearAndSetSemantics {}` while adding a parent `mergeDescendants = true` will result in silent/invisible elements to the screen reader.
+**Action:** When unifying screen reader announcements for complex interactive components, apply `semantics(mergeDescendants = true)` directly to the parent container alongside its computed or inherited description, and apply `Modifier.clearAndSetSemantics {}` to child labels.
