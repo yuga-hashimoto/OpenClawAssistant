@@ -57,10 +57,18 @@ class HotwordService : Service(), VoskRecognitionListener {
                 }
             } catch (e: IllegalStateException) {
                 Log.e(TAG, "Background execution limits prevented starting HotwordService: ${e.message}", e)
-                context.stopService(intent)
+                try {
+                    context.stopService(intent)
+                } catch (e2: Exception) {
+                    Log.e(TAG, "Failed to stopService in IllegalStateException handler", e2)
+                }
             } catch (e: SecurityException) {
                 Log.e(TAG, "Security limits prevented starting HotwordService: ${e.message}", e)
-                context.stopService(intent)
+                try {
+                    context.stopService(intent)
+                } catch (e2: Exception) {
+                    Log.e(TAG, "Failed to stopService in SecurityException handler", e2)
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to start HotwordService: ${e.message}", e)
             }
