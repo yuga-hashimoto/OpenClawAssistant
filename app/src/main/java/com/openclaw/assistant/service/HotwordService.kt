@@ -57,10 +57,18 @@ class HotwordService : Service(), VoskRecognitionListener {
                 }
             } catch (e: IllegalStateException) {
                 Log.e(TAG, "Background execution limits prevented starting HotwordService: ${e.message}", e)
+                try {
                 context.stopService(intent)
+                } catch (stopEx: Exception) {
+                    android.util.Log.e(TAG, "Failed to stopService during fallback", stopEx)
+                }
             } catch (e: SecurityException) {
                 Log.e(TAG, "Security limits prevented starting HotwordService: ${e.message}", e)
+                try {
                 context.stopService(intent)
+                } catch (stopEx: Exception) {
+                    android.util.Log.e(TAG, "Failed to stopService during fallback", stopEx)
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to start HotwordService: ${e.message}", e)
             }

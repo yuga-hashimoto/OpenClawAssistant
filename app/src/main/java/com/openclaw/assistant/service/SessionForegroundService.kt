@@ -40,10 +40,18 @@ class SessionForegroundService : Service() {
                 }
             } catch (e: IllegalStateException) {
                 Log.e(TAG, "Background execution limits prevented starting SessionForegroundService: ${e.message}", e)
+                try {
                 context.stopService(intent)
+                } catch (stopEx: Exception) {
+                    android.util.Log.e(TAG, "Failed to stopService during fallback", stopEx)
+                }
             } catch (e: SecurityException) {
                 Log.e(TAG, "Security limits prevented starting SessionForegroundService: ${e.message}", e)
+                try {
                 context.stopService(intent)
+                } catch (stopEx: Exception) {
+                    android.util.Log.e(TAG, "Failed to stopService during fallback", stopEx)
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to start SessionForegroundService: ${e.message}", e)
             }
