@@ -72,6 +72,12 @@ class WearSessionForegroundService : Service() {
                 } else {
                     context.startService(intent)
                 }
+            } catch (e: IllegalStateException) {
+                android.util.Log.e("WearSessionFGS", "Background execution limits prevented starting WearSessionForegroundService: ${e.message}", e)
+                try { context.stopService(intent) } catch (ex: Exception) { android.util.Log.e("WearSessionFGS", "stopService failed", ex) }
+            } catch (e: SecurityException) {
+                android.util.Log.e("WearSessionFGS", "Security limits prevented starting WearSessionForegroundService: ${e.message}", e)
+                try { context.stopService(intent) } catch (ex: Exception) { android.util.Log.e("WearSessionFGS", "stopService failed", ex) }
             } catch (e: Exception) {
                 android.util.Log.e("WearSessionFGS", "Failed to start WearSessionForegroundService: ${e.message}", e)
             }
