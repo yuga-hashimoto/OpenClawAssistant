@@ -88,10 +88,15 @@ fun StatusIndicator(
                 .background(dotColor, CircleShape)
         )
         if (label != null) {
+            val textColor = when (state) {
+                ConnectionState.Connected -> Color(0xFF4CAF50)
+                ConnectionState.Connecting -> MaterialTheme.colorScheme.onSurfaceVariant
+                ConnectionState.Disconnected -> MaterialTheme.colorScheme.error
+            }
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = textColor,
                 modifier = Modifier.clearAndSetSemantics {}
             )
         }
