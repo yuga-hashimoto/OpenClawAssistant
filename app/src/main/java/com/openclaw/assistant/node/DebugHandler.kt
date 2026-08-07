@@ -78,7 +78,7 @@ class DebugHandler(
     val logResult = try {
       val tmpFile = java.io.File(appContext.cacheDir, "debug_logs.txt")
       if (tmpFile.exists()) tmpFile.delete()
-      val pb = ProcessBuilder("logcat", "-d", "-t", "200", "--pid=$pid")
+      val pb = ProcessBuilder("/system/bin/logcat", "-d", "-t", "200", "--pid=$pid")
       pb.redirectOutput(tmpFile)
       pb.redirectErrorStream(true)
       val proc = pb.start()
