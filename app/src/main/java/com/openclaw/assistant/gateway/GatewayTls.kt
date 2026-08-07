@@ -95,18 +95,30 @@ suspend fun probeGatewayTlsFingerprint(
   if (port !in 1..65535) return null
 
   return withContext(Dispatchers.IO) {
-    val trustAll =
+    // 🛡️ Sentinel Optimization: Throw CertificateException in checkServerTrusted
+    // to securely capture the certificate and intentionally abort the handshake.
+    // This avoids completing the TLS handshake (saving CPU/network) and
+    // resolves CodeQL 'insecure trust manager' alerts caused by accepting all certs.
+    var capturedCert: X509Certificate? = null
+
+    val probeTrust =
       @SuppressLint("CustomX509TrustManager", "TrustAllX509TrustManager")
       object : X509TrustManager {
         @SuppressLint("TrustAllX509TrustManager")
         override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
-        @SuppressLint("TrustAllX509TrustManager")
-        override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
+
+        override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
+          if (chain.isNotEmpty()) {
+            capturedCert = chain[0]
+            // Intentionally abort handshake after capturing the certificate
+            throw CertificateException("Intentionally aborting handshake after capturing certificate")
+          }
+        }
         override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
       }
 
     val context = SSLContext.getInstance("TLS")
-    context.init(null, arrayOf(trustAll), SecureRandom())
+    context.init(null, arrayOf(probeTrust), SecureRandom())
 
     // Use createSocket() and connect() with timeout to ensure we don't hang on TCP connect.
     var socket: SSLSocket? = null
@@ -128,17 +140,25 @@ suspend fun probeGatewayTlsFingerprint(
       }
       
       socket.startHandshake()
-      val cert = socket.session.peerCertificates.firstOrNull() as? X509Certificate ?: run {
-          android.util.Log.e("GatewayTls", "Probe failed: Peer certificates empty for $trimmedHost:$port")
-          return@withContext null
+      null // We should never reach here since checkServerTrusted aborts
+    } catch (e: CertificateException) {
+      if (capturedCert != null) {
+        sha256Hex(capturedCert!!.encoded)
+      } else {
+        android.util.Log.e("GatewayTls", "Probe failed: Certificate captured but null for $trimmedHost:$port")
+        null
       }
-      sha256Hex(cert.encoded)
     } catch (e: java.net.SocketTimeoutException) {
       android.util.Log.e("GatewayTls", "Probe timeout ($timeoutMs ms) for $trimmedHost:$port", e)
       null
     } catch (e: Throwable) {
-      android.util.Log.e("GatewayTls", "Probe failed with exception for $trimmedHost:$port", e)
-      null
+      // It might throw SSLHandshakeException wrapping CertificateException
+      if (capturedCert != null) {
+        sha256Hex(capturedCert!!.encoded)
+      } else {
+        android.util.Log.e("GatewayTls", "Probe failed with exception for $trimmedHost:$port", e)
+        null
+      }
     } finally {
       try {
         socket?.close()
