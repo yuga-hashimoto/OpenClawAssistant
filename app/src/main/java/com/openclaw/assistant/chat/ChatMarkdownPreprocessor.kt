@@ -33,11 +33,14 @@ object ChatMarkdownPreprocessor {
         if (inboundContextHeaders.none { raw.contains(it) }) return raw
 
         val normalized = raw.replace("\r\n", "\n")
-        val outputLines = mutableListOf<String>()
+        // ⚡ Bolt Optimization: Replaced split("\n") with lineSequence() to avoid allocating an intermediate list.
+        // Replaced mutableListOf<String>().joinToString("\n") with StringBuilder to reduce string allocation overhead.
+        val outputBuilder = java.lang.StringBuilder(raw.length)
         var inMetaBlock = false
         var inFencedJson = false
+        var isFirstLine = true
 
-        for (line in normalized.split("\n")) {
+        for (line in normalized.lineSequence()) {
             if (!inMetaBlock && inboundContextHeaders.any { line.startsWith(it) }) {
                 inMetaBlock = true
                 inFencedJson = false
@@ -62,11 +65,15 @@ object ChatMarkdownPreprocessor {
                 inMetaBlock = false
             }
 
-            outputLines.add(line)
+            if (!isFirstLine) {
+                outputBuilder.append("\n")
+            }
+            outputBuilder.append(line)
+            isFirstLine = false
         }
 
-        return outputLines.joinToString("\n")
-            .replace(leadingNewlinesRegex, "")
+        // ⚡ Bolt Optimization: Replaced regex replacement for leading newlines with native `trimStart('\n')`
+        return outputBuilder.toString().trimStart('\n')
     }
 
     private fun stripPrefixedTimestamps(raw: String): String =
