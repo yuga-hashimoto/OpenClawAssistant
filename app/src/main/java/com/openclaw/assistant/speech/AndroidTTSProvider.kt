@@ -17,9 +17,6 @@ import kotlin.coroutines.resume
 
 private const val TAG = "AndroidTTSProvider"
 
-private val SENTENCE_ENDERS = listOf("。", "．", ". ", "! ", "? ", "！", "？")
-private val COMMA_ENDERS = listOf("。", "，", ", ")
-
 /**
  * Android native TTS provider (wrapper around TextToSpeech)
  */
@@ -105,13 +102,10 @@ class AndroidTTSProvider(private val context: Context) : TTSProvider {
     }
     
     override suspend fun speak(text: String): Boolean {
-        val maxLen = try {
-            TextToSpeech.getMaxSpeechInputLength()
-        } catch (e: Exception) {
-            3900
-        }
-        
-        val chunks = splitText(text, maxLen * 9 / 10)
+        // Bolt Optimization: Replace local O(N^2) splitting logic with optimized bounded chunking.
+        // Prevents massive latency spikes when searching for boundaries in long strings without delimiters.
+        val maxLen = TTSUtils.getMaxInputLength(tts)
+        val chunks = TTSUtils.splitTextForTTS(text, maxLen)
         
         for ((index, chunk) in chunks.withIndex()) {
             val success = speakChunk(chunk, index == 0)
@@ -219,58 +213,5 @@ class AndroidTTSProvider(private val context: Context) : TTSProvider {
         }
         
         awaitClose { stop() }
-    }
-    
-    private fun splitText(text: String, maxLength: Int): List<String> {
-        if (text.length <= maxLength) return listOf(text)
-        
-        val chunks = mutableListOf<String>()
-        var remaining = text
-        
-        while (remaining.isNotEmpty()) {
-            if (remaining.length <= maxLength) {
-                chunks.add(remaining)
-                break
-            }
-            
-            val searchRange = remaining.substring(0, maxLength)
-            val splitIndex = findBestSplitPoint(searchRange)
-            
-            if (splitIndex > 0) {
-                chunks.add(remaining.substring(0, splitIndex).trim())
-                remaining = remaining.substring(splitIndex).trim()
-            } else {
-                chunks.add(remaining.substring(0, maxLength).trim())
-                remaining = remaining.substring(maxLength).trim()
-            }
-        }
-        
-        return chunks.filter { it.isNotBlank() }
-    }
-    
-    private fun findBestSplitPoint(text: String): Int {
-        val paragraphBreak = text.lastIndexOf("\n\n")
-        if (paragraphBreak > text.length / 2) return paragraphBreak + 2
-        
-        var bestPos = -1
-        for (ender in SENTENCE_ENDERS) {
-            val pos = text.lastIndexOf(ender)
-            if (pos > bestPos) bestPos = pos + ender.length
-        }
-        if (bestPos > text.length / 3) return bestPos
-        
-        val lineBreak = text.lastIndexOf("\n")
-        if (lineBreak > text.length / 3) return lineBreak + 1
-        
-        for (ender in COMMA_ENDERS) {
-            val pos = text.lastIndexOf(ender)
-            if (pos > bestPos) bestPos = pos + ender.length
-        }
-        if (bestPos > text.length / 3) return bestPos
-        
-        val space = text.lastIndexOf(" ")
-        if (space > text.length / 3) return space + 1
-        
-        return -1
     }
 }

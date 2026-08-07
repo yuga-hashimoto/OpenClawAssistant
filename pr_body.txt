@@ -1,15 +1,7 @@
-**Source**
-Upstream openclaw/openclaw commit `8790c54635`
+💡 What: Replaced the local, recursive string-chunking logic (`splitText`, `findBestSplitPoint`) in `AndroidTTSProvider` with `TTSUtils.splitTextForTTS` and `TTSUtils.getMaxInputLength(tts)`.
 
-**Why**
-Gateway setup URLs or explicit manual endpoint inputs shouldn't enforce default ports blindly when displaying the connection UI or verifying connection security, particularly ensuring custom or cleartext implicit ports accurately reflect their configuration.
+🎯 Why: The original text-splitting implementation dynamically evaluated optimal split points (via backwards string index traversals like `lastIndexOf`) for every iteration, and instantiated static list loops at each chunk boundary. This created excessive memory allocations and `O(N^2)` processing time when encountering long text segments without delimiter matches. A previously optimized algorithm (`splitTextForTTS`) already existed in `TTSUtils`.
 
-**Adaptation**
-Ported the modified `displayUrl` string building logic from `GatewayConfigResolver.kt` (upstream) to `GatewayConfigUtils.kt` (this repo). Added tests covering various edge cases (bare domains vs default ports).
-Modified test parameters in `GatewayConfigUtilsTest` to use local `192.168.1.100` instead of `gateway.example` for cleartext, as `NetworkUtils.isUrlSecure` in this repo explicitly forbids public domains for WS/HTTP connections.
+📊 Impact: Resolves a critical performance degradation (latency spike + garbage collection load) in the `speak` loop when preparing large or delimiter-less responses for Text-To-Speech output. Avoids an O(N^2) backward search regression highlighted in the project journal.
 
-**Excluded upstream behavior**
-N/A. This was a direct logic porting.
-
-**Verification**
-Locally verified by running `./gradlew app:testStandardDebugUnitTest app:lintStandardDebug` ensuring all updated assertions succeed and no memory or regressions are flagged.
+🔬 Measurement: Execute Text-To-Speech on a 5,000+ character text payload lacking standard delimiters, and monitor CPU usage or main-thread block times (latency between command initiation and TTS audio output); note the elimination of O(N^2) chunking delay.

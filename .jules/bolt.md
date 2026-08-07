@@ -21,3 +21,7 @@
 ## 2025-05-27 - O(N^2) String Chunking Regression in `lastIndexOf`
 **Learning:** Using `text.substring().lastIndexOf(delimiter)` inside a text chunking loop (e.g. for Text-to-Speech normalization) creates a hidden performance regression. `substring` allocates new strings for each chunk, but more problematically, `lastIndexOf` searches backwards across the *entire* text. If the delimiter is missing from the chunk, it will search backwards all the way to index 0, resulting in O(N^2) complexity and massive latency spikes for long strings without delimiters.
 **Action:** When searching backward for a delimiter to split text within a length constraint without allocating substrings, use a custom bounded `regionMatches` loop (tracking `offset` and `limit`) instead of an unbounded `lastIndexOf`. Additionally, convert constant boundary lists (like sentence enders) to `arrayOf()` to prevent hidden iterator allocations during the per-chunk delimiter searches.
+
+## 2024-05-27 - Centralized TTS string parsing over local implementations
+**Learning:** Re-implementing text-chunking boundaries for string length constraints recursively per chunk created an O(N^2) search regression on large text blocks missing delimiting sequences.
+**Action:** Always prefer reusing centralized, pre-optimized utility functions (`TTSUtils.splitTextForTTS` and `getMaxInputLength`) which enforce boundary limits and utilize optimized searching (like bounded region matches) instead of manually maintaining duplicated parsing loops and allocations.
