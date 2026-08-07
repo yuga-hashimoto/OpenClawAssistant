@@ -23,6 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import com.openclaw.assistant.R
 import com.openclaw.assistant.chat.ChatMessage
 import com.openclaw.assistant.chat.ChatPendingToolCall
@@ -102,8 +105,13 @@ fun ChatMessageListCard(
 
 @Composable
 private fun EmptyChatHint(modifier: Modifier = Modifier) {
+  val emptyHintDesc = stringResource(R.string.ask_hint)
   Row(
-    modifier = modifier.alpha(0.7f),
+    modifier = modifier
+        .alpha(0.7f)
+        .semantics(mergeDescendants = true) {
+            contentDescription = emptyHintDesc
+        },
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.spacedBy(8.dp),
   ) {
@@ -116,6 +124,7 @@ private fun EmptyChatHint(modifier: Modifier = Modifier) {
       text = stringResource(R.string.ask_hint),
       style = MaterialTheme.typography.bodyMedium,
       color = MaterialTheme.colorScheme.onSurfaceVariant,
+      modifier = Modifier.clearAndSetSemantics {}
     )
   }
 }
