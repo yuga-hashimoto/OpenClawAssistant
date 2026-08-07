@@ -40,17 +40,21 @@ class SessionForegroundService : Service() {
                 }
             } catch (e: IllegalStateException) {
                 Log.e(TAG, "Background execution limits prevented starting SessionForegroundService: ${e.message}", e)
-                context.stopService(intent)
+                try { context.stopService(intent) } catch (ex: Exception) { Log.e(TAG, "Failed to stop service", ex) }
             } catch (e: SecurityException) {
                 Log.e(TAG, "Security limits prevented starting SessionForegroundService: ${e.message}", e)
-                context.stopService(intent)
+                try { context.stopService(intent) } catch (ex: Exception) { Log.e(TAG, "Failed to stop service", ex) }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to start SessionForegroundService: ${e.message}", e)
             }
         }
 
         fun stop(context: Context) {
-            context.stopService(Intent(context, SessionForegroundService::class.java))
+            try {
+                context.stopService(Intent(context, SessionForegroundService::class.java))
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to stop SessionForegroundService: ${e.message}", e)
+            }
         }
     }
 

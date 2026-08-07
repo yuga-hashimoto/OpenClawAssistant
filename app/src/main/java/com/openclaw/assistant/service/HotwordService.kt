@@ -57,17 +57,21 @@ class HotwordService : Service(), VoskRecognitionListener {
                 }
             } catch (e: IllegalStateException) {
                 Log.e(TAG, "Background execution limits prevented starting HotwordService: ${e.message}", e)
-                context.stopService(intent)
+                try { context.stopService(intent) } catch (ex: Exception) { Log.e(TAG, "Failed to stop service", ex) }
             } catch (e: SecurityException) {
                 Log.e(TAG, "Security limits prevented starting HotwordService: ${e.message}", e)
-                context.stopService(intent)
+                try { context.stopService(intent) } catch (ex: Exception) { Log.e(TAG, "Failed to stop service", ex) }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to start HotwordService: ${e.message}", e)
             }
         }
 
         fun stop(context: Context) {
-            context.stopService(Intent(context, HotwordService::class.java))
+            try {
+                context.stopService(Intent(context, HotwordService::class.java))
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to stop HotwordService: ${e.message}", e)
+            }
         }
 
         fun shouldCopyModel(currentVersion: Int, savedVersion: Int, targetDirExists: Boolean, targetDirNotEmpty: Boolean): Boolean {
