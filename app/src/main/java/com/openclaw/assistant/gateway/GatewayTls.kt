@@ -96,12 +96,13 @@ suspend fun probeGatewayTlsFingerprint(
 
   return withContext(Dispatchers.IO) {
     val trustAll =
-      @SuppressLint("CustomX509TrustManager", "TrustAllX509TrustManager")
+      @SuppressLint("CustomX509TrustManager")
       object : X509TrustManager {
-        @SuppressLint("TrustAllX509TrustManager")
         override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
-        @SuppressLint("TrustAllX509TrustManager")
-        override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
+        override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
+          // Immediately reject to save network/CPU overhead, but capture the certificate.
+          throw CertificateException(sha256Hex(chain[0].encoded))
+        }
         override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
       }
 
@@ -127,12 +128,25 @@ suspend fun probeGatewayTlsFingerprint(
         // ignore
       }
       
-      socket.startHandshake()
-      val cert = socket.session.peerCertificates.firstOrNull() as? X509Certificate ?: run {
-          android.util.Log.e("GatewayTls", "Probe failed: Peer certificates empty for $trimmedHost:$port")
-          return@withContext null
+      try {
+        socket.startHandshake()
+        val cert = socket.session.peerCertificates.firstOrNull() as? X509Certificate ?: run {
+            android.util.Log.e("GatewayTls", "Probe failed: Peer certificates empty for $trimmedHost:$port")
+            return@withContext null
+        }
+        sha256Hex(cert.encoded)
+      } catch (e: CertificateException) {
+        // Our custom trust manager threw this with the SHA-256 hex as the message.
+        e.message
+      } catch (e: javax.net.ssl.SSLHandshakeException) {
+        // Inner exception might be our CertificateException
+        val cause = e.cause
+        if (cause is CertificateException && cause.message?.length == 64) {
+            cause.message
+        } else {
+            throw e
+        }
       }
-      sha256Hex(cert.encoded)
     } catch (e: java.net.SocketTimeoutException) {
       android.util.Log.e("GatewayTls", "Probe timeout ($timeoutMs ms) for $trimmedHost:$port", e)
       null
