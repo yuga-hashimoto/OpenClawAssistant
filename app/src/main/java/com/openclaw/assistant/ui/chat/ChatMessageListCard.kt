@@ -20,6 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
@@ -103,7 +104,7 @@ fun ChatMessageListCard(
 @Composable
 private fun EmptyChatHint(modifier: Modifier = Modifier) {
   Row(
-    modifier = modifier.alpha(0.7f),
+    modifier = modifier.alpha(0.7f).semantics(mergeDescendants = true) {},
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.spacedBy(8.dp),
   ) {

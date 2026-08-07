@@ -25,3 +25,6 @@
 ## 2025-10-24 - Dropdown Trigger Accessibility
 **Learning:** Using `Modifier.clickable` without a specific role and label for a row that opens a dropdown causes screen readers to misidentify its function.
 **Action:** When a clickable element opens a dropdown menu, always use `Modifier.clickable(onClickLabel = "...", role = Role.DropdownList)` to ensure proper screen reader announcement.
+## 2024-05-24 - Accessibility focus bounding box grouping
+**Learning:** When a `Row` contains an informative or decorative `Icon` alongside `Text`, screen readers might segment the focus bounding box.
+**Action:** Use `Modifier.semantics(mergeDescendants = true)` on the `Row` container to ensure the screen reader focus bounding box encompasses both elements as a single logical unit.
