@@ -32,41 +32,51 @@ object ChatMarkdownPreprocessor {
     private fun stripInboundContextBlocks(raw: String): String {
         if (inboundContextHeaders.none { raw.contains(it) }) return raw
 
-        val normalized = raw.replace("\r\n", "\n")
-        val outputLines = mutableListOf<String>()
+        // ⚡ Bolt Optimization: Removed string allocation overhead from split("\n") and joinToString("\n").
+        // Used StringBuilder and lineSequence() directly to reduce GC pressure for frequent large Markdown blobs.
+        val sb = StringBuilder(raw.length)
         var inMetaBlock = false
         var inFencedJson = false
+        var firstLine = true
 
-        for (line in normalized.split("\n")) {
+        raw.lineSequence().forEach { rawLine ->
+            val line = rawLine.removeSuffix("\r")
+
             if (!inMetaBlock && inboundContextHeaders.any { line.startsWith(it) }) {
                 inMetaBlock = true
                 inFencedJson = false
-                continue
+                return@forEach
             }
 
             if (inMetaBlock) {
-                if (!inFencedJson && line.trim() == "```json") {
+                val trimmed = line.trim()
+                if (!inFencedJson && trimmed == "```json") {
                     inFencedJson = true
-                    continue
+                    return@forEach
                 }
                 if (inFencedJson) {
-                    if (line.trim() == "```") {
+                    if (trimmed == "```") {
                         inMetaBlock = false
                         inFencedJson = false
                     }
-                    continue
+                    return@forEach
                 }
-                if (line.trim().isEmpty()) {
-                    continue
+                if (trimmed.isEmpty()) {
+                    return@forEach
                 }
                 inMetaBlock = false
             }
 
-            outputLines.add(line)
+            if (firstLine && line.isEmpty()) return@forEach
+
+            if (!firstLine) {
+                sb.append('\n')
+            }
+            sb.append(line)
+            firstLine = false
         }
 
-        return outputLines.joinToString("\n")
-            .replace(leadingNewlinesRegex, "")
+        return sb.toString().replace(leadingNewlinesRegex, "")
     }
 
     private fun stripPrefixedTimestamps(raw: String): String =
