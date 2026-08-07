@@ -33,11 +33,14 @@ object ChatMarkdownPreprocessor {
         if (inboundContextHeaders.none { raw.contains(it) }) return raw
 
         val normalized = raw.replace("\r\n", "\n")
-        val outputLines = mutableListOf<String>()
+        // ⚡ Bolt Optimization: Replace split("\n") and joinToString with lineSequence() and a direct StringBuilder
+        // to avoid list allocation overhead and intermediate string garbage.
+        val output = StringBuilder(raw.length)
         var inMetaBlock = false
         var inFencedJson = false
+        var isFirstLine = true
 
-        for (line in normalized.split("\n")) {
+        for (line in normalized.lineSequence()) {
             if (!inMetaBlock && inboundContextHeaders.any { line.startsWith(it) }) {
                 inMetaBlock = true
                 inFencedJson = false
@@ -62,10 +65,14 @@ object ChatMarkdownPreprocessor {
                 inMetaBlock = false
             }
 
-            outputLines.add(line)
+            if (!isFirstLine) {
+                output.append("\n")
+            }
+            output.append(line)
+            isFirstLine = false
         }
 
-        return outputLines.joinToString("\n")
+        return output.toString()
             .replace(leadingNewlinesRegex, "")
     }
 
