@@ -285,15 +285,13 @@ class NodeForegroundService : Service() {
         context.startService(intent)
       } catch (e: IllegalStateException) {
         android.util.Log.w(TAG, "Failed to send ACTION_STOP via startService, falling back to stopService", e)
-        context.stopService(intent)
+        try { context.stopService(intent) } catch (ex: Exception) { android.util.Log.e(TAG, "Failed to stopService", ex) }
       } catch (e: SecurityException) {
         android.util.Log.w(TAG, "Failed to send ACTION_STOP via startService, falling back to stopService", e)
-        context.stopService(intent)
+        try { context.stopService(intent) } catch (ex: Exception) { android.util.Log.e(TAG, "Failed to stopService", ex) }
       } catch (e: Exception) {
         android.util.Log.w(TAG, "Failed to send ACTION_STOP via startService, falling back to stopService", e)
-        try {
-            context.stopService(intent)
-        } catch (stopEx: Exception) {
+        try { context.stopService(intent) } catch (stopEx: Exception) {
             android.util.Log.e(TAG, "Failed to stopService as well", stopEx)
         }
       }
