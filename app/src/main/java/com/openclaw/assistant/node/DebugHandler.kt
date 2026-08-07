@@ -6,6 +6,8 @@ import com.openclaw.assistant.gateway.DeviceIdentityStore
 import com.openclaw.assistant.gateway.GatewaySession
 import kotlinx.serialization.json.JsonPrimitive
 
+private const val LOGCAT_PATH = "/system/bin/logcat"
+
 class DebugHandler(
   private val appContext: Context,
   private val identityStore: DeviceIdentityStore,
@@ -78,7 +80,7 @@ class DebugHandler(
     val logResult = try {
       val tmpFile = java.io.File(appContext.cacheDir, "debug_logs.txt")
       if (tmpFile.exists()) tmpFile.delete()
-      val pb = ProcessBuilder("logcat", "-d", "-t", "200", "--pid=$pid")
+      val pb = ProcessBuilder(LOGCAT_PATH, "-d", "-t", "200", "--pid=$pid")
       pb.redirectOutput(tmpFile)
       pb.redirectErrorStream(true)
       val proc = pb.start()
