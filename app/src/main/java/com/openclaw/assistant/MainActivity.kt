@@ -1072,14 +1072,14 @@ fun SystemStatusCard(
     val isConnecting = statusText.contains("Connecting", ignoreCase = true) || statusText.contains("Verify gateway TLS fingerprint", ignoreCase = true)
 
     val backgroundColor = when {
-        connected -> Color(0xFFE8F5E9)
-        isConnecting -> Color(0xFFFFF3E0)
-        else -> Color(0xFFFFEBEE)
+        connected -> MaterialTheme.colorScheme.primaryContainer
+        isConnecting -> MaterialTheme.colorScheme.surfaceVariant
+        else -> MaterialTheme.colorScheme.errorContainer
     }
     val contentColor = when {
-        connected -> Color(0xFF1B5E20)
-        isConnecting -> Color(0xFFE65100)
-        else -> Color(0xFFB71C1C)
+        connected -> MaterialTheme.colorScheme.onPrimaryContainer
+        isConnecting -> MaterialTheme.colorScheme.onSurfaceVariant
+        else -> MaterialTheme.colorScheme.onErrorContainer
     }
 
     Card(
