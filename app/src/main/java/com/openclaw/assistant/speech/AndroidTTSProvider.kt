@@ -17,8 +17,8 @@ import kotlin.coroutines.resume
 
 private const val TAG = "AndroidTTSProvider"
 
-private val SENTENCE_ENDERS = listOf("。", "．", ". ", "! ", "? ", "！", "？")
-private val COMMA_ENDERS = listOf("。", "，", ", ")
+private val SENTENCE_ENDERS = arrayOf("。", "．", ". ", "! ", "? ", "！", "？")
+private val COMMA_ENDERS = arrayOf("。", "，", ", ")
 
 /**
  * Android native TTS provider (wrapper around TextToSpeech)
@@ -221,56 +221,86 @@ class AndroidTTSProvider(private val context: Context) : TTSProvider {
         awaitClose { stop() }
     }
     
+    // ⚡ Bolt Optimization: Using substring() inside a chunking loop creates implicit string allocations
+    // for every chunk. Furthermore, lastIndexOf() runs unbounded backwards across the *entire* text
+    // (O(N) operation inside the loop, leading to O(N^2) complexity).
+    // Replaced with an index-based (offset/limit) approach using regionMatches to avoid allocations
+    // and guarantee O(1) or small bounded search time per chunk, preventing massive latency spikes
+    // on long inputs.
     private fun splitText(text: String, maxLength: Int): List<String> {
         if (text.length <= maxLength) return listOf(text)
-        
+
         val chunks = mutableListOf<String>()
-        var remaining = text
-        
-        while (remaining.isNotEmpty()) {
-            if (remaining.length <= maxLength) {
-                chunks.add(remaining)
+        var offset = 0
+
+        while (offset < text.length) {
+            val remainingLength = text.length - offset
+            if (remainingLength <= maxLength) {
+                chunks.add(text.substring(offset).trim())
                 break
             }
-            
-            val searchRange = remaining.substring(0, maxLength)
-            val splitIndex = findBestSplitPoint(searchRange)
-            
-            if (splitIndex > 0) {
-                chunks.add(remaining.substring(0, splitIndex).trim())
-                remaining = remaining.substring(splitIndex).trim()
+
+            val limit = offset + maxLength
+            val splitPoint = findBestSplitPointBounded(text, offset, limit)
+
+            if (splitPoint > offset) {
+                chunks.add(text.substring(offset, splitPoint).trim())
+                offset = splitPoint
             } else {
-                chunks.add(remaining.substring(0, maxLength).trim())
-                remaining = remaining.substring(maxLength).trim()
+                // No boundary found, force split at maxLength
+                chunks.add(text.substring(offset, limit).trim())
+                offset = limit
+            }
+
+            // Skip leading whitespace for the next chunk
+            while (offset < text.length && text[offset].isWhitespace()) {
+                offset++
             }
         }
-        
+
         return chunks.filter { it.isNotBlank() }
     }
-    
-    private fun findBestSplitPoint(text: String): Int {
-        val paragraphBreak = text.lastIndexOf("\n\n")
-        if (paragraphBreak > text.length / 2) return paragraphBreak + 2
-        
+
+    private fun findBestSplitPointBounded(text: String, offset: Int, limit: Int): Int {
+        val chunkLength = limit - offset
+
+        val paragraphBreak = lastIndexOfBounded(text, "\n\n", offset, limit)
+        if (paragraphBreak > offset + chunkLength / 2) return paragraphBreak + 2
+
         var bestPos = -1
-        for (ender in SENTENCE_ENDERS) {
-            val pos = text.lastIndexOf(ender)
+        // Using indices explicitly helps avoid List iterator allocations in this hot path
+        for (i in SENTENCE_ENDERS.indices) {
+            val ender = SENTENCE_ENDERS[i]
+            val pos = lastIndexOfBounded(text, ender, offset, limit)
             if (pos > bestPos) bestPos = pos + ender.length
         }
-        if (bestPos > text.length / 3) return bestPos
-        
-        val lineBreak = text.lastIndexOf("\n")
-        if (lineBreak > text.length / 3) return lineBreak + 1
-        
-        for (ender in COMMA_ENDERS) {
-            val pos = text.lastIndexOf(ender)
+        if (bestPos > offset + chunkLength / 3) return bestPos
+
+        val lineBreak = lastIndexOfBounded(text, "\n", offset, limit)
+        if (lineBreak > offset + chunkLength / 3) return lineBreak + 1
+
+        for (i in COMMA_ENDERS.indices) {
+            val ender = COMMA_ENDERS[i]
+            val pos = lastIndexOfBounded(text, ender, offset, limit)
             if (pos > bestPos) bestPos = pos + ender.length
         }
-        if (bestPos > text.length / 3) return bestPos
-        
-        val space = text.lastIndexOf(" ")
-        if (space > text.length / 3) return space + 1
-        
+        if (bestPos > offset + chunkLength / 3) return bestPos
+
+        val space = lastIndexOfBounded(text, " ", offset, limit)
+        if (space > offset + chunkLength / 3) return space + 1
+
+        return -1
+    }
+
+    private fun lastIndexOfBounded(text: String, delimiter: String, offset: Int, limit: Int): Int {
+        if (delimiter.isEmpty()) return -1
+        val startSearch = limit - delimiter.length
+        if (startSearch < offset) return -1
+        for (i in startSearch downTo offset) {
+            if (text.regionMatches(i, delimiter, 0, delimiter.length)) {
+                return i
+            }
+        }
         return -1
     }
 }
