@@ -95,13 +95,18 @@ suspend fun probeGatewayTlsFingerprint(
   if (port !in 1..65535) return null
 
   return withContext(Dispatchers.IO) {
+    class ProbeException(val fingerprint: String) : CertificateException()
+
     val trustAll =
-      @SuppressLint("CustomX509TrustManager", "TrustAllX509TrustManager")
+      @SuppressLint("CustomX509TrustManager")
       object : X509TrustManager {
-        @SuppressLint("TrustAllX509TrustManager")
         override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
-        @SuppressLint("TrustAllX509TrustManager")
-        override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
+        override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
+          if (chain.isNotEmpty()) {
+            throw ProbeException(sha256Hex(chain[0].encoded))
+          }
+          throw CertificateException("Empty chain")
+        }
         override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
       }
 
@@ -128,15 +133,18 @@ suspend fun probeGatewayTlsFingerprint(
       }
       
       socket.startHandshake()
-      val cert = socket.session.peerCertificates.firstOrNull() as? X509Certificate ?: run {
-          android.util.Log.e("GatewayTls", "Probe failed: Peer certificates empty for $trimmedHost:$port")
-          return@withContext null
-      }
-      sha256Hex(cert.encoded)
+      null
     } catch (e: java.net.SocketTimeoutException) {
       android.util.Log.e("GatewayTls", "Probe timeout ($timeoutMs ms) for $trimmedHost:$port", e)
       null
     } catch (e: Throwable) {
+      var cause: Throwable? = e
+      while (cause != null) {
+        if (cause is ProbeException) {
+          return@withContext cause.fingerprint
+        }
+        cause = cause.cause
+      }
       android.util.Log.e("GatewayTls", "Probe failed with exception for $trimmedHost:$port", e)
       null
     } finally {
