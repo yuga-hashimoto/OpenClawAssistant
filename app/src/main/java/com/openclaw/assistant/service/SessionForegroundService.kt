@@ -46,6 +46,11 @@ class SessionForegroundService : Service() {
                 context.stopService(intent)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to start SessionForegroundService: ${e.message}", e)
+                try {
+                    context.stopService(intent)
+                } catch (e2: Exception) {
+                    Log.e(TAG, "Failed to stop SessionForegroundService: ${e2.message}", e2)
+                }
             }
         }
 

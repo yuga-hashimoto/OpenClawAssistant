@@ -63,6 +63,11 @@ class HotwordService : Service(), VoskRecognitionListener {
                 context.stopService(intent)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to start HotwordService: ${e.message}", e)
+                try {
+                    context.stopService(intent)
+                } catch (e2: Exception) {
+                    Log.e(TAG, "Failed to stop HotwordService: ${e2.message}", e2)
+                }
             }
         }
 
