@@ -78,7 +78,11 @@ class WearSessionForegroundService : Service() {
         }
 
         fun stop(context: Context) {
-            context.stopService(Intent(context, WearSessionForegroundService::class.java))
+            try {
+                context.stopService(Intent(context, WearSessionForegroundService::class.java))
+            } catch (e: Exception) {
+                android.util.Log.e("WearSessionFGS", "Failed to stop WearSessionForegroundService", e)
+            }
         }
     }
 }
