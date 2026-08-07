@@ -25,3 +25,7 @@
 ## 2025-10-24 - Dropdown Trigger Accessibility
 **Learning:** Using `Modifier.clickable` without a specific role and label for a row that opens a dropdown causes screen readers to misidentify its function.
 **Action:** When a clickable element opens a dropdown menu, always use `Modifier.clickable(onClickLabel = "...", role = Role.DropdownList)` to ensure proper screen reader announcement.
+
+## 2024-05-05 - Accessibility issue with voicevox characters
+**Learning:** Hardcoded accessibility descriptors like contentDescription = "Downloaded" inside Compose functions degrade accessibility for non-English screen readers.
+**Action:** Always verify if hardcoded strings can be replaced with `stringResource` when adding or reviewing interactive component descriptors.

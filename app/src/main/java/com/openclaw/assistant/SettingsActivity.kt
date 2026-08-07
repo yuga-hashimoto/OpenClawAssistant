@@ -2668,7 +2668,7 @@ fun VoiceVoxSettingsCard(
                             if (selectedCharacter != null && downloadedVvmFiles.contains(selectedCharacter.vvmFileName)) {
                                 Icon(
                                     Icons.Default.Check,
-                                    contentDescription = "Downloaded",
+                                    contentDescription = stringResource(R.string.voicevox_downloaded_files),
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(18.dp)
                                 )
@@ -2695,7 +2695,7 @@ fun VoiceVoxSettingsCard(
                                     if (isVvmReady) {
                                         Icon(
                                             Icons.Default.Check,
-                                            contentDescription = "Downloaded",
+                                            contentDescription = stringResource(R.string.voicevox_downloaded_files),
                                             tint = MaterialTheme.colorScheme.primary,
                                             modifier = Modifier.size(16.dp)
                                         )
