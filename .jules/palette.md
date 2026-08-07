@@ -25,3 +25,7 @@
 ## 2025-10-24 - Dropdown Trigger Accessibility
 **Learning:** Using `Modifier.clickable` without a specific role and label for a row that opens a dropdown causes screen readers to misidentify its function.
 **Action:** When a clickable element opens a dropdown menu, always use `Modifier.clickable(onClickLabel = "...", role = Role.DropdownList)` to ensure proper screen reader announcement.
+
+## 2024-05-08 - Merge Descendants in Jetpack Compose
+**Learning:** In Jetpack Compose, when standard views like `Row` or `Column` group icons and texts, applying `Modifier.semantics(mergeDescendants = true)` correctly coalesces these into a single focusable accessibility element for TalkBack, avoiding disjointed reading. Setting `contentDescription = null` on the decorative icon removes redundant reading.
+**Action:** Always apply `mergeDescendants = true` on the parent container (like `Row` or `Button`) and `contentDescription = null` on the purely decorative internal icon (when accompanying a text label) to prevent redundant or split screen-reader announcements.

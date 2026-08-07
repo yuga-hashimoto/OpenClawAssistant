@@ -1195,6 +1195,7 @@ private fun FinalCheckStep(
                 .fillMaxWidth()
                 .background(OnboardingGradientMid.copy(alpha = 0.1f), RoundedCornerShape(8.dp))
                 .border(1.dp, OnboardingGradientMid.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                .semantics(mergeDescendants = true) {}
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -1703,6 +1704,7 @@ private fun CommandBlock(command: String) {
         modifier = Modifier
             .fillMaxWidth()
             .background(Color(0xFF0D1117), RoundedCornerShape(8.dp))
+            .semantics(mergeDescendants = true) {}
             .clickable(
                 onClickLabel = stringResource(R.string.pairing_copy_command),
                 role = Role.Button
@@ -1732,7 +1734,7 @@ private fun CommandBlock(command: String) {
         Spacer(modifier = Modifier.width(8.dp))
         Icon(
             imageVector = Icons.Default.ContentCopy,
-            contentDescription = stringResource(R.string.pairing_copy_command),
+            contentDescription = null,
             tint = Color(0xFF58A6FF),
             modifier = Modifier.size(16.dp)
         )
