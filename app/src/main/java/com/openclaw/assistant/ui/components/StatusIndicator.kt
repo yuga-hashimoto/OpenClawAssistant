@@ -50,7 +50,7 @@ fun StatusIndicator(
     val dotColor = when (state) {
         ConnectionState.Connected -> Color(0xFF4CAF50)
         ConnectionState.Connecting -> Color(0xFFFFA726)
-        ConnectionState.Disconnected -> Color(0xFF757575)
+        ConnectionState.Disconnected -> MaterialTheme.colorScheme.error
     }
 
     val stateDesc = when (state) {
