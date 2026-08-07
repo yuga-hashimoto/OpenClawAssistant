@@ -54,6 +54,8 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
@@ -1293,10 +1295,12 @@ fun PermissionDiagnosticsPanel(allPermissionsStatus: List<PermissionStatusInfo>,
 fun DiagnosticItem(label: String, status: DiagnosticStatus, modifier: Modifier = Modifier) {
     val color = when (status) { DiagnosticStatus.READY -> Color(0xFF4CAF50); DiagnosticStatus.WARNING -> Color(0xFFFFC107); DiagnosticStatus.ERROR -> Color(0xFFF44336) }
     val icon = when (status) { DiagnosticStatus.READY -> Icons.Default.Check; DiagnosticStatus.WARNING -> Icons.Default.Info; DiagnosticStatus.ERROR -> Icons.Default.Error }
-    Row(modifier = modifier.semantics(mergeDescendants = true) {}, verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, contentDescription = status.name, tint = color, modifier = Modifier.size(16.dp))
+    Row(modifier = modifier.semantics(mergeDescendants = true) {
+        contentDescription = "$label: ${status.name}"
+    }, verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(16.dp))
         Spacer(modifier = Modifier.width(4.dp))
-        Text(label, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+        Text(label, fontSize = 11.sp, fontWeight = FontWeight.Medium, modifier = Modifier.clearAndSetSemantics {})
     }
 }
 

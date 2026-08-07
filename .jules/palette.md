@@ -25,3 +25,7 @@
 ## 2025-10-24 - Dropdown Trigger Accessibility
 **Learning:** Using `Modifier.clickable` without a specific role and label for a row that opens a dropdown causes screen readers to misidentify its function.
 **Action:** When a clickable element opens a dropdown menu, always use `Modifier.clickable(onClickLabel = "...", role = Role.DropdownList)` to ensure proper screen reader announcement.
+
+## 2024-05-07 - Accessibility Fix in DiagnosticItem
+**Learning:** In Jetpack Compose, when using `semantics(mergeDescendants = true)` on a parent container to group content for screen readers, you MUST provide an explicit `contentDescription` on the parent block. Furthermore, you must apply `Modifier.clearAndSetSemantics {}` to child `Text` elements to prevent them from being wiped completely from the accessibility tree or announced redundantly. Also, do not forget to import `androidx.compose.ui.semantics.contentDescription` and `androidx.compose.ui.semantics.clearAndSetSemantics`.
+**Action:** Always verify that parent containers with `mergeDescendants` have a clear, combined `contentDescription`, explicitly suppress child text with `clearAndSetSemantics`, set `contentDescription = null` on decorative/inner icons, and verify the correct extension imports are present.
