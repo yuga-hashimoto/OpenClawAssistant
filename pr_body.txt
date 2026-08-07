@@ -1,15 +1,14 @@
-**Source**
-Upstream openclaw/openclaw commit `8790c54635`
+**What**
+Refactored the `X509TrustManager` used during the gateway TLS probe to intentionally abort the handshake via `CertificateException` immediately after capturing the peer's certificate.
 
 **Why**
-Gateway setup URLs or explicit manual endpoint inputs shouldn't enforce default ports blindly when displaying the connection UI or verifying connection security, particularly ensuring custom or cleartext implicit ports accurately reflect their configuration.
+Previously, `probeGatewayTlsFingerprint` used a `TrustAllX509TrustManager` that silently ignored validation and successfully completed the TLS handshake with any server. This is a security risk (flagged as insecure trust manager by CodeQL) because it establishes an unverified connection that could theoretically be used.
 
-**Adaptation**
-Ported the modified `displayUrl` string building logic from `GatewayConfigResolver.kt` (upstream) to `GatewayConfigUtils.kt` (this repo). Added tests covering various edge cases (bare domains vs default ports).
-Modified test parameters in `GatewayConfigUtilsTest` to use local `192.168.1.100` instead of `gateway.example` for cleartext, as `NetworkUtils.isUrlSecure` in this repo explicitly forbids public domains for WS/HTTP connections.
-
-**Excluded upstream behavior**
-N/A. This was a direct logic porting.
+**Impact**
+- **Security:** Eliminates the risk of establishing fully trusted connections to unverified servers.
+- **Performance:** Bypasses the overhead of completing a full, unnecessary TLS handshake.
 
 **Verification**
-Locally verified by running `./gradlew app:testStandardDebugUnitTest app:lintStandardDebug` ensuring all updated assertions succeed and no memory or regressions are flagged.
+- Verified the logic with temporary isolated probe tests.
+- Linted locally with `./gradlew -q :app:lintStandardDebug` (Pass).
+- Tested locally with `./gradlew -q :app:testStandardDebugUnitTest` (Pass).

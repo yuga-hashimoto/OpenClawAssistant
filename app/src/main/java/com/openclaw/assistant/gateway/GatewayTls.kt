@@ -95,18 +95,20 @@ suspend fun probeGatewayTlsFingerprint(
   if (port !in 1..65535) return null
 
   return withContext(Dispatchers.IO) {
-    val trustAll =
-      @SuppressLint("CustomX509TrustManager", "TrustAllX509TrustManager")
+    var capturedCert: X509Certificate? = null
+    val probeTrustManager =
+      @SuppressLint("CustomX509TrustManager")
       object : X509TrustManager {
-        @SuppressLint("TrustAllX509TrustManager")
         override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
-        @SuppressLint("TrustAllX509TrustManager")
-        override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
+        override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
+          capturedCert = chain.firstOrNull()
+          throw CertificateException("Intentionally aborting handshake to capture certificate")
+        }
         override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
       }
 
     val context = SSLContext.getInstance("TLS")
-    context.init(null, arrayOf(trustAll), SecureRandom())
+    context.init(null, arrayOf(probeTrustManager), SecureRandom())
 
     // Use createSocket() and connect() with timeout to ensure we don't hang on TCP connect.
     var socket: SSLSocket? = null
@@ -128,23 +130,26 @@ suspend fun probeGatewayTlsFingerprint(
       }
       
       socket.startHandshake()
-      val cert = socket.session.peerCertificates.firstOrNull() as? X509Certificate ?: run {
-          android.util.Log.e("GatewayTls", "Probe failed: Peer certificates empty for $trimmedHost:$port")
-          return@withContext null
-      }
-      sha256Hex(cert.encoded)
     } catch (e: java.net.SocketTimeoutException) {
       android.util.Log.e("GatewayTls", "Probe timeout ($timeoutMs ms) for $trimmedHost:$port", e)
-      null
     } catch (e: Throwable) {
-      android.util.Log.e("GatewayTls", "Probe failed with exception for $trimmedHost:$port", e)
-      null
+      // Expected exception if we successfully captured the certificate and aborted.
+      if (capturedCert == null) {
+        android.util.Log.e("GatewayTls", "Probe failed with exception for $trimmedHost:$port", e)
+      }
     } finally {
       try {
         socket?.close()
       } catch (_: Throwable) {
         // ignore
       }
+    }
+
+    capturedCert?.let { sha256Hex(it.encoded) } ?: run {
+      if (capturedCert == null) {
+        android.util.Log.e("GatewayTls", "Probe failed: Peer certificates empty for $trimmedHost:$port")
+      }
+      null
     }
   }
 }
