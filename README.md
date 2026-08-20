@@ -606,7 +606,7 @@ MIT License - 詳細は [LICENSE](LICENSE) を参照。
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=yuga-hashimoto/openclaw-assistant&type=Date)](https://star-history.com/#yuga-hashimoto/openclaw-assistant&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=yuga-hashimoto/openclaw-assistant&type=Date)](https://star-history.dera.page/#yuga-hashimoto/openclaw-assistant&type=date)
 
 ---
 
