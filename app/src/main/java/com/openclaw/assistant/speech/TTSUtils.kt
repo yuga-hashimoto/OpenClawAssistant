@@ -222,11 +222,8 @@ object TTSUtils {
         if (delimiter.isEmpty()) return -1
         val startSearch = limit - delimiter.length
         if (startSearch < offset) return -1
-        for (i in startSearch downTo offset) {
-            if (text.regionMatches(i, delimiter, 0, delimiter.length)) {
-                return i
-            }
-        }
-        return -1
+        // ⚡ Bolt Optimization: Replace O(N^2) manual loop string chunking regression with built-in lastIndexOf.
+        val result = text.lastIndexOf(delimiter, startSearch)
+        return if (result >= offset) result else -1
     }
 }
