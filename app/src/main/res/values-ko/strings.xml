@@ -421,7 +421,7 @@
     <string name="voicevox_terms_full">VOICEVOX의 음성 데이터를 사용하려면 다음 약관에 동의해야 합니다:\n\n1. 음성 데이터는 개인 및 상업적 용도로 모두 사용할 수 있습니다.\n2. 음성 라이브러리의 권리는 각 캐릭터의 권리자에게 귀속됩니다.\n3. 음성 데이터의 재배포는 금지됩니다.\n4. 불법적인 목적으로의 사용은 금지됩니다.\n\n자세한 내용은 VOICEVOX 공식 웹사이트를 참조하세요.</string>
     <string name="voicevox_downloaded_files">다운로드된 음성 데이터</string>
     <string name="voicevox_delete_confirm_title">선택한 음성을 삭제하시겠습니까?</string>
-    <string name="voicevox_delete_confirm_message">'%s'은(는) 현재 선택된 음성입니다. 삭제하시겠습니까?</string>
+    <string name="voicevox_delete_confirm_message">\'%s\'은(는) 현재 선택된 음성입니다. 삭제하시겠습니까?</string>
     <string name="voicevox_download">음성 데이터 다운로드</string>
     <string name="voicevox_redownload">음성 데이터 재다운로드</string>
     <string name="voicevox_setup_title">VOICEVOX 설정</string>
