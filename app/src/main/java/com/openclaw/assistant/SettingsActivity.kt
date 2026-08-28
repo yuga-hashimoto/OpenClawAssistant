@@ -2598,6 +2598,8 @@ fun RigQwenSettingsCard(
     onCustomVoicesChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val builtinSpeakers = com.openclaw.assistant.speech.RigQwenTTSProvider.RIG_QWEN_SPEAKERS
     val customVoices = remember(customVoicesJson) {
         com.openclaw.assistant.speech.RigQwenTTSProvider.parseCustomVoices(customVoicesJson)
@@ -2606,6 +2608,11 @@ fun RigQwenSettingsCard(
     var showAddDialog by remember { mutableStateOf(false) }
     var newName by remember { mutableStateOf("") }
     var newInstruct by remember { mutableStateOf("") }
+    var newRefText by remember { mutableStateOf("") }
+    var creatingVoice by remember { mutableStateOf(false) }
+    var createError by remember { mutableStateOf<String?>(null) }
+
+    val provider = remember { com.openclaw.assistant.speech.RigQwenTTSProvider(context) }
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -2639,7 +2646,6 @@ fun RigQwenSettingsCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Speaker picker: built-in timbres + user custom voices.
-            val allSpeakers = builtinSpeakers + customVoices.map { it.name }
             ExposedDropdownMenuBox(
                 expanded = speakerExpanded,
                 onExpandedChange = { speakerExpanded = it }
@@ -2705,13 +2711,13 @@ fun RigQwenSettingsCard(
             // Custom voice management
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                "Custom Voices (VoiceDesign prompts)",
+                "Custom Voices (one-time design + clone profile)",
                 style = MaterialTheme.typography.titleSmall
             )
             Spacer(modifier = Modifier.height(4.dp))
             if (customVoices.isEmpty()) {
                 Text(
-                    "No custom voices yet. Add one with a natural-language prompt describing the voice.",
+                    "No custom voices yet. Add one with a natural-language prompt describing the voice — it's designed once, then reused like a saved profile.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -2723,10 +2729,13 @@ fun RigQwenSettingsCard(
                     ) {
                         Text(cv.name, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
                         TextButton(onClick = {
-                            val remaining = customVoices.filter { it.name != cv.name }
-                            onCustomVoicesChange(
-                                com.openclaw.assistant.speech.RigQwenTTSProvider.serializeCustomVoices(remaining)
-                            )
+                            scope.launch {
+                                provider.deleteCustomVoice(cv.name)
+                                val remaining = customVoices.filter { it.name != cv.name }
+                                onCustomVoicesChange(
+                                    com.openclaw.assistant.speech.RigQwenTTSProvider.serializeCustomVoices(remaining)
+                                )
+                            }
                         }) {
                             Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
                         }
@@ -2743,15 +2752,26 @@ fun RigQwenSettingsCard(
 
     if (showAddDialog) {
         AlertDialog(
-            onDismissRequest = { showAddDialog = false },
+            onDismissRequest = {
+                if (!creatingVoice) showAddDialog = false
+            },
             title = { Text(stringResource(R.string.rig_qwen_add_custom_voice)) },
             text = {
                 Column {
+                    if (createError != null) {
+                        Text(
+                            createError.orEmpty(),
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                     OutlinedTextField(
                         value = newName,
                         onValueChange = { newName = it },
                         label = { Text(stringResource(R.string.rig_qwen_voice_name_label)) },
                         singleLine = true,
+                        enabled = !creatingVoice,
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -2761,29 +2781,70 @@ fun RigQwenSettingsCard(
                         label = { Text(stringResource(R.string.rig_qwen_voice_prompt_label)) },
                         placeholder = { Text("e.g. A warm grandmotherly voice, gentle and patient, with a soft rasp.") },
                         minLines = 3,
+                        enabled = !creatingVoice,
                         modifier = Modifier.fillMaxWidth()
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = newRefText,
+                        onValueChange = { newRefText = it },
+                        label = { Text(stringResource(R.string.rig_qwen_ref_text_label)) },
+                        placeholder = { Text("(optional) e.g. Hello! This is my voice.") },
+                        minLines = 2,
+                        enabled = !creatingVoice,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    if (creatingVoice) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                "Designing voice & building profile (can take ~1 min on first use)…",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 }
             },
             confirmButton = {
                 TextButton(
-                    enabled = newName.isNotBlank() && newInstruct.isNotBlank(),
+                    enabled = newName.isNotBlank() && newInstruct.isNotBlank() && !creatingVoice,
                     onClick = {
-                        val updated = customVoices + com.openclaw.assistant.speech.RigQwenTTSProvider.RigQwenCustomVoice(
-                            name = newName.trim(),
-                            instruct = newInstruct.trim()
-                        )
-                        onCustomVoicesChange(com.openclaw.assistant.speech.RigQwenTTSProvider.serializeCustomVoices(updated))
-                        newName = ""
-                        newInstruct = ""
-                        showAddDialog = false
+                        createError = null
+                        creatingVoice = true
+                        scope.launch {
+                            val result = provider.createCustomVoice(
+                                name = newName,
+                                instruct = newInstruct,
+                                refText = newRefText,
+                            )
+                            creatingVoice = false
+                            result.onSuccess { createdName ->
+                                val updated = customVoices + com.openclaw.assistant.speech.RigQwenTTSProvider.RigQwenCustomVoice(
+                                    name = createdName,
+                                    instruct = newInstruct.trim()
+                                )
+                                onCustomVoicesChange(com.openclaw.assistant.speech.RigQwenTTSProvider.serializeCustomVoices(updated))
+                                newName = ""
+                                newInstruct = ""
+                                newRefText = ""
+                                showAddDialog = false
+                            }.onFailure { e ->
+                                createError = e.message ?: "Failed to create voice"
+                            }
+                        }
                     }
                 ) {
                     Text(stringResource(R.string.add))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showAddDialog = false }) {
+                TextButton(
+                    enabled = !creatingVoice,
+                    onClick = { showAddDialog = false }
+                ) {
                     Text(stringResource(R.string.cancel))
                 }
             }

@@ -81,14 +81,13 @@ class RigQwenTTSProvider(private val context: Context) : TTSProvider {
 
         val request: Request
         if (custom != null) {
-            // User-defined custom voice -> VoiceDesign endpoint (prompt-based).
+            // User-defined custom voice -> clone profile path on the rig.
             val requestBody = JSONObject().apply {
                 put("text", text)
-                put("instruct", custom.instruct)
-                put("language", "English")
+                put("voice", custom.name)
             }.toString()
             request = Request.Builder()
-                .url("$baseUrl/voice_design")
+                .url("$baseUrl/tts")
                 .header("Content-Type", "application/json")
                 .post(requestBody.toRequestBody("application/json".toMediaType()))
                 .build()
@@ -126,6 +125,69 @@ class RigQwenTTSProvider(private val context: Context) : TTSProvider {
     /** Persist the custom voice list back to settings. */
     fun saveCustomVoices(voices: List<RigQwenCustomVoice>) {
         settings.rigQwenCustomVoices = serializeCustomVoices(voices)
+    }
+
+    /**
+     * Create a custom voice on the rig: the server designs a reference clip
+     * from [instruct] (VoiceDesign) and builds a reusable clone profile (Base),
+     * persisted server-side keyed by [name]. This is the ElevenLabs-style
+     * one-time "voice profile" creation.
+     *
+     * @return true on success (caller should then persist the voice locally)
+     */
+    suspend fun createCustomVoice(name: String, instruct: String, refText: String): Result<String> =
+        withContext(Dispatchers.IO) {
+            val baseUrl = settings.rigQwenUrl.trim().trimEnd('/')
+            val requestBody = JSONObject().apply {
+                put("name", name.trim())
+                put("instruct", instruct.trim())
+                put("ref_text", refText.trim().ifBlank { "Hello! This is my voice." })
+            }.toString()
+            val request = Request.Builder()
+                .url("$baseUrl/voice_create")
+                .header("Content-Type", "application/json")
+                .post(requestBody.toRequestBody("application/json".toMediaType()))
+                .build()
+            try {
+                client.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) {
+                        val bodyStr = response.body?.string().orEmpty()
+                        val parsed = JSONObject(bodyStr)
+                        Result.success(parsed.optString("name", name.trim()))
+                    } else {
+                        val errBody = response.body?.string().orEmpty()
+                        val msg = try {
+                            JSONObject(errBody).optString("error", "HTTP ${response.code}")
+                        } catch (_: Exception) {
+                            "HTTP ${response.code}"
+                        }
+                        Result.failure(IOException(msg))
+                    }
+                }
+            } catch (e: IOException) {
+                Result.failure(e)
+            }
+        }
+
+    /**
+     * Delete a custom voice from the rig. Best-effort: if the server is
+     * unreachable we still remove it locally (the profile may be orphaned).
+     */
+    suspend fun deleteCustomVoice(name: String) {
+        withContext(Dispatchers.IO) {
+            val baseUrl = settings.rigQwenUrl.trim().trimEnd('/')
+            val requestBody = JSONObject().apply { put("name", name) }.toString()
+            val request = Request.Builder()
+                .url("$baseUrl/voice_delete")
+                .header("Content-Type", "application/json")
+                .post(requestBody.toRequestBody("application/json".toMediaType()))
+                .build()
+            try {
+                client.newCall(request).execute().close()
+            } catch (e: Exception) {
+                Log.w(TAG, "voice_delete failed (ignoring): ${e.message}")
+            }
+        }
     }
 
     data class RigQwenCustomVoice(
