@@ -74,4 +74,5 @@ object TTSProviderType {
     const val ELEVENLABS = "elevenlabs"
     const val OPENAI = "openai"
     const val VOICEVOX = "voicevox"
+    const val RIG_QWEN = "rig_qwen"
 }

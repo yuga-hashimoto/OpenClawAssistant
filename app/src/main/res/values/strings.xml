@@ -393,6 +393,7 @@
     <string name="tts_provider_elevenlabs">ElevenLabs</string>
     <string name="tts_provider_openai">OpenAI TTS</string>
     <string name="tts_provider_voicevox">VOICEVOX</string>
+    <string name="tts_provider_rig_qwen">Rig Qwen TTS</string>
     <string name="elevenlabs_api_key_label">ElevenLabs API Key</string>
     <string name="elevenlabs_voice_id_label">Voice ID</string>
     <string name="elevenlabs_model_label">Model</string>
@@ -401,6 +402,13 @@
     <string name="openai_voice_label">Voice</string>
     <string name="openai_model_label">Model</string>
     <string name="voicevox_style_label">Character / Style</string>
+    <string name="rig_qwen_url_label">Server URL</string>
+    <string name="rig_qwen_speaker_label">Speaker</string>
+    <string name="rig_qwen_add_custom_voice">Add Custom Voice</string>
+    <string name="rig_qwen_voice_name_label">Voice name</string>
+    <string name="rig_qwen_voice_prompt_label">Voice description (prompt)</string>
+    <string name="rig_qwen_ref_text_label">Reference line (optional)</string>
+    <string name="add">Add</string>
     <string name="voicevox_terms_notice">VOICEVOX利用規約に同意</string>
     <string name="get_api_key">API Keyはこちらから取得</string>
     <string name="preset_voice">プリセット音声</string>
@@ -881,6 +889,8 @@
     <string name="tts_error_provider_unavailable">%1$sは利用できません</string>
     <string name="tts_error_elevenlabs_no_apikey">ElevenLabs API Keyが設定されていません</string>
     <string name="tts_error_openai_no_apikey">OpenAI API Keyが設定されていません</string>
+    <string name="tts_error_rig_qwen_no_url">Rig Qwen TTS server URLが設定されていません</string>
+    <string name="tts_provider_rig_qwen_description">Qwen3-TTS on the Windows GPU box</string>
     <string name="tts_error_voicevox_dict_missing">OpenJTalk辞書が見つかりません</string>
     <string name="tts_error_voicevox_dict_required">OpenJTalk辞書が必要です</string>
     <string name="tts_error_voicevox_not_initialized">VOICEVOXが初期化されていません</string>

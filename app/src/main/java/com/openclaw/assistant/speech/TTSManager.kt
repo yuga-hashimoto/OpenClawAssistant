@@ -26,6 +26,7 @@ class TTSManager(private val context: Context) {
         providers[TTSProviderType.LOCAL] = AndroidTTSProvider(context)
         providers[TTSProviderType.ELEVENLABS] = ElevenLabsProvider(context)
         providers[TTSProviderType.OPENAI] = OpenAIProvider(context)
+        providers[TTSProviderType.RIG_QWEN] = RigQwenTTSProvider(context)
         if (BuildConfig.FLAVOR == "full") {
             providers[TTSProviderType.VOICEVOX] = VoiceVoxProvider(context)
         }
@@ -148,6 +149,7 @@ class TTSManager(private val context: Context) {
         providers[TTSProviderType.LOCAL] = AndroidTTSProvider(context)
         providers[TTSProviderType.ELEVENLABS] = ElevenLabsProvider(context)
         providers[TTSProviderType.OPENAI] = OpenAIProvider(context)
+        providers[TTSProviderType.RIG_QWEN] = RigQwenTTSProvider(context)
         if (BuildConfig.FLAVOR == "full") {
             providers[TTSProviderType.VOICEVOX] = VoiceVoxProvider(context)
         }
@@ -191,6 +193,13 @@ class TTSManager(private val context: Context) {
                 description = "OpenAI TTS API",
                 isAvailable = true,
                 isConfigured = settings.openAiApiKey.isNotBlank()
+            ),
+            TTSProviderInfo(
+                type = TTSProviderType.RIG_QWEN,
+                displayName = "Rig Qwen TTS",
+                description = context.getString(R.string.tts_provider_rig_qwen_description),
+                isAvailable = true,
+                isConfigured = settings.rigQwenUrl.isNotBlank()
             ),
             TTSProviderInfo(
                 type = TTSProviderType.VOICEVOX,
