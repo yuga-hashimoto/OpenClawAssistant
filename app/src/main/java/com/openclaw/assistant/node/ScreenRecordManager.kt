@@ -93,7 +93,7 @@ class ScreenRecordManager(private val context: Context) {
       val height = metrics.heightPixels
       val densityDpi = metrics.densityDpi
 
-      val file = File.createTempFile("openclaw-screen-", ".mp4")
+      val file = File.createTempFile("openclaw-screen-", ".mp4", context.cacheDir)
       if (includeAudio) ensureMicPermission()
 
       val recorder = createMediaRecorder()
